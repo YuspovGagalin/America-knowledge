@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>America Bowl Finals 1-on-1 & Listening Trainer</title>
+<style>
+  :root { --navy: #0f172a; --blue: #1d4ed8; --red: #b91c1c; --gold: #d97706; --bg: #f1f5f9; --correct: #15803d; --wrong: #b91c1c; }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: #1e293b; margin: 0; padding: 16px; }
+  .container { max-width: 800px; margin: 0 auto; background: #fff; border-radius: 14px; box-shadow: 0 6px 20px rgba(0,0,0,0.08); padding: 24px; }
+  h1 { margin: 0 0 6px; color: var(--navy); font-size: 1.45rem; text-align: center; }
+  .subtitle { text-align: center; color: #64748b; font-size: 0.9rem; margin-bottom: 16px; }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid #e2e8f0; }
+  select, .btn { padding: 8px 13px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.88rem; cursor: pointer; background: #fff; font-weight: 600; color: #1e293b; }
+  .btn.navy { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .btn.red { background: var(--red); color: #fff; border-color: var(--red); }
+  .btn.gold { background: var(--gold); color: #fff; border-color: var(--gold); }
+  .btn.active-mode { outline: 3px solid #93c5fd; }
+  .audio-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; background: #eff6ff; border: 1px solid #bfdbfe; padding: 10px 14px; border-radius: 10px; margin-bottom: 14px; }
+  .audio-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .btn-audio { background: var(--blue); color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.9rem; }
+  .status-bar { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 10px 14px; border-radius: 8px; margin-bottom: 14px; font-weight: 600; font-size: 0.92rem; }
+  .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; background: #dbeafe; color: var(--blue); margin-left: 6px; }
+  .clue-tag { display: inline-block; padding: 3px 9px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; background: #fef3c7; color: #92400e; margin-bottom: 6px; }
+  .question-box { font-size: 1.18rem; font-weight: 600; line-height: 1.55; margin: 10px 0 18px; color: #0f172a; min-height: 44px; }
+  .blind-mask { background: #e2e8f0; color: #475569; padding: 16px; border-radius: 10px; text-align: center; font-weight: 600; cursor: pointer; font-size: 0.98rem; }
+  .options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  @media (max-width: 560px) { .options { grid-template-columns: 1fr; } }
+  .opt-btn { text-align: left; padding: 14px 16px; border-radius: 10px; border: 2px solid #e2e8f0; background: #fff; font-size: 1rem; cursor: pointer; transition: 0.15s; font-weight: 600; color: #1e293b; }
+  .opt-btn:hover:not(:disabled) { border-color: var(--blue); background: #eff6ff; }
+  .opt-btn.correct { border-color: var(--correct); background: #dcfce7; color: #14532d; font-weight: 700; }
+  .opt-btn.wrong { border-color: var(--wrong); background: #fee2e2; color: #7f1d1d; }
+  .short-answer-box { display: none; text-align: center; margin-bottom: 16px; padding: 16px; background: #f8fafc; border-radius: 10px; border: 1px dashed #94a3b8; }
+  .feedback { display: none; padding: 14px 16px; border-radius: 10px; background: #f1f5f9; margin-bottom: 16px; line-height: 1.55; font-size: 0.95rem; border-left: 5px solid var(--navy); }
+  .nav-bar { display: flex; justify-content: space-between; gap: 10px; }
+  .nav-btn { flex: 1; padding: 12px; border-radius: 8px; border: none; font-size: 0.98rem; font-weight: 700; cursor: pointer; background: var(--navy); color: #fff; }
+  .nav-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+  .result-screen { display: none; text-align: center; padding: 20px 0; }
+  .score-big { font-size: 2.3rem; font-weight: 800; color: var(--navy); margin: 12px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🏆 America Bowl 決勝＆リスニング 1問1答システム</h1>
+  <div class="subtitle">本番仕様：1問につき1つの答え（地理・歴史・日常常識・政治 各20問／全80問）</div>
+
+  <div class="toolbar">
+    <select id="catSelect" onchange="filterByCategory()">
+      <option value="ALL">全4分野・1問1答 (80問)</option>
+      <option value="地理・位置">① 地理：州・都市の位置とランキング (20問)</option>
+      <option value="歴史・人物と年代">② 歴史：人物・紙幣・年号と出来事 (20問)</option>
+      <option value="日常常識・単位と記念日">③ 日常常識：単位換算・略語・記念日 (20問)</option>
+      <option value="政治・権利と判例">④ 政治：憲法修正・最高裁判例・分断問題 (20問)</option>
+    </select>
+    <button class="btn navy" onclick="shuffleQuestions()">🔀 シャッフル</button>
+    <button class="btn gold" id="modeToggleBtn" onclick="toggleAnswerMode()">📝 現在：4択ボタンモード (短答へ切替)</button>
+    <button class="btn red" id="retryWrongBtn" onclick="retryWrong()" style="display:none;">🔥 弱点復習 (0)</button>
+  </div>
+
+  <div class="audio-bar">
+    <div class="audio-controls">
+      <button class="btn-audio" onclick="speakCurrentQuestion()">🔊 英語で問題を聴く (Play)</button>
+      <label style="font-size:0.85rem; font-weight:600; cursor:pointer;">
+        <input type="checkbox" id="blindCheck" onchange="renderQuestion()"> 🎧 リスニング専念 (問題文を隠す)
+      </label>
+      <label style="font-size:0.85rem; font-weight:600; cursor:pointer;">
+        <input type="checkbox" id="autoPlayCheck"> 自動読み上げ
+      </label>
+    </div>
+    <div>
+      <label style="font-size:0.82rem; font-weight:600;">速度:</label>
+      <select id="rateSelect" style="padding:4px 8px; font-size:0.82rem;">
+        <option value="0.85">0.85x (ゆっくり)</option>
+        <option value="1.0" selected>1.0x (標準)</option>
+        <option value="1.15">1.15x (速め)</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="quizArea">
+    <div class="status-bar">
+      <div><span id="qProgress">Q 1 / 80</span> <span id="qCat" class="badge">地理・位置</span></div>
+      <div id="scoreText">Score: 0 / 0</div>
+    </div>
+
+    <div id="clueBadge" class="clue-tag"></div>
+    <div id="questionBox" class="question-box"></div>
+
+    <div id="optionsContainer" class="options"></div>
+
+    <div id="shortAnswerContainer" class="short-answer-box">
+      <p style="margin:0 0 10px; font-weight:600; color:#475569;">【決勝・短答モード】答えを1つ思い浮かべてからボタンを押してください</p>
+      <button class="btn navy" id="revealBtn" onclick="revealShortAnswer()">💡 正解と解説を表示する</button>
+      <div id="selfJudgeBtns" style="display:none; margin-top:12px; gap:10px; justify-content:center;">
+        <button class="btn" style="background:#15803d;color:#fff;" onclick="recordShortResult(true)">⭕ 正解できた</button>
+        <button class="btn" style="background:#b91c1c;color:#fff;" onclick="recordShortResult(false)">❌ 間違えた</button>
+      </div>
+    </div>
+
+    <div id="feedbackBox" class="feedback"></div>
+
+    <div class="nav-bar">
+      <button class="nav-btn" id="prevBtn" onclick="prevQ()">← 前の問題</button>
+      <button class="nav-btn" id="nextBtn" onclick="nextQ()">次の問題 →</button>
+    </div>
+  </div>
+
+  <div id="resultArea" class="result-screen">
+    <h2>🏆 演習スコア結果</h2>
+    <div id="finalScore" class="score-big"></div>
+    <p id="finalMsg"></p>
+    <button class="btn navy" onclick="filterByCategory()">もう一度最初から解く</button>
+    <button class="btn red" id="retryEndBtn" onclick="retryWrong()">間違えた問題だけ復習する</button>
+  </div>
+</div>
+
+<script>
+const QUIZ_DATA = [
+  // ① 地理・位置 (20問：すべて1問1答)
+  {id:1, cat:"地理・位置", type:"面積ランキング1位", q:"Which U.S. state is the largest in land area, accounting for about 17% of the nation's territory?", o:["Texas","California","Alaska","Montana"], a:2, exp:"アラスカ州は国土面積の約17%を占める面積最大の州で、2位テキサス州の約2倍の広さがあります[cite: 1]。"},
+  {id:2, cat:"地理・位置", type:"面積・人口ランキング2位", q:"Which U.S. state ranks second in both land area and population, and was once an independent republic?", o:["California","Texas","Florida","New York"], a:1, exp:"テキサス州はメキシコと接し、面積・人口ともに全米第2位の州です[cite: 1]。"},
+  {id:3, cat:"地理・位置", type:"面積最小の州", q:"Which U.S. state has the smallest land area and was founded by Roger Williams on the principle of religious freedom?", o:["Delaware","Connecticut","Rhode Island","Hawaii"], a:2, exp:"ロードアイランド州は全米で最も面積が小さい州です[cite: 1]。"},
+  {id:4, cat:"地理・位置", type:"人口ランキング1位", q:"Which U.S. state has the largest population and is home to both Silicon Valley and Hollywood?", o:["New York","Texas","Florida","California"], a:3, exp:"カリフォルニア州は全米で最も人口が多い州です[cite: 1]。"},
+  {id:5, cat:"地理・位置", type:"人口最少の州", q:"Which U.S. state has the smallest population and contains most of Yellowstone National Park?", o:["Wyoming","Vermont","Alaska","Montana"], a:0, exp:"ワイオミング州はイエローストーン国立公園の大部分を含み、全米で最も人口が少ない州です[cite: 1]。"},
+  {id:6, cat:"地理・位置", type:"人口密度ランキング1位", q:"Which U.S. state ranks first in population density?", o:["New York","New Jersey","Massachusetts","California"], a:1, exp:"ニュージャージー州は全米で最も人口密度が高い州です[cite: 1]。"},
+  {id:7, cat:"地理・位置", type:"首都ワシントンD.C.の位置", q:"Washington, D.C. is located along the Potomac River between Virginia and which other state?", o:["Maryland","Pennsylvania","Delaware","New Jersey"], a:0, exp:"ワシントンD.C.はポトマック川沿いのメリーランド州とバージニア州の間に位置しています[cite: 1]。"},
+  {id:8, cat:"地理・位置", type:"本土48州の最東端", q:"Which state is the easternmost in the contiguous 48 states and is famous for lobster production?", o:["Massachusetts","New Hampshire","Maine","Vermont"], a:2, exp:"メイン州は本土48州の中で最も東に位置し、ロブスターの生産で有名です[cite: 1]。"},
+  {id:9, cat:"地理・位置", type:"本土48州の最西端", q:"Which state is the westernmost in the contiguous 48 states, with Olympia as its capital?", o:["Oregon","California","Washington","Idaho"], a:2, exp:"ワシントン州（州都オリンピア）は本土48州で最も西に位置する州です[cite: 1]。"},
+  {id:10, cat:"地理・位置", type:"隣接する州が最も多い州", q:"Along with Missouri, which other state borders the highest number of neighboring U.S. states, touching eight states in total?", o:["Kentucky","Tennessee","Oklahoma","Illinois"], a:1, exp:"テネシー州とミズーリ州はそれぞれ8つの州と境界を接しており全米最多です[cite: 1]。"},
+  {id:11, cat:"地理・位置", type:"アメリカ最古の州都", q:"What is the oldest state capital in the United States, located in the state of New Mexico?", o:["Santa Fe","Austin","Phoenix","Denver"], a:0, exp:"ニューメキシコ州のサンタフェ（Santa Fe）はアメリカで最古の州都です[cite: 1]。"},
+  {id:12, cat:"地理・位置", type:"平均標高が最も高い州", q:"Which state has the highest average elevation in the United States and is nicknamed the 'Centennial State'?", o:["Utah","Montana","Wyoming","Colorado"], a:3, exp:"コロラド州は平均標高が約2,073mで全州中1位であり、独立100周年昇格にちなんでCentennial Stateと呼ばれます[cite: 1]。"},
+  {id:13, cat:"地理・位置", type:"コロラド州の州都", q:"What is the capital of Colorado, nicknamed the 'Mile-High City'?", o:["Salt Lake City","Denver","Cheyenne","Boise"], a:1, exp:"コロラド州の州都デンバー（Denver）は標高約1マイルにあることから「Mile-High City」と呼ばれます[cite: 1]。"},
+  {id:14, cat:"地理・位置", type:"最も乾燥している州", q:"Which state is the driest in the United States, recording only about 23 centimeters of annual precipitation?", o:["Arizona","New Mexico","Nevada","Utah"], a:2, exp:"ネバダ州はグレートベースン砂漠を含み、年間降水量が全米最少の最も乾燥している州です[cite: 1]。"},
+  {id:15, cat:"地理・位置", type:"州の形状と歴史", q:"Which state, known for its panhandle, was the terminus of the 'Trail of Tears'?", o:["Texas","Oklahoma","Kansas","Nebraska"], a:1, exp:"オクラホマ州は「涙の道（Trail of Tears）」の終着地です[cite: 1]。同州のパンハンドルは1つで、パンハンドルが2つある唯一の州はウェストバージニア州です。"},
+  {id:16, cat:"地理・位置", type:"湖が最も多い州・ミシシッピ川源流", q:"Which state is nicknamed the 'Land of 10,000 Lakes' and contains the source of the Mississippi River?", o:["Wisconsin","Michigan","Minnesota","Missouri"], a:2, exp:"ミネソタ州はミシシッピ川の源流があり、「1万の湖の地」と呼ばれます[cite: 1]。ただし、湖の数が最も多い州はアラスカ州で、5エーカー超の湖が約300万あります。ミネソタ州の11,842（10エーカー以上）とは数える基準が異なります。"},
+  {id:17, cat:"地理・位置", type:"独立記念館がある都市", q:"In which city in Pennsylvania were both the Declaration of Independence and the U.S. Constitution signed at Independence Hall?", o:["Pittsburgh","Philadelphia","Boston","Baltimore"], a:1, exp:"ペンシルベニア州フィラデルフィアの独立記念館で独立宣言と憲法が採択・署名されました[cite: 1]。"},
+  {id:18, cat:"地理・位置", type:"大西洋に面さない北東部の州", q:"Which Northeastern state does NOT border the Atlantic Ocean and is famous for producing maple syrup?", o:["Maine","New Hampshire","Vermont","Connecticut"], a:2, exp:"バーモント州は大西洋に面さない州で、メープルシロップの生産が盛んです[cite: 1]。"},
+  {id:19, cat:"地理・位置", type:"最初の州（First State）", q:"Which state is nicknamed the 'First State' because it was the first to ratify the U.S. Constitution?", o:["Virginia","Massachusetts","Pennsylvania","Delaware"], a:3, exp:"デラウェア州はアメリカ最初の州として「First State」と呼ばれます[cite: 1]。"},
+  {id:20, cat:"地理・位置", type:"ユタ州の州都", q:"What is the capital of Utah, known as the center of the Mormon Church?", o:["Salt Lake City","Las Vegas","Denver","Tucson"], a:0, exp:"ユタ州の州都はモルモン教の中心地として知られるソルトレイクシティです[cite: 1]。"},
+
+  // ② 歴史・人物と年代 (20問：すべて1問1答)
+  {id:21, cat:"歴史・人物と年代", type:"紙幣と人物（決勝過去問）", q:"Whose portrait is featured on the U.S. 1-dollar bill?", o:["Thomas Jefferson","George Washington","Abraham Lincoln","Benjamin Franklin"], a:1, exp:"アメリカの1ドル紙幣に描かれている人物は初代大統領ジョージ・ワシントンです[cite: 1]。"},
+  {id:22, cat:"歴史・人物と年代", type:"紙幣と人物（決勝過去問）", q:"Whose portrait is featured on the U.S. 20-dollar bill?", o:["Andrew Jackson","Alexander Hamilton","Ulysses S. Grant","Thomas Jefferson"], a:0, exp:"アメリカの20ドル紙幣に描かれている人物は第7代大統領アンドリュー・ジャクソンです[cite: 1]。"},
+  {id:23, cat:"歴史・人物と年代", type:"紙幣と人物（決勝過去問）", q:"Whose portrait is featured on the U.S. 100-dollar bill?", o:["George Washington","Abraham Lincoln","Alexander Hamilton","Benjamin Franklin"], a:3, exp:"アメリカの100ドル紙幣にはベンジャミン・フランクリンが描かれています[cite: 1]。"},
+  {id:24, cat:"歴史・人物と年代", type:"人物特定（建国期）", q:"Who served as the first Secretary of the Treasury at the founding of the United States?", o:["Thomas Jefferson","James Madison","Alexander Hamilton","John Adams"], a:2, exp:"アメリカ建国時の初代財務長官はアレクサンダー・ハミルトンです[cite: 1]。"},
+  {id:25, cat:"歴史・人物と年代", type:"人物特定（第3代大統領）", q:"Which 3rd U.S. President drafted the Declaration of Independence and doubled the nation's territory through the Louisiana Purchase?", o:["George Washington","Thomas Jefferson","James Madison","Andrew Jackson"], a:1, exp:"独立宣言の起草者であり、1803年のルイジアナ買収で国土を倍増させたのは第3代大統領トーマス・ジェファソンです[cite: 1]。"},
+  {id:26, cat:"歴史・人物と年代", type:"人物特定（第4代大統領）", q:"Which 4th U.S. President is known as the 'Father of the Constitution' and led the nation during the War of 1812?", o:["James Madison","Thomas Jefferson","John Adams","James Monroe"], a:0, exp:"「憲法の父」と呼ばれ、米英戦争を指導したのは第4代大統領ジェームズ・マディソンです[cite: 1]。"},
+  {id:27, cat:"歴史・人物と年代", type:"人物特定（第26代大統領）", q:"Which 26th U.S. President was the youngest to take office, promoted the 'Square Deal,' and supported the Panama Canal?", o:["Woodrow Wilson","Franklin D. Roosevelt","Theodore Roosevelt","Harry S. Truman"], a:2, exp:"最も若くして大統領に就任し、スクエア・ディールや国立公園創設を進めたのは第26代セオドア・ルーズベルトです[cite: 1]。"},
+  {id:28, cat:"歴史・人物と年代", type:"人物特定（第28代大統領）", q:"Which 28th U.S. President led the United States during World War I and proposed the League of Nations?", o:["Theodore Roosevelt","Woodrow Wilson","Franklin D. Roosevelt","Dwight D. Eisenhower"], a:1, exp:"第一次世界大戦を指導し、国際連盟の設立を提唱したのは第28代ウッドロウ・ウィルソンです[cite: 1]。"},
+  {id:29, cat:"歴史・人物と年代", type:"人物特定（第32代大統領）", q:"Which 32nd U.S. President was the only president elected to four terms and implemented the 'New Deal'?", o:["Theodore Roosevelt","Harry S. Truman","Franklin D. Roosevelt","John F. Kennedy"], a:2, exp:"唯一4期連続で選出され、大恐慌に対してニューディール政策を実施したのは第32代フランクリン・D・ルーズベルトです[cite: 1]。"},
+  {id:30, cat:"歴史・人物と年代", type:"人物特定（第34代大統領）", q:"Which 34th U.S. President built the Interstate Highway System and warned against the 'military-industrial complex'?", o:["Harry S. Truman","Dwight D. Eisenhower","John F. Kennedy","Richard Nixon"], a:1, exp:"州間高速道路網を構築し、「軍産複合体」に警鐘を鳴らしたのは第34代ドワイト・D・アイゼンハワーです[cite: 1]。"},
+  {id:31, cat:"歴史・人物と年代", type:"人物特定（史上初の辞任）", q:"Who was the first U.S. President in history to resign from office?", o:["Andrew Jackson","Richard Nixon","Ronald Reagan","Bill Clinton"], a:1, exp:"アメリカ大統領が辞任した初の事例はリチャード・ニクソンです[cite: 1]。"},
+  {id:32, cat:"歴史・人物と年代", type:"年号（ジェームズタウン設立）", q:"In what year was the first permanent English colony established at Jamestown, Virginia?", o:["1492","1607","1620","1776"], a:1, exp:"1607年にバージニア州ジェームズタウンにイギリス最初の恒久的植民地が設立されました[cite: 1]。"},
+  {id:33, cat:"歴史・人物と年代", type:"年号（メイフラワー号到着）", q:"In what year did the Pilgrims arrive at Plymouth, Massachusetts aboard the Mayflower?", o:["1607","1620","1765","1773"], a:1, exp:"ピルグリム・ファーザーズがメイフラワー号でプリマスに到着したのは1620年です[cite: 1]。"},
+  {id:34, cat:"歴史・人物と年代", type:"年号（ボストン茶会事件）", q:"In what year did the Boston Tea Party take place in protest against the Tea Act?", o:["1765","1770","1773","1775"], a:2, exp:"ボストン茶会事件（Boston Tea Party）が起きたのは1773年です[cite: 1]。"},
+  {id:35, cat:"歴史・人物と年代", type:"独立戦争の最終決戦", q:"Which 1781 battle was the final decisive battle of the American Revolutionary War?", o:["Battle of Lexington","Battle of Yorktown","Battle of Fort Sumter","Battle of Gettysburg"], a:1, exp:"1781年のヨークタウンの戦い（Battle of Yorktown）が独立戦争の最終決戦となりました[cite: 1]。"},
+  {id:36, cat:"歴史・人物と年代", type:"年号（奴隷解放宣言）", q:"In what year did President Abraham Lincoln issue the Emancipation Proclamation during the Civil War?", o:["1861","1863","1865","1870"], a:1, exp:"リンカーン大統領が奴隷解放宣言を発布したのは1863年です[cite: 1]。"},
+  {id:37, cat:"歴史・人物と年代", type:"年号（女性参政権・決勝過去問）", q:"In what year was the 19th Amendment ratified, granting women the right to vote in the United States?", o:["1870","1914","1920","1929"], a:2, exp:"決勝過去問にも出た通り、1920年に憲法修正第19条によって女性の参政権が認められました[cite: 1]。"},
+  {id:38, cat:"歴史・人物と年代", type:"年号（世界恐慌）", q:"In what year did the Great Depression begin following the Wall Street stock market crash?", o:["1920","1929","1933","1941"], a:1, exp:"ウォール街の株価暴落に端を発する世界恐慌（Great Depression）は1929年に始まりました[cite: 1]。"},
+  {id:39, cat:"歴史・人物と年代", type:"年号（キング牧師の演説）", q:"In what year did Martin Luther King Jr. deliver his famous 'I Have a Dream' speech?", o:["1954","1955","1963","1969"], a:2, exp:"キング牧師が「I Have a Dream」演説を行ったのは1963年です[cite: 1]。"},
+  {id:40, cat:"歴史・人物と年代", type:"年号（日米関係・桜の寄贈）", q:"In what year did Japan gift cherry blossom trees to Washington, D.C. as a symbol of peace and friendship?", o:["1867","1912","1917","1941"], a:1, exp:"ポトマック河畔（タイダルベイスン）の桜は1912年に日本からワシントンD.C.へ贈られました[cite: 4]。"},
+
+  // ③ 日常常識・単位と記念日 (20問：すべて1問1答)
+  {id:41, cat:"日常常識・単位と記念日", type:"単位換算（決勝過去問）", q:"Approximately how many centimeters is 6 feet?", o:["152 cm","168 cm","183 cm","204 cm"], a:2, exp:"決勝過去問に出題された通り、1フィート＝約30.48cmのため、6フィートはおおよそ183cmです[cite: 1]。"},
+  {id:42, cat:"日常常識・単位と記念日", type:"単位換算（長さ）", q:"Approximately how many centimeters is 1 inch?", o:["1.61 cm","2.54 cm","3.05 cm","3.78 cm"], a:1, exp:"1インチはおおよそ2.54センチメートルです[cite: 1]。"},
+  {id:43, cat:"日常常識・単位と記念日", type:"単位換算（距離）", q:"Approximately how many kilometers is 1 mile?", o:["1.250 km","1.609 km","2.540 km","3.785 km"], a:1, exp:"1マイルはおおよそ1.609キロメートルです[cite: 1]。"},
+  {id:44, cat:"日常常識・単位と記念日", type:"単位換算（液量）", q:"Approximately how many liters is 1 U.S. gallon?", o:["1.609 liters","2.540 liters","3.785 liters","4.546 liters"], a:2, exp:"1ガロンは約3.785リットルです[cite: 1]。"},
+  {id:45, cat:"日常常識・単位と記念日", type:"単位換算（重量）", q:"Approximately how many kilograms is 1 pound?", o:["0.305 kg","0.453 kg","0.609 kg","0.785 kg"], a:1, exp:"体重や重さに使われる1ポンドは約0.453キログラムです[cite: 1]。"},
+  {id:46, cat:"日常常識・単位と記念日", type:"単位換算（温度・華氏）", q:"In the Fahrenheit temperature scale used in the United States, what does 0 degrees Celsius equal?", o:["0°F","18°F","32°F","100°F"], a:2, exp:"華氏°F＝摂氏°C×9/5＋32の計算により、摂氏0°Cは華氏32°Fです[cite: 1]。"},
+  {id:47, cat:"日常常識・単位と記念日", type:"生活常識（電圧）", q:"What is the standard voltage of household electrical outlets in the United States?", o:["100 volts","110 volts","120 volts","220 volts"], a:2, exp:"アメリカの一般的なコンセントの電圧は120ボルトです[cite: 1]。"},
+  {id:48, cat:"日常常識・単位と記念日", type:"硬貨の種類（10セント）", q:"Which U.S. coin is worth 10 cents and is the smallest in physical size?", o:["Penny","Nickel","Dime","Quarter"], a:2, exp:"ダイム（Dime）はサイズが最も小さい硬貨ですが、価値は10セントあります[cite: 1]。"},
+  {id:49, cat:"日常常識・単位と記念日", type:"硬貨の種類（25セント）", q:"Which U.S. coin is worth 25 cents?", o:["Penny","Nickel","Dime","Quarter"], a:3, exp:"アメリカの25セント硬貨はクォーター（Quarter）と呼ばれます[cite: 1]。"},
+  {id:50, cat:"日常常識・単位と記念日", type:"略語（決勝過去問）", q:"What does the common English abbreviation 'ASAP' stand for?", o:["Always Safe And Polite","As Soon As Possible","American Standard Air Post","At Some Appointed Place"], a:1, exp:"決勝過去問にも出たASAPは「As Soon As Possible（できるだけ早く）」の略です[cite: 1]。"},
+  {id:51, cat:"日常常識・単位と記念日", type:"略語（郵便番号）", q:"What does the abbreviation 'ZIP' stand for in the U.S. postal ZIP Code system?", o:["Zone Improvement Plan","Zonal Index Post","Zero Information Process","Zone International Parcel"], a:0, exp:"郵便番号のZIP CodeにおけるZIPは「Zone Improvement Plan」の略です[cite: 1]。"},
+  {id:52, cat:"日常常識・単位と記念日", type:"略語（招待状）", q:"What does the French-derived abbreviation 'RSVP' mean on an invitation?", o:["For your information","For example","Please respond (Répondez s'il vous plaît)","Bring your own bottle"], a:2, exp:"RSVPはフランス語の「Répondez s'il vous plaît（ご返答ください）」を意味します[cite: 1]。"},
+  {id:53, cat:"日常常識・単位と記念日", type:"本土の時差", q:"What is the time difference in hours between New York (Eastern Time) and Los Angeles (Pacific Time)?", o:["2 hours","3 hours","4 hours","5 hours"], a:1, exp:"ニューヨーク（東部時間）とロサンゼルス（太平洋時間）の時差は3時間です[cite: 1]。"},
+  {id:54, cat:"日常常識・単位と記念日", type:"夏時間（Daylight Saving Time）", q:"Along with Hawaii, which other U.S. state does NOT observe Daylight Saving Time?", o:["Alaska","California","Arizona","Nevada"], a:2, exp:"ハワイ州とアリゾナ州では夏時間（Daylight Saving Time）を採用していません[cite: 1]。"},
+  {id:55, cat:"日常常識・単位と記念日", type:"高校・大学の学年呼称", q:"What are second-year (10th grade) students in U.S. high schools and colleges called?", o:["Freshman","Sophomore","Junior","Senior"], a:1, exp:"1年生はFreshman、2年生（10th grade）はSophomore、3年生はJunior、4年生はSeniorと呼ばれます[cite: 1]。"},
+  {id:56, cat:"日常常識・単位と記念日", type:"記念日（5月最終月曜日）", q:"Which federal holiday is celebrated on the last Monday of May to honor soldiers who died in military service?", o:["Veterans Day","Memorial Day","Labor Day","Presidents' Day"], a:1, exp:"5月最終月曜日のメモリアルデー（Memorial Day）は戦没者を追悼する日で、夏の始まりを象徴します[cite: 1]。"},
+  {id:57, cat:"日常常識・単位と記念日", type:"記念日（11月11日）", q:"Which federal holiday is observed on November 11 to honor all military veterans?", o:["Memorial Day","Labor Day","Veterans Day","Thanksgiving Day"], a:2, exp:"11月11日のベテランズデー（Veterans Day）は第一次世界大戦終結日に由来し、退役軍人を称える祝日です[cite: 1]。"},
+  {id:58, cat:"日常常識・単位と記念日", type:"記念日（6月19日）", q:"Which holiday on June 19 became a federal holiday in 2021 to commemorate the end of slavery in Texas?", o:["Martin Luther King Jr. Day","Juneteenth","Cinco de Mayo","Columbus Day"], a:1, exp:"6月19日のジューンティーンス（Juneteenth）は1865年テキサス州での奴隷解放宣言を記念する連邦祝日です[cite: 1]。"},
+  {id:59, cat:"日常常識・単位と記念日", type:"記念日（3月17日）", q:"In which city is the river famously dyed green to celebrate St. Patrick's Day on March 17?", o:["New York City","Boston","Chicago","New Orleans"], a:2, exp:"シカゴでは3月17日のセント・パトリックス・デーに川を緑色に染めるイベントが開催されます[cite: 1]。"},
+  {id:60, cat:"日常常識・単位と記念日", type:"記念日（10月第2月曜日）", q:"Which holiday on the second Monday of October is increasingly redefined as 'Indigenous Peoples' Day'?", o:["Labor Day","Columbus Day","Veterans Day","Boss's Day"], a:1, exp:"10月第2月曜日のコロンバスデーは近年、先住民の歴史や文化を尊重する「Indigenous Peoples' Day」として再定義される動きがあります[cite: 1]。"},
+
+  // ④ 政治・権利と判例 (20問：すべて1問1答)
+  {id:61, cat:"政治・権利と判例", type:"大統領選挙（選挙人団）", q:"How many electoral votes out of 538 are required to win the U.S. presidential election?", o:["218 votes","250 votes","270 votes","300 votes"], a:2, exp:"大統領選挙人538票のうち、当選に必要な過半数は270票です[cite: 1]。"},
+  {id:62, cat:"政治・権利と判例", type:"大統領継承順位", q:"Who is second in the presidential line of succession, immediately after the Vice President?", o:["Secretary of State","Speaker of the House","Chief Justice","Senate Majority Leader"], a:1, exp:"副大統領に次ぐ大統領継承順位の第2位は下院議長（Speaker of the House）です[cite: 1]。"},
+  {id:63, cat:"政治・権利と判例", type:"合衆国憲法の基本権利", q:"What are the first ten amendments to the U.S. Constitution, ratified in 1791, collectively called?", o:["Declaration of Independence","Articles of Confederation","Bill of Rights","Connecticut Charter"], a:2, exp:"合衆国憲法の最初の10の修正条項は「権利章典（Bill of Rights）」と呼ばれます[cite: 1]。"},
+  {id:64, cat:"政治・権利と判例", type:"憲法修正第1条", q:"Which constitutional amendment protects freedom of speech, freedom of religion, and freedom of the press?", o:["1st Amendment","2nd Amendment","4th Amendment","6th Amendment"], a:0, exp:"言論の自由・宗教の自由・報道の自由を保護しているのは憲法修正第1条（1st Amendment）です[cite: 1]。"},
+  {id:65, cat:"政治・権利と判例", type:"憲法修正第2条", q:"Which constitutional amendment guarantees the right of the people to keep and bear arms?", o:["1st Amendment","2nd Amendment","4th Amendment","8th Amendment"], a:1, exp:"武器を保持・携行する権利を保障しているのは憲法修正第2条（2nd Amendment）です[cite: 1]。"},
+  {id:66, cat:"政治・権利と判例", type:"憲法修正第13条", q:"Which constitutional amendment abolished slavery in the United States in 1865?", o:["10th Amendment","13th Amendment","14th Amendment","15th Amendment"], a:1, exp:"アメリカの奴隷制度を廃止したのは憲法修正第13条（13th Amendment）です[cite: 1]。"},
+  {id:67, cat:"政治・権利と判例", type:"憲法修正第14条", q:"Which constitutional amendment guarantees 'Equal Protection under the Law'?", o:["13th Amendment","14th Amendment","15th Amendment","19th Amendment"], a:1, exp:"「法の下の平等（Equal Protection under the Law）」を規定しているのは憲法修正第14条です[cite: 1]。"},
+  {id:68, cat:"政治・権利と判例", type:"憲法修正第15条", q:"Which constitutional amendment, ratified in 1870, prohibits denying a citizen the right to vote based on race?", o:["13th Amendment","14th Amendment","15th Amendment","22nd Amendment"], a:2, exp:"1870年批准の憲法修正第15条は、人種に基づく選挙権の否定を禁止し黒人男性の投票権を保証しました[cite: 1]。"},
+  {id:69, cat:"政治・権利と判例", type:"憲法修正第22条", q:"Which constitutional amendment limits the U.S. President to serving a maximum of two terms?", o:["15th Amendment","19th Amendment","22nd Amendment","25th Amendment"], a:2, exp:"大統領の任期を2期までに制限しているのは憲法修正第22条（22nd Amendment）です[cite: 1]。"},
+  {id:70, cat:"政治・権利と判例", type:"連邦最高裁判所", q:"How many justices serve on the Supreme Court of the United States?", o:["7 justices","9 justices","11 justices","12 justices"], a:1, exp:"アメリカ合衆国最高裁判所の裁判官は9名で構成されています[cite: 1]。"},
+  {id:71, cat:"政治・権利と判例", type:"最高裁判例（違憲審査権）", q:"Which 1803 Supreme Court case established the power of 'Judicial Review'?", o:["McCulloch v. Maryland","Marbury v. Madison","Dred Scott v. Sandford","Plessy v. Ferguson"], a:1, exp:"1803年のマーベリー対マディソン事件（Marbury v. Madison）が違憲審査権（司法審査権）を確立しました[cite: 1]。"},
+  {id:72, cat:"政治・権利と判例", type:"最高裁判例（分離すれど平等）", q:"Which 1896 Supreme Court ruling established the 'Separate but equal' doctrine to uphold racial segregation?", o:["Dred Scott v. Sandford","Plessy v. Ferguson","Brown v. Board of Education","Schenck v. United States"], a:1, exp:"1896年のプレッシー対ファーガソン事件（Plessy v. Ferguson）が「分離すれど平等」の原則で人種隔離を合憲としました[cite: 1]。"},
+  {id:73, cat:"政治・権利と判例", type:"最高裁判例（学校の人種隔離違憲）", q:"Which 1954 Supreme Court ruling declared racial segregation in public schools unconstitutional?", o:["Plessy v. Ferguson","Brown v. Board of Education","Miranda v. Arizona","Roe v. Wade"], a:1, exp:"1954年のブラウン対教育委員会事件（Brown v. Board of Education）が公立学校での人種隔離を違憲と判断しました[cite: 1]。"},
+  {id:74, cat:"政治・権利と判例", type:"最高裁判例（ミランダ権）", q:"Which 1966 Supreme Court case established the requirement that police inform suspects of their rights upon arrest?", o:["Schenck v. United States","Miranda v. Arizona","Texas v. Johnson","Citizens United v. FEC"], a:1, exp:"1966年のミランダ対アリゾナ裁判（Miranda v. Arizona）により、逮捕時の権利告知義務（ミランダ権）が確立されました[cite: 1]。"},
+  {id:75, cat:"政治・権利と判例", type:"最高裁判例（表現の自由）", q:"Which 1989 Supreme Court case ruled that burning the American flag is protected as free speech?", o:["Schenck v. United States","Texas v. Johnson","Miranda v. Arizona","McCulloch v. Maryland"], a:1, exp:"1989年のテキサス対ジョンソン事件（Texas v. Johnson）は国旗を燃やす行為も表現の自由として保護されると判断しました[cite: 1]。"},
+  {id:76, cat:"政治・権利と判例", type:"最高裁判例（同性婚合法化）", q:"Which 2015 Supreme Court case legalized same-sex marriage across all 50 states?", o:["Roe v. Wade","Citizens United v. FEC","Obergefell v. Hodges","Dobbs v. Jackson"], a:2, exp:"2015年のオバーゲフェル対ホッジス事件（Obergefell v. Hodges）が全米で同性婚を合法化しました[cite: 1]。"},
+  {id:77, cat:"政治・権利と判例", type:"最高裁判例（2022年中絶判例）", q:"Which 2022 Supreme Court case overturned Roe v. Wade and left abortion regulation to individual states?", o:["Obergefell v. Hodges","Dobbs v. Jackson Women's Health Organization","Citizens United v. FEC","Texas v. Johnson"], a:1, exp:"2022年のドブス対ジャクソン女性健康組織事件が1973年のRoe判決を覆し、中絶規制を各州の判断に委ねました[cite: 1]。"},
+  {id:78, cat:"政治・権利と判例", type:"社会分断（中絶の権利擁護）", q:"In the U.S. abortion debate, what is the movement that supports a woman's right to choose abortion called?", o:["Pro-Life Movement","Pro-Choice Movement","Red Flag Movement","Affirmative Action"], a:1, exp:"女性の身体的自己決定権を擁護し中絶権を支持する立場をプロチョイス（Pro-Choice）、反対派をプロライフ（Pro-Life）と呼びます[cite: 1]。"},
+  {id:79, cat:"政治・権利と判例", type:"社会分断（銃規制の州法）", q:"What is the name of the state laws that allow courts to temporarily confiscate firearms from dangerous individuals?", o:["Open Carry Laws","Trigger Laws","Red Flag Laws","Voter ID Laws"], a:2, exp:"危険性があると判断された人物から一時的に銃を取り上げる州法はレッドフラグ法（Red Flag Laws）と呼ばれます[cite: 1]。"},
+  {id:80, cat:"政治・権利と判例", type:"社会分断（医療保険制度改革）", q:"What is the official name of the healthcare reform law enacted under President Barack Obama ('ObamaCare')?", o:["Hyde Amendment","Affordable Care Act","Texas Heartbeat Act","Green New Deal"], a:1, exp:"オバマケアの正式名称は「患者保護および医療費負担適正化法（Affordable Care Act）」です[cite: 1]。"}
+];
+
+let pool = [...QUIZ_DATA];
+let idx = 0;
+let answers = {};
+let wrongSet = new Set();
+let isShortMode = false;
+
+function filterByCategory() {
+  const cat = document.getElementById('catSelect').value;
+  pool = cat === 'ALL' ? [...QUIZ_DATA] : QUIZ_DATA.filter(q => q.cat === cat);
+  idx = 0;
+  answers = {};
+  document.getElementById('quizArea').style.display = 'block';
+  document.getElementById('resultArea').style.display = 'none';
+  renderQuestion();
+}
+
+function shuffleQuestions() {
+  pool = [...pool].sort(() => Math.random() - 0.5);
+  idx = 0;
+  answers = {};
+  document.getElementById('quizArea').style.display = 'block';
+  document.getElementById('resultArea').style.display = 'none';
+  renderQuestion();
+}
+
+function toggleAnswerMode() {
+  isShortMode = !isShortMode;
+  const btn = document.getElementById('modeToggleBtn');
+  btn.textContent = isShortMode
+    ? "💡 現在：決勝・短答モード (4択へ切替)"
+    : "📝 現在：4択ボタンモード (短答へ切替)";
+  btn.classList.toggle('active-mode', isShortMode);
+  renderQuestion();
+}
+
+function retryWrong() {
+  if (wrongSet.size === 0) return;
+  pool = QUIZ_DATA.filter(q => wrongSet.has(q.id));
+  idx = 0;
+  answers = {};
+  document.getElementById('quizArea').style.display = 'block';
+  document.getElementById('resultArea').style.display = 'none';
+  renderQuestion();
+}
+
+function speakCurrentQuestion() {
+  if (!('speechSynthesis' in window)) {
+    alert('お使いのブラウザは音声読み上げに対応していません。');
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const q = pool[idx];
+  const utter = new SpeechSynthesisUtterance(q.q);
+  utter.lang = 'en-US';
+  utter.rate = parseFloat(document.getElementById('rateSelect').value) || 1.0;
+  window.speechSynthesis.speak(utter);
+}
+
+function calcStats() {
+  let correct = 0, answeredCount = 0;
+  pool.forEach((q, i) => {
+    if (answers[i] !== undefined) {
+      answeredCount++;
+      if (answers[i] === q.a) correct++;
+    }
+  });
+  return { correct, answeredCount };
+}
+
+function renderQuestion() {
+  const q = pool[idx];
+  const answered = answers[idx] !== undefined;
+  const isBlind = document.getElementById('blindCheck').checked && !answered;
+
+  document.getElementById('qProgress').textContent = `Q ${idx + 1} / ${pool.length} (#${q.id})`;
+  document.getElementById('qCat').textContent = q.cat;
+  document.getElementById('clueBadge').textContent = `テーマ: ${q.type}`;
+
+  const st = calcStats();
+  document.getElementById('scoreText').textContent = `Score: ${st.correct} / ${st.answeredCount}`;
+
+  const qBox = document.getElementById('questionBox');
+  if (isBlind) {
+    qBox.innerHTML = `<div class="blind-mask" onclick="document.getElementById('blindCheck').checked=false; renderQuestion();">🎧 リスニング専念モード中（「🔊 英語で問題を聴く」を押して聴き取ってください。タップで英文を表示）</div>`;
+  } else {
+    qBox.textContent = q.q;
+  }
+
+  const optContainer = document.getElementById('optionsContainer');
+  const shortContainer = document.getElementById('shortAnswerContainer');
+  const fb = document.getElementById('feedbackBox');
+
+  if (!isShortMode) {
+    optContainer.style.display = 'grid';
+    shortContainer.style.display = 'none';
+    optContainer.innerHTML = '';
+    ['A', 'B', 'C', 'D'].forEach((label, oIdx) => {
+      const b = document.createElement('button');
+      b.className = 'opt-btn';
+      b.textContent = `(${label}) ${q.o[oIdx]}`;
+      if (answered) {
+        b.disabled = true;
+        if (oIdx === q.a) b.classList.add('correct');
+        else if (oIdx === answers[idx]) b.classList.add('wrong');
+      } else {
+        b.onclick = () => chooseOption(oIdx);
+      }
+      optContainer.appendChild(b);
+    });
+  } else {
+    optContainer.style.display = 'none';
+    shortContainer.style.display = 'block';
+    document.getElementById('revealBtn').style.display = answered ? 'none' : 'inline-block';
+    document.getElementById('selfJudgeBtns').style.display = 'none';
+  }
+
+  if (answered) {
+    const isOk = answers[idx] === q.a;
+    fb.style.display = 'block';
+    fb.innerHTML = `<strong>${isOk ? '✅ 正解 (Correct)!' : '❌ 不正解・要復習'}</strong> — <strong>正解:</strong> (${['A','B','C','D'][q.a]}) ${q.o[q.a]}<br>${q.exp}`;
+  } else {
+    fb.style.display = 'none';
+  }
+
+  document.getElementById('prevBtn').disabled = idx === 0;
+  document.getElementById('nextBtn').textContent = idx === pool.length - 1 ? '結果を見る →' : '次の問題 →';
+
+  const rBtn = document.getElementById('retryWrongBtn');
+  rBtn.style.display = wrongSet.size > 0 ? 'inline-block' : 'none';
+  rBtn.textContent = `🔥 弱点復習 (${wrongSet.size})`;
+
+  if (document.getElementById('autoPlayCheck').checked && !answered) {
+    speakCurrentQuestion();
+  }
+}
+
+function chooseOption(oIdx) {
+  const q = pool[idx];
+  answers[idx] = oIdx;
+  if (oIdx === q.a) wrongSet.delete(q.id);
+  else wrongSet.add(q.id);
+  renderQuestion();
+}
+
+function revealShortAnswer() {
+  const q = pool[idx];
+  const fb = document.getElementById('feedbackBox');
+  fb.style.display = 'block';
+  fb.innerHTML = `<strong>💡 正解:</strong> ${q.o[q.a]}<br>${q.exp}`;
+  document.getElementById('revealBtn').style.display = 'none';
+  document.getElementById('selfJudgeBtns').style.display = 'flex';
+}
+
+function recordShortResult(isCorrect) {
+  const q = pool[idx];
+  answers[idx] = isCorrect ? q.a : -1;
+  if (isCorrect) wrongSet.delete(q.id);
+  else wrongSet.add(q.id);
+  renderQuestion();
+}
+
+function prevQ() {
+  if (idx > 0) { idx--; renderQuestion(); }
+}
+
+function nextQ() {
+  if (idx < pool.length - 1) {
+    idx++;
+    renderQuestion();
+  } else {
+    showFinalScreen();
+  }
+}
+
+function showFinalScreen() {
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  document.getElementById('quizArea').style.display = 'none';
+  document.getElementById('resultArea').style.display = 'block';
+  const st = calcStats();
+  const pct = pool.length ? Math.round((st.correct / pool.length) * 100) : 0;
+  document.getElementById('finalScore').textContent = `${st.correct} / ${pool.length} (${pct}%)`;
+  document.getElementById('finalMsg').textContent = wrongSet.size > 0
+    ? `現在 ${wrongSet.size} 問が弱点リストに入っています。「間違えた問題だけ復習する」から反復しましょう！`
+    : `全問クリアです！英語リスニングからの即答力もバッチリです！`;
+  document.getElementById('retryEndBtn').style.display = wrongSet.size > 0 ? 'inline-block' : 'none';
+}
+
+filterByCategory();
+</script>
+</body>
+</html>

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>America Bowl 100 Quiz Trainer</title>
+<style>
+  :root { --navy: #0a2540; --red: #d9381e; --blue: #1d4ed8; --bg: #f4f6f9; --correct: #16a34a; --wrong: #dc2626; }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: #1e293b; margin: 0; padding: 16px; }
+  .container { max-width: 780px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); padding: 24px; }
+  h1 { margin: 0 0 8px; color: var(--navy); font-size: 1.5rem; text-align: center; }
+  .subtitle { text-align: center; color: #64748b; font-size: 0.9rem; margin-bottom: 16px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #e2e8f0; }
+  select, .btn-ctrl { padding: 8px 14px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.9rem; cursor: pointer; background: #fff; font-weight: 600; }
+  .btn-ctrl.primary { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .btn-ctrl.accent { background: var(--red); color: #fff; border-color: var(--red); }
+  .status-bar { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 10px 16px; border-radius: 8px; margin-bottom: 16px; font-weight: 600; font-size: 0.95rem; }
+  .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; background: #dbeafe; color: var(--blue); }
+  .badge.bonus { background: #fef3c7; color: #b45309; margin-left: 6px; }
+  .question-box { font-size: 1.15rem; font-weight: 600; line-height: 1.5; margin: 16px 0; color: #0f172a; }
+  .options { display: grid; gap: 10px; margin-bottom: 16px; }
+  .opt-btn { text-align: left; padding: 14px 16px; border-radius: 10px; border: 2px solid #e2e8f0; background: #fff; font-size: 1rem; cursor: pointer; transition: 0.15s; font-weight: 500; color: #1e293b; }
+  .opt-btn:hover:not(:disabled) { border-color: var(--blue); background: #eff6ff; }
+  .opt-btn.correct { border-color: var(--correct); background: #dcfce7; color: #14532d; font-weight: 700; }
+  .opt-btn.wrong { border-color: var(--wrong); background: #fee2e2; color: #7f1d1d; }
+  .feedback { display: none; padding: 14px 16px; border-radius: 10px; background: #f1f5f9; margin-bottom: 16px; line-height: 1.5; font-size: 0.95rem; border-left: 5px solid var(--navy); }
+  .nav-bar { display: flex; justify-content: space-between; gap: 10px; }
+  .nav-btn { flex: 1; padding: 12px; border-radius: 8px; border: none; font-size: 1rem; font-weight: 700; cursor: pointer; background: var(--blue); color: #fff; }
+  .nav-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+  .result-screen { display: none; text-align: center; padding: 20px 0; }
+  .score-big { font-size: 2.4rem; font-weight: 800; color: var(--navy); margin: 12px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🇺🇸 America Bowl 100 Quiz Trainer</h1>
+  <div class="subtitle">第6回アメリカボウル大会 10分野・英語4択演習システム</div>
+
+  <div class="controls">
+    <select id="catSelect" onchange="startCategoryMode()">
+      <option value="ALL">全10分野 (100問すべて)</option>
+      <option value="生活常識">1. 生活常識 (Daily Life)</option>
+      <option value="歴史">2. 歴史 (History)</option>
+      <option value="文化">3. 文化 (Culture)</option>
+      <option value="芸術">4. 芸術 (Art)</option>
+      <option value="地理">5. 地理 (Geography)</option>
+      <option value="政治">6. 政治 (Politics)</option>
+      <option value="経済">7. 経済 (Economy)</option>
+      <option value="社会">8. 社会 (Society)</option>
+      <option value="科学">9. 科学 (Science)</option>
+      <option value="日米関係">10. 日米関係 (US-Japan)</option>
+    </select>
+    <button class="btn-ctrl primary" onclick="startShuffleAll()">シャッフル全問</button>
+    <button class="btn-ctrl accent" onclick="startMockExam()">予選本番モード (40問+ボーナス5問)</button>
+    <button class="btn-ctrl" id="retryBtn" onclick="startRetryWrong()" style="display:none;">間違えた問題だけ復習</button>
+  </div>
+
+  <div id="quizArea">
+    <div class="status-bar">
+      <div><span id="qProgress">Q 1 / 100</span> <span id="qCat" class="badge">生活常識</span><span id="qBonus" class="badge bonus" style="display:none;">★BONUS 3pts</span></div>
+      <div id="scoreDisplay">Score: 0</div>
+    </div>
+    <div id="questionText" class="question-box"></div>
+    <div id="optionsContainer" class="options"></div>
+    <div id="feedbackBox" class="feedback"></div>
+    <div class="nav-bar">
+      <button class="nav-btn" id="prevBtn" onclick="prevQuestion()">← 前の問題</button>
+      <button class="nav-btn" id="nextBtn" onclick="nextQuestion()">次の問題 →</button>
+    </div>
+  </div>
+
+  <div id="resultArea" class="result-screen">
+    <h2>演習結果</h2>
+    <div id="finalScore" class="score-big"></div>
+    <p id="finalComment"></p>
+    <button class="btn-ctrl primary" onclick="startCategoryMode()">最初からやり直す</button>
+    <button class="btn-ctrl accent" id="retryBtnEnd" onclick="startRetryWrong()">間違えた問題を復習する</button>
+  </div>
+</div>
+
+<script>
+const QUIZ_DATA = [
+  // 1. 生活常識 (10問)
+  {id:1, cat:"生活常識", q:"Approximately how many centimeters is 6 feet?", o:["152 cm","170 cm","183 cm","205 cm"], a:2, exp:"1フィートは約30.48cmであり、6フィートはおおよそ183cmです[cite: 1]。"},
+  {id:2, cat:"生活常識", q:"Approximately how many liters are in 1 U.S. gallon?", o:["1.609 liters","2.540 liters","3.785 liters","4.546 liters"], a:2, exp:"アメリカの液量単位である1ガロンは約3.785リットルです[cite: 1]。"},
+  {id:3, cat:"生活常識", q:"Approximately how many kilometers are in 1 mile?", o:["1.205 km","1.609 km","2.540 km","3.048 km"], a:1, exp:"1マイルは約1.609キロメートルです[cite: 1]。"},
+  {id:4, cat:"生活常識", q:"In what order are dates typically written in the United States?", o:["Day / Month / Year","Year / Month / Day","Month / Day / Year","Year / Day / Month"], a:2, exp:"アメリカでは月/日/年（MM/DD/YYYY）の順番で表記します[cite: 1]。"},
+  {id:5, cat:"生活常識", q:"What does the common abbreviation 'ASAP' stand for?", o:["Always Stay Calm and Polite","As Soon As Possible","American Standard Postal","At Some Appointed Place"], a:1, exp:"ASAPは「As Soon As Possible（できるだけ早く）」の略です[cite: 1]。"},
+  {id:6, cat:"生活常識", q:"What does 'RSVP' mean on an invitation?", o:["Bring your own bottle","For your information","Please respond (Répondez s'il vous plaît)","Formal attire required"], a:2, exp:"RSVPはフランス語の「Répondez s'il vous plaît（ご返答ください）」を意味します[cite: 1]。"},
+  {id:7, cat:"生活常識", q:"What does 'ZIP' stand for in the U.S. postal ZIP Code system?", o:["Zone Improvement Plan","Zonal Index Post","Zero Information Process","Zone International Parcel"], a:0, exp:"郵便番号のZIPは「Zone Improvement Plan」の略で、5桁または9桁で表されます[cite: 1]。"},
+  {id:8, cat:"生活常識", q:"What is the full name of the postal service abbreviated as 'USPS'?", o:["United States Parcel System","United States Postal Service","Union Standard Post Service","Universal States Post System"], a:1, exp:"USPSは「United States Postal Service」の略称です[cite: 1]。"},
+  {id:9, cat:"生活常識", q:"What is the standard recommended tipping percentage at U.S. restaurants and taxis?", o:["5% to 10%","10% to 12%","15% to 20%","25% to 30%"], a:2, exp:"飲食店やタクシーでは通常15%〜20%のチップが推奨されます[cite: 1]。"},
+  {id:10, cat:"生活常識", q:"What are the four grades of U.S. high school (9th to 12th grade) called in order?", o:["Freshman, Junior, Sophomore, Senior","Freshman, Sophomore, Junior, Senior","Sophomore, Freshman, Junior, Senior","Junior, Senior, Freshman, Sophomore"], a:1, exp:"1年生から順にFreshman、Sophomore、Junior、Seniorと呼ばれます[cite: 1]。"},
+
+  // 2. 歴史 (12問)
+  {id:11, cat:"歴史", q:"In what year did Christopher Columbus reach the Americas with Spanish support?", o:["1492","1607","1620","1776"], a:0, exp:"クリストファー・コロンブスは1492年に西インド諸島に到達しました[cite: 1]。"},
+  {id:12, cat:"歴史", q:"What was the first permanent English colony established in Virginia in 1607?", o:["Plymouth","Jamestown","Santa Fe","Philadelphia"], a:1, exp:"1607年にバージニア州に設立されたジェームズタウンがイギリス最初の恒久的植民地です[cite: 1]。"},
+  {id:13, cat:"歴史", q:"Which ship carried the Pilgrims to Plymouth, Massachusetts in 1620?", o:["Santa Maria","Mayflower","Constitution","Yorktown"], a:1, exp:"ピルグリム・ファーザーズは1620年にメイフラワー号でプリマスに到着しました[cite: 1]。"},
+  {id:14, cat:"歴史", q:"Which slogan emerged among colonists in opposition to the Stamp Act of 1765?", o:["In God We Trust","Remember the Alamo","No taxation without representation","First in Flight"], a:2, exp:"1765年の印紙法への反発から「代表なくして課税なし」のスローガンが生まれました[cite: 1]。"},
+  {id:15, cat:"歴史", q:"In 1773, colonists protested the Tea Act by dumping tea into which harbor?", o:["New York Harbor","Pearl Harbor","Boston Harbor","Charleston Harbor"], a:2, exp:"1773年のボストン茶会事件ではボストン港で紅茶が投棄されました[cite: 1]。"},
+  {id:16, cat:"歴史", q:"Where did the first battles of the American Revolutionary War take place in 1775?", o:["Lexington and Concord","Yorktown","Fort Sumter","Gettysburg"], a:0, exp:"1775年のレキシントン・コンコードの戦いが独立戦争の最初の戦闘です[cite: 1]。"},
+  {id:17, cat:"歴史", q:"Who drafted the Declaration of Independence adopted on July 4, 1776?", o:["George Washington","Thomas Jefferson","James Madison","Alexander Hamilton"], a:1, exp:"独立宣言はトーマス・ジェファソンによって起草されました[cite: 1]。"},
+  {id:18, cat:"歴史", q:"Which 1781 battle was the final decisive battle of the Revolutionary War, and which treaty ended it?", o:["Battle of Gettysburg / Treaty of Ghent","Battle of Yorktown / Treaty of Paris","Battle of Bunker Hill / Treaty of Versailles","Battle of Saratoga / Treaty of London"], a:1, exp:"1781年のヨークタウンの戦いが最終決戦となり、パリ条約で独立戦争が終結しました[cite: 1]。"},
+  {id:19, cat:"歴史", q:"From which country did the U.S. purchase the Louisiana Territory in 1803, doubling its size?", o:["Spain","United Kingdom","France","Russia"], a:2, exp:"1803年のルイジアナ買収ではフランスから広大な領土を購入しました[cite: 1]。"},
+  {id:20, cat:"歴史", q:"What 19th-century belief promoted the westward expansion of U.S. territory?", o:["Truman Doctrine","Manifest Destiny","New Deal","Square Deal"], a:1, exp:"19世紀にアメリカ領土を西へ拡大する運動はマニフェスト・デスティニーと呼ばれます[cite: 1]。"},
+  {id:21, cat:"歴史", q:"Where did the first battle of the Civil War begin in 1861, and where did the war end in 1865?", o:["Alamo / Yorktown","Fort Sumter / Appomattox Court House","Lexington / Gettysburg","Jamestown / Monticello"], a:1, exp:"南北戦争はサウスカロライナ州サムター要塞で始まり、アポマトックス裁判所での降伏で終結しました[cite: 1]。"},
+  {id:22, cat:"歴史", q:"In what year did Abraham Lincoln issue the Emancipation Proclamation, and 100 years later Martin Luther King Jr. gave his 'I Have a Dream' speech?", o:["1861 / 1961","1863 / 1963","1865 / 1965","1870 / 1970"], a:1, exp:"1863年に奴隷解放宣言が発布され、その100年後の1963年にキング牧師が演説を行いました[cite: 1]。"},
+
+  // 3. 文化 (10問)
+  {id:23, cat:"文化", q:"Which creamy soup made with clams is a traditional dish of New England, especially Boston?", o:["Gumbo","Clam Chowder","Soul Food","Bisque"], a:1, exp:"クラムチャウダーはニューイングランド地域（特にボストン）で有名な伝統料理です[cite: 1]。"},
+  {id:24, cat:"文化", q:"Which traditional African American cuisine features fried catfish and collard greens?", o:["Tex-Mex","Soul Food","New England Boil","Fast Food"], a:1, exp:"揚げたナマズやカラードグリーンはソウルフードの代表料理です[cite: 1]。"},
+  {id:25, cat:"文化", q:"Which state is said to be the birthplace of the hamburger, and which dessert is described as 'As American as...'?", o:["Texas / Pumpkin Pie","Connecticut / Apple Pie","California / Key Lime Pie","New York / Cheesecake"], a:1, exp:"ハンバーガーが生まれたと言われる州はコネチカット州で、アップルパイはアメリカの象徴的デザートです[cite: 1]。"},
+  {id:26, cat:"文化", q:"What is the major shopping event held on the day after Thanksgiving (fourth Thursday in November)?", o:["Cyber Monday","Black Friday","Super Tuesday","Boxing Day"], a:1, exp:"感謝祭（11月第4木曜日）の翌日はブラックフライデーと呼ばれ、大規模なセールが行われます[cite: 1]。"},
+  {id:27, cat:"文化", q:"Which holiday on the last Monday of May honors fallen soldiers, and which holiday on November 11 honors all veterans?", o:["Labor Day / Memorial Day","Memorial Day / Veterans Day","Veterans Day / Independence Day","Presidents' Day / Columbus Day"], a:1, exp:"5月最終月曜日が戦没者追悼記念日（Memorial Day）、11月11日が退役軍人の日（Veterans Day）です[cite: 1]。"},
+  {id:28, cat:"文化", q:"Which federal holiday on June 19 commemorates the end of slavery in Texas in 1865?", o:["Juneteenth","Good Friday","Cinco de Mayo","Martin Luther King Jr. Day"], a:0, exp:"6月19日のジューンティーンス（Juneteenth）は2021年にバイデン大統領によって連邦祝日に制定されました[cite: 1]。"},
+  {id:29, cat:"文化", q:"In which city is the river famously dyed green to celebrate St. Patrick's Day on March 17?", o:["Boston","New York City","Chicago","Savannah"], a:2, exp:"シカゴではセント・パトリックス・デーに川を緑色に染めるイベントが開催されます[cite: 1]。"},
+  {id:30, cat:"文化", q:"Which February festival in New Orleans, Louisiana features parades, bead necklaces, and King Cake?", o:["Cinco de Mayo","Mardi Gras","Sundance","Coachella"], a:1, exp:"ルイジアナ州ニューオーリンズで2月に行われる祭りはマルディグラ（Mardi Gras）です[cite: 1]。"},
+  {id:31, cat:"文化", q:"Which California city hosts the traditional Rose Parade and college football Rose Bowl on New Year's Day?", o:["San Francisco","San Diego","Pasadena","Sacramento"], a:2, exp:"元旦のローズパレードとローズボウルはカリフォルニア州パサデナで開催されます[cite: 1]。"},
+  {id:32, cat:"文化", q:"Which NFL quarterback won 7 Super Bowls, and which swimmer won a record 28 Olympic medals (23 golds)?", o:["LeBron James / Carl Lewis","Tom Brady / Michael Phelps","Michael Jordan / Jesse Owens","Tiger Woods / Simone Biles"], a:1, exp:"トム・ブレイディは7度のスーパーボウル優勝、マイケル・フェルプスは金23個を含む計28個の五輪メダルを獲得しました[cite: 1]。"},
+
+  // 4. 芸術 (10問)
+  {id:33, cat:"芸術", q:"At which venue in Los Angeles are the Academy Awards (Oscars) held?", o:["Radio City Music Hall","Dolby Theatre","Kennedy Center","Madison Square Garden"], a:1, exp:"アカデミー賞授賞式はロサンゼルスのドルビー・シアターで開催されます[cite: 1]。"},
+  {id:34, cat:"芸術", q:"Which film directed by Christopher Nolan won Best Picture at the 96th Academy Awards in 2024?", o:["Poor Things","The Holdovers","Oppenheimer","The Zone of Interest"], a:2, exp:"第96回アカデミー賞ではクリストファー・ノーラン監督の『オッペンハイマー』が作品賞や監督賞を受賞しました[cite: 1]。"},
+  {id:35, cat:"芸術", q:"Which American actress won her second Best Actress Oscar at the 96th Academy Awards for 'Poor Things'?", o:["Emma Stone","Da'Vine Joy Randolph","Meryl Streep","Jennifer Lawrence"], a:0, exp:"エマ・ストーンが『哀れなるものたち』で主演女優賞を受賞しました[cite: 1]。"},
+  {id:36, cat:"芸術", q:"Which largest U.S. independent film festival was founded by Robert Redford in Park City, Utah?", o:["Tribeca Film Festival","Sundance Film Festival","SXSW","Telluride Film Festival"], a:1, exp:"ユタ州パークシティで開催されるサンダンス映画祭はロバート・レッドフォードによって設立されました[cite: 1]。"},
+  {id:37, cat:"芸術", q:"Which famous American author wrote 'Adventures of Huckleberry Finn'?", o:["Ernest Hemingway","Mark Twain","F. Scott Fitzgerald","John Steinbeck"], a:1, exp:"『ハックルベリー・フィンの冒険』の著者はマーク・トウェインです[cite: 1]。"},
+  {id:38, cat:"芸術", q:"Which historic district in New Orleans is the birthplace of jazz, and which state (capital: Nashville) is famous for country music?", o:["French Quarter / Tennessee","Bourbon Street / Kentucky","Harlem / Georgia","Silicon Valley / Missouri"], a:0, exp:"ニューオーリンズのフレンチ・クォーターはジャズ発祥の地、テネシー州（州都ナッシュビル）はカントリー音楽の中心地です[cite: 1]。"},
+  {id:39, cat:"芸術", q:"Which American artist holds the record for the most Grammy Awards won?", o:["Elvis Presley","Madonna","Beyoncé","Taylor Swift"], a:2, exp:"グラミー賞の最多受賞記録を持つアーティストはビヨンセです[cite: 1]。"},
+  {id:40, cat:"芸術", q:"What is the name of Thomas Jefferson's Virginia estate, registered as a UNESCO World Heritage site?", o:["Mount Vernon","Monticello","Independence Hall","Mesa Verde"], a:1, exp:"トーマス・ジェファソンが設計したバージニア州の邸宅はモンティチェロです[cite: 1]。"},
+  {id:41, cat:"芸術", q:"Which country gifted the Statue of Liberty to the United States in 1886 to commemorate the centennial of independence?", o:["United Kingdom","Spain","France","Italy"], a:2, exp:"自由の女神像はフランスからの贈り物として1886年に完成しました[cite: 1]。"},
+  {id:42, cat:"芸術", q:"What is the title of the monumental fresco painted on the ceiling of the U.S. Capitol Rotunda?", o:["The Declaration of Independence","Apotheosis of Washington","Crossing the Delaware","Four Freedoms"], a:1, exp:"議会議事堂ロタンダの天井には「ワシントンの神格化（Apotheosis of Washington）」が描かれています[cite: 4]。"},
+
+  // 5. 地理 (12問)
+  {id:43, cat:"地理", q:"Approximately what is the total land area of the United States, and which two countries border it?", o:["9,834,000 km² / Canada and Mexico","7,692,000 km² / Canada and Cuba","9,597,000 km² / Mexico and Bahamas","17,098,000 km² / Canada and Russia"], a:0, exp:"アメリカの総面積は約9,834,000平方キロメートル（日本の約26倍）で、カナダとメキシコの2カ国と接しています[cite: 1]。"},
+  {id:44, cat:"地理", q:"Which state is the largest in area (1st), and which state is the second largest (2nd)?", o:["Texas (1st) / California (2nd)","Alaska (1st) / Texas (2nd)","Alaska (1st) / Montana (2nd)","California (1st) / Texas (2nd)"], a:1, exp:"面積1位はアラスカ州で、2位のテキサス州の約2倍の広さがあります[cite: 1]。"},
+  {id:45, cat:"地理", q:"Which state has the smallest land area, and which state has the smallest population?", o:["Delaware / Vermont","Rhode Island / Wyoming","Connecticut / Alaska","Hawaii / North Dakota"], a:1, exp:"面積最小はロードアイランド州、人口最少はワイオミング州です[cite: 1]。"},
+  {id:46, cat:"地理", q:"Which state has the largest population, and which state has the highest population density?", o:["California / New Jersey","Texas / New York","California / Massachusetts","Florida / Rhode Island"], a:0, exp:"人口最多はカリフォルニア州、人口密度1位はニュージャージー州です[cite: 1]。"},
+  {id:47, cat:"地理", q:"What is the highest mountain peak in North America (6,190m), and in which state is it located?", o:["Mount Whitney / California","Denali / Alaska","Mount Elbert / Colorado","Mount Rainier / Washington"], a:1, exp:"北米最高峰はアラスカ州にあるデナリ山（旧マッキンリー山、標高6,190m）です[cite: 1]。"},
+  {id:48, cat:"地理", q:"Which state contains the source of the Mississippi River and is nicknamed the 'Land of 10,000 Lakes'?", o:["Wisconsin","Michigan","Minnesota","Missouri"], a:2, exp:"ミネソタ州はミシシッピ川の源流があり、「1万の湖の地」と呼ばれます[cite: 1]。"},
+  {id:49, cat:"地理", q:"Washington, D.C. is located along the Potomac River between which two states?", o:["New York and New Jersey","Pennsylvania and Delaware","Maryland and Virginia","Virginia and North Carolina"], a:2, exp:"ワシントンD.C.はメリーランド州とバージニア州の間に位置しています[cite: 1]。"},
+  {id:50, cat:"地理", q:"Which state is nicknamed the 'First State', and which state with the highest average elevation is the 'Centennial State'?", o:["Virginia / Utah","Delaware / Colorado","Pennsylvania / Montana","Massachusetts / Wyoming"], a:1, exp:"最初の州はデラウェア州（First State）、平均標高が最も高い州はコロラド州（Centennial State）です[cite: 1]。"},
+  {id:51, cat:"地理", q:"Which state is the driest in the U.S. (least precipitation), and which state has the lowest elevation point (Death Valley)?", o:["Arizona / Nevada","Nevada / California","New Mexico / Arizona","Utah / Nevada"], a:1, exp:"最も降水量が少なく乾燥しているのはネバダ州、最も標高が低いデスバレーがあるのはカリフォルニア州です[cite: 1]。"},
+  {id:52, cat:"地理", q:"Which two states border the highest number of other U.S. states (8 states each)?", o:["Texas and Oklahoma","Tennessee and Missouri","Kentucky and Ohio","Illinois and Iowa"], a:1, exp:"テネシー州とミズーリ州がそれぞれ8つの州と接しており最多です[cite: 1]。"},
+  {id:53, cat:"地理", q:"In the contiguous 48 states, which state is the easternmost (famous for lobster) and which is the westernmost?", o:["Massachusetts / California","Maine / Washington","New Hampshire / Oregon","Rhode Island / Washington"], a:1, exp:"本土48州で最も東はメイン州、最も西はワシントン州です[cite: 1]。"},
+  {id:54, cat:"地理", q:"Which state has Santa Fe, the oldest state capital in the U.S.?", o:["Arizona","Texas","New Mexico","Florida"], a:2, exp:"アメリカで最古の州都サンタフェがあるのはニューメキシコ州です[cite: 1]。"},
+
+  // 6. 政治 (12問)
+  {id:55, cat:"政治", q:"How many total electoral votes are in the Electoral College, and how many are needed to win the presidency?", o:["435 total / 218 to win","500 total / 251 to win","538 total / 270 to win","600 total / 301 to win"], a:2, exp:"選挙人の総数は538票で、当選には過半数の270票が必要です[cite: 1]。"},
+  {id:56, cat:"政治", q:"Which constitutional amendment limits the U.S. President to serving a maximum of two terms?", o:["12th Amendment","19th Amendment","22nd Amendment","25th Amendment"], a:2, exp:"大統領の2期までの任期制限は憲法修正第22条で定められています[cite: 1]。"},
+  {id:57, cat:"政治", q:"What are the constitutional age and U.S. residency requirements to become President?", o:["30 years old / 10 years","35 years old / 14 years","40 years old / 14 years","35 years old / 20 years"], a:1, exp:"大統領資格は35歳以上、アメリカ生まれ、14年以上の居住が必要です[cite: 1]。"},
+  {id:58, cat:"政治", q:"Who is second in the presidential line of succession, immediately after the Vice President?", o:["Secretary of State","Speaker of the House","President pro tempore of the Senate","Chief Justice"], a:1, exp:"大統領継承順位の第2位は下院議長（Speaker of the House）です[cite: 1]。"},
+  {id:59, cat:"政治", q:"Which animals are the traditional symbols of the Democratic Party and the Republican Party, respectively?", o:["Donkey and Elephant","Elephant and Donkey","Eagle and Bison","Bear and Lion"], a:0, exp:"民主党の象徴はロバ（Donkey）、共和党の象徴は象（Elephant）です[cite: 1]。"},
+  {id:60, cat:"政治", q:"Who was the only U.S. President elected to four terms, proposing the 'New Deal' and the 'Four Freedoms'?", o:["Theodore Roosevelt","Woodrow Wilson","Franklin D. Roosevelt","Harry S. Truman"], a:2, exp:"第32代フランクリン・D・ルーズベルト大統領が唯一4期連続で選出されました[cite: 1]。"},
+  {id:61, cat:"政治", q:"Which 4th President is called the 'Father of the Constitution', and which 7th President was nicknamed 'Old Hickory'?", o:["Thomas Jefferson / John Adams","James Madison / Andrew Jackson","James Monroe / Abraham Lincoln","Alexander Hamilton / Ulysses S. Grant"], a:1, exp:"第4代ジェームズ・マディソンは「憲法の父」、第7代アンドリュー・ジャクソンは「オールド・ヒッコリー」と呼ばれました[cite: 1]。"},
+  {id:62, cat:"政治", q:"Who was the youngest President to take office (at age 42) promoting the 'Square Deal', and who proposed the League of Nations?", o:["John F. Kennedy / Franklin D. Roosevelt","Theodore Roosevelt / Woodrow Wilson","Bill Clinton / Harry S. Truman","Barack Obama / Dwight D. Eisenhower"], a:1, exp:"最も若くして就任しスクエア・ディールを掲げたのはセオドア・ルーズベルト、国際連盟を提唱したのはウッドロウ・ウィルソンです[cite: 1]。"},
+  {id:63, cat:"政治", q:"Which 34th President built the Interstate Highway System and warned of the 'military-industrial complex', and who was the first President to resign?", o:["Harry S. Truman / Andrew Johnson","Dwight D. Eisenhower / Richard Nixon","John F. Kennedy / Gerald Ford","Ronald Reagan / Bill Clinton"], a:1, exp:"州間高速道路網を構築したのはアイゼンハワー大統領、史上初めて辞任したのはリチャード・ニクソン大統領です[cite: 1]。"},
+  {id:64, cat:"政治", q:"Which 1803 Supreme Court landmark case established the power of Judicial Review (違憲審査権)?", o:["McCulloch v. Maryland","Marbury v. Madison","Dred Scott v. Sandford","Plessy v. Ferguson"], a:1, exp:"1803年のマーベリー対マディソン事件が最高裁判所の違憲審査権を確立しました[cite: 1]。"},
+  {id:65, cat:"政治", q:"Which 1954 Supreme Court ruling overturned 'Plessy v. Ferguson' and declared racial segregation in public schools unconstitutional?", o:["Brown v. Board of Education","Miranda v. Arizona","Roe v. Wade","Texas v. Johnson"], a:0, exp:"1954年のブラウン対教育委員会事件が公立学校での人種隔離を違憲と判断しました[cite: 1]。"},
+  {id:66, cat:"政治", q:"How many justices serve on the Supreme Court, and what proportions of Congress and state legislatures are required to amend the Constitution?", o:["7 justices / 2/3 Congress & 2/3 states","9 justices / 2/3 Congress & 3/4 states","9 justices / 3/4 Congress & 3/4 states","11 justices / 2/3 Congress & 3/4 states"], a:1, exp:"最高裁判事は9名で、憲法改正には議会の3分の2の賛成と州議会の4分の3の批准が必要です[cite: 1]。"},
+
+  // 7. 経済 (8問)
+  {id:67, cat:"経済", q:"Whose portraits appear on the $1, $20, and $100 U.S. bills, respectively?", o:["Washington, Lincoln, Jefferson","Washington, Jackson, Franklin","Jefferson, Jackson, Hamilton","Washington, Hamilton, Franklin"], a:1, exp:"1ドル札はジョージ・ワシントン、20ドル札はアンドリュー・ジャクソン、100ドル札はベンジャミン・フランクリンです[cite: 1]。"},
+  {id:68, cat:"経済", q:"Who served as the first Secretary of the Treasury of the United States?", o:["Thomas Jefferson","James Madison","Alexander Hamilton","John Jay"], a:2, exp:"建国時の初代財務長官はアレクサンダー・ハミルトンです[cite: 1]。"},
+  {id:69, cat:"経済", q:"What are the values in cents of a Penny, Nickel, Dime, and Quarter, respectively?", o:["1¢, 5¢, 10¢, 25¢","1¢, 10¢, 5¢, 25¢","5¢, 1¢, 10¢, 50¢","1¢, 5¢, 20¢, 25¢"], a:0, exp:"Penny=1セント、Nickel=5セント、Dime=10セント、Quarter=25セントです[cite: 1]。"},
+  {id:70, cat:"経済", q:"Which of the following U.S. states is known for having zero state sales tax?", o:["California","New York","Oregon","Texas"], a:2, exp:"オレゴン州は消費税（Sales Tax）がゼロの州として知られています[cite: 1]。"},
+  {id:71, cat:"経済", q:"Which three-nation trade agreement among the U.S., Mexico, and Canada replaced NAFTA?", o:["TPP","USMCA","APEC","MERCOSUR"], a:1, exp:"NAFTAは現在、USMCA（米国・メキシコ・カナダ協定）に置き換わっています[cite: 1]。"},
+  {id:72, cat:"経済", q:"Which city in Michigan is called the 'Motor City', and which street in New York is the center of global finance?", o:["Chicago / Broadway","Detroit / Wall Street","Cleveland / Fifth Avenue","Indianapolis / Madison Avenue"], a:1, exp:"ミシガン州デトロイトは自動車産業の中心「モーターシティ」、金融の中心地はウォール街です[cite: 1]。"},
+  {id:73, cat:"経済", q:"Which former CEO of Berkshire Hathaway is known as the 'Oracle of Omaha' (オマハの賢人)?", o:["Elon Musk","Jeff Bezos","Warren Buffett","Bill Gates"], a:2, exp:"ウォーレン・バフェットは「オマハの賢人」と呼ばれます[cite: 1]。2025年末にCEOを退任し、2026年1月からグレッグ・エイベルがCEOを務めています。2026年9月に名誉会長となり、会長は長男のハワード・バフェットが引き継ぎました。"},
+  {id:74, cat:"経済", q:"What was President Ronald Reagan's economic policy called, and what is the movement to raise the minimum wage to 15 dollars?", o:["New Deal / Occupy Wall Street","Reaganomics / Fight for $15","Square Deal / Green New Deal","Fair Deal / Equal Pay"], a:1, exp:"第40代レーガン大統領の経済政策はレーガノミクス、最低賃金引き上げ運動は「15ドル運動（Fight for $15）」です[cite: 1]。"},
+
+  // 8. 社会 (10問)
+  {id:75, cat:"社会", q:"Which two U.S. states do NOT observe Daylight Saving Time (夏時間)?", o:["Alaska and Hawaii","Arizona and Hawaii","California and Florida","Maine and Washington"], a:1, exp:"アリゾナ州とハワイ州では夏時間を採用していません[cite: 1]。"},
+  {id:76, cat:"社会", q:"What is the legal minimum drinking age in the United States, and what is the common emergency phone number?", o:["Age 18 / 911","Age 20 / 119","Age 21 / 911","Age 21 / 999"], a:2, exp:"アメリカの飲酒可能年齢は21歳、警察・救急・消防共通の緊急通報番号は911です[cite: 1]。"},
+  {id:77, cat:"社会", q:"Which constitutional amendment protects the right to bear arms, and which organization is the prominent gun-rights lobby?", o:["1st Amendment / ACLU","2nd Amendment / National Rifle Association (NRA)","4th Amendment / Planned Parenthood","14th Amendment / NAACP"], a:1, exp:"武器保有の権利は憲法修正第2条で保障され、全米ライフル協会（NRA）が強力なロビー団体です[cite: 1]。"},
+  {id:78, cat:"社会", q:"Which 2022 Supreme Court case overturned 'Roe v. Wade' (1973) regarding abortion rights?", o:["Obergefell v. Hodges","Dobbs v. Jackson Women's Health Organization","Citizens United v. FEC","Schenck v. United States"], a:1, exp:"2022年のドブス対ジャクソン女性健康組織事件がロー対ウェイド判決を覆しました[cite: 1]。"},
+  {id:79, cat:"社会", q:"Which 2015 Supreme Court case legalized same-sex marriage across all 50 states?", o:["Obergefell v. Hodges","Lawrence v. Texas","Brown v. Board of Education","Miranda v. Arizona"], a:0, exp:"2015年のオバーゲフェル対ホッジス事件が全米で同性婚を合法化しました[cite: 1]。"},
+  {id:80, cat:"社会", q:"What is the official name of the healthcare reform law enacted under President Barack Obama ('ObamaCare')?", o:["Medicare Modernization Act","Affordable Care Act","Social Security Act","Hyde Amendment"], a:1, exp:"オバマケアの正式名称は「患者保護および医療費負担適正化法（Affordable Care Act）」です[cite: 1]。"},
+  {id:81, cat:"社会", q:"Which constitutional amendments abolished slavery (1865), guaranteed Black male voting rights (1870), and granted women's suffrage (1920)?", o:["1st, 2nd, and 4th","13th, 15th, and 19th","14th, 16th, and 18th","15th, 19th, and 22nd"], a:1, exp:"修正第13条が奴隷制廃止、修正第15条が黒人男性の投票権、修正第19条が女性参政権を規定しています[cite: 1]。"},
+  {id:82, cat:"社会", q:"In which city and state did the historic 1955 Bus Boycott of the Civil Rights Movement begin?", o:["Atlanta, Georgia","Montgomery, Alabama","Little Rock, Arkansas","Selma, Alabama"], a:1, exp:"1955年のバス・ボイコット運動はアラバマ州モンゴメリーで始まりました[cite: 1]。"},
+  {id:83, cat:"社会", q:"Which 1966 Supreme Court decision established the requirement that police inform suspects of their rights upon arrest?", o:["Gideon v. Wainwright","Miranda v. Arizona","Mapp v. Ohio","Tinker v. Des Moines"], a:1, exp:"1966年のミランダ対アリゾナ裁判により「ミランダ権」が確立されました[cite: 1]。"},
+  {id:84, cat:"社会", q:"Who wrote the 'Pledge of Allegiance' to commemorate the 400th anniversary of Columbus's arrival?", o:["Roger Williams","Francis Bellamy","Anna Jarvis","Francis Scott Key"], a:1, exp:"「忠誠の誓い（Pledge of Allegiance）」は聖職者・編集者のフランシス・ベラミーによって作成されました[cite: 1]。"},
+
+  // 9. 科学 (8問)
+  {id:85, cat:"科学", q:"Using the formula °F = °C × 9/5 + 32, what does 0°C equal in Fahrenheit?", o:["0°F","18°F","32°F","100°F"], a:2, exp:"摂氏0°Cは華氏32°Fに相当します[cite: 1]。"},
+  {id:86, cat:"科学", q:"What is the standard voltage of household electrical outlets in the United States?", o:["100 volts","110 volts","120 volts","220 volts"], a:2, exp:"アメリカで使われる最も一般的なコンセントの電圧は120ボルトです[cite: 1]。"},
+  {id:87, cat:"科学", q:"In which state is the NASA Kennedy Space Center located, and in which state is Los Alamos (where the atomic bomb was developed)?", o:["Texas / Nevada","Florida / New Mexico","California / Arizona","Virginia / Utah"], a:1, exp:"NASAケネディ宇宙センターはフロリダ州、原子爆弾が開発されたロスアラモスはニューメキシコ州にあります[cite: 1]。"},
+  {id:88, cat:"科学", q:"Which state features the Wright Brothers National Memorial and uses the slogan 'First in Flight' on its license plates?", o:["Ohio","North Carolina","Virginia","South Carolina"], a:1, exp:"ライト兄弟の初飛行の地であるノースカロライナ州が「First in Flight」の標語を使用しています[cite: 1]。"},
+  {id:89, cat:"科学", q:"Who was the first astronaut to walk on the Moon during the Apollo 11 mission in 1969?", o:["Buzz Aldrin","John Glenn","Neil Armstrong","Alan Shepard"], a:2, exp:"1969年にアポロ11号で月面に最初に降り立ったのはニール・アームストロングです[cite: 1]。"},
+  {id:90, cat:"科学", q:"Which space company is led by Elon Musk (CEO of Tesla), and which was founded by Jeff Bezos (founder of Amazon)?", o:["SpaceX / Blue Origin","Blue Origin / SpaceX","Virgin Galactic / SpaceX","Boeing / Blue Origin"], a:0, exp:"イーロン・マスクがスペースX（SpaceX）、ジェフ・ベゾスがブルーオリジン（Blue Origin）を率いています[cite: 1]。"},
+  {id:91, cat:"科学", q:"Which inventor developed the practical light bulb and founded the first U.S. electric utility, and who founded Microsoft?", o:["Nikola Tesla / Steve Jobs","Thomas Edison / Bill Gates","Alexander Graham Bell / Jeff Bezos","Benjamin Franklin / Mark Zuckerberg"], a:1, exp:"電球を発明し初の電力会社を設立したのはトーマス・エジソン、マイクロソフトを設立したのはビル・ゲイツです[cite: 1]。"},
+  {id:92, cat:"科学", q:"Which national park, designated in 1872 as the world's first national park, is famous for the Old Faithful geyser and volcanic features?", o:["Grand Canyon National Park","Yosemite National Park","Yellowstone National Park","Everglades National Park"], a:2, exp:"1872年指定のイエローストーン国立公園は世界最初の国立公園で、オールド・フェイスフル間欠泉で有名です[cite: 1]。"},
+
+  // 10. 日米関係 (8問)
+  {id:93, cat:"日米関係", q:"In what year was the America-Japan Society (日米協会) founded, and who served as its first president?", o:["1912 / Shigeru Yoshida","1917 / Kentaro Kaneko","1918 / Nobusuke Kishi","1920 / Inazo Nitobe"], a:1, exp:"一般社団法人日米協会は1917年（大正6年）に創立され、初代会長には金子堅太郎が就任しました[cite: 4]。"},
+  {id:94, cat:"日米関係", q:"Which former Prime Ministers served as presidents of the America-Japan Society, and who is the current 9th president?", o:["Ito & Okuma / Shotaro Yachi","Yoshida & Kishi / Ichiro Fujisaki","Sato & Tanaka / Kenichiro Sasae","Ikeda & Kishi / Koji Tomita"], a:1, exp:"歴代会長には吉田茂、岸信介などが就任し、現在の第9代会長は元駐米大使の藤崎一郎です[cite: 4]。"},
+  {id:95, cat:"日米関係", q:"In what year did Japan gift the famous cherry blossom trees planted along the Tidal Basin (Potomac River) in Washington, D.C.?", o:["1867","1905","1912","1917"], a:2, exp:"ポトマック河畔（タイダルベイスン）の桜は1912年に日米の平和と親善の象徴として日本から贈られました[cite: 4]。"},
+  {id:96, cat:"日米関係", q:"Which December 1941 attack in Hawaii led to the United States entering World War II?", o:["Battle of Midway","Attack on Pearl Harbor","Battle of Coral Sea","Battle of Oahu"], a:1, exp:"1941年のハワイ・真珠湾攻撃（Pearl Harbor）を機にアメリカは第二次世界大戦に参戦しました[cite: 1]。"},
+  {id:97, cat:"日米関係", q:"Which two Japanese films won Best Animated Feature and Best Visual Effects at the 96th Academy Awards in 2024?", o:["Suzume / Shin Godzilla","The Boy and the Heron / Godzilla Minus One","Mirai / Drive My Car","Spirited Away / Godzilla Minus One"], a:1, exp:"第96回アカデミー賞では『君たちはどう生きるか』が長編アニメーション賞、『ゴジラ-1.0』が日本映画初の視覚効果賞を受賞しました[cite: 1]。"},
+  {id:98, cat:"日米関係", q:"Which U.S. city do the top three winning teams of the America Bowl visit for a one-week study program?", o:["New York City","Los Angeles","Washington, D.C.","Boston"], a:2, exp:"上位3校のメンバーは約1週間のワシントンD.C.短期米国訪問プログラムに招待されます[cite: 2, 3, 4]。"},
+  {id:99, cat:"日米関係", q:"Which memorial in Washington, D.C., regularly visited on the America Bowl trip, honors the history of Japanese Americans?", o:["World War II Memorial","National Japanese American Memorial","Martin Luther King Jr. Memorial","Lincoln Memorial"], a:1, exp:"短期米国訪問プログラムでは全米日系米国人記念碑（National Japanese American Memorial）を訪問しています[cite: 2, 3, 4]。"},
+  {id:100, cat:"日米関係", q:"What is the name of the cultural exchange game held between the preliminary and final rounds of the America Bowl?", o:["AMERICA TRIVIA","TOMODACHI BINGO","KAKEHASHI QUIZ","SAKURA CHALLENGE"], a:1, exp:"大会当日は予選と決勝の間にカルチャーイベント「TOMODACHI BINGO」が行われます[cite: 3]。"}
+];
+
+let activePool = [];
+let currentIndex = 0;
+let userAnswers = {};
+let wrongIds = new Set();
+let isMockMode = false;
+
+function initPool(list, mock = false) {
+  activePool = list.map((item, idx) => ({
+    ...item,
+    isBonus: mock && idx >= 40
+  }));
+  currentIndex = 0;
+  userAnswers = {};
+  isMockMode = mock;
+  document.getElementById('quizArea').style.display = 'block';
+  document.getElementById('resultArea').style.display = 'none';
+  renderQuestion();
+}
+
+function startCategoryMode() {
+  const cat = document.getElementById('catSelect').value;
+  const filtered = cat === 'ALL' ? [...QUIZ_DATA] : QUIZ_DATA.filter(q => q.cat === cat);
+  initPool(filtered, false);
+}
+
+function startShuffleAll() {
+  const shuffled = [...QUIZ_DATA].sort(() => Math.random() - 0.5);
+  initPool(shuffled, false);
+}
+
+function startMockExam() {
+  const shuffled = [...QUIZ_DATA].sort(() => Math.random() - 0.5).slice(0, 45);
+  initPool(shuffled, true);
+}
+
+function startRetryWrong() {
+  if (wrongIds.size === 0) return;
+  const retryList = QUIZ_DATA.filter(q => wrongIds.has(q.id));
+  initPool(retryList, false);
+}
+
+function calcScore() {
+  let pts = 0, maxPts = 0;
+  activePool.forEach((q, idx) => {
+    const w = q.isBonus ? 3 : 1;
+    maxPts += w;
+    if (userAnswers[idx] === q.a) pts += w;
+  });
+  return { pts, maxPts };
+}
+
+function renderQuestion() {
+  const q = activePool[currentIndex];
+  document.getElementById('qProgress').textContent = `Q ${currentIndex + 1} / ${activePool.length} (#${q.id})`;
+  document.getElementById('qCat').textContent = q.cat;
+  document.getElementById('qBonus').style.display = q.isBonus ? 'inline-block' : 'none';
+  const sc = calcScore();
+  document.getElementById('scoreDisplay').textContent = `Score: ${sc.pts} / ${sc.maxPts}`;
+  document.getElementById('questionText').textContent = q.q;
+
+  const container = document.getElementById('optionsContainer');
+  container.innerHTML = '';
+  const answered = userAnswers[currentIndex] !== undefined;
+
+  ['A', 'B', 'C', 'D'].forEach((label, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.textContent = `(${label}) ${q.o[idx]}`;
+    if (answered) {
+      btn.disabled = true;
+      if (idx === q.a) btn.classList.add('correct');
+      else if (idx === userAnswers[currentIndex]) btn.classList.add('wrong');
+    } else {
+      btn.onclick = () => selectAnswer(idx);
+    }
+    container.appendChild(btn);
+  });
+
+  const fb = document.getElementById('feedbackBox');
+  if (answered) {
+    const isOk = userAnswers[currentIndex] === q.a;
+    fb.style.display = 'block';
+    fb.innerHTML = `<strong>${isOk ? '✅ Correct!' : '❌ Incorrect'}</strong> — 正解: (${['A','B','C','D'][q.a]}) ${q.o[q.a]}<br>${q.exp}`;
+  } else {
+    fb.style.display = 'none';
+  }
+
+  document.getElementById('prevBtn').disabled = currentIndex === 0;
+  document.getElementById('nextBtn').textContent = currentIndex === activePool.length - 1 ? '結果を見る →' : '次の問題 →';
+  document.getElementById('retryBtn').style.display = wrongIds.size > 0 ? 'inline-block' : 'none';
+}
+
+function selectAnswer(choiceIdx) {
+  const q = activePool[currentIndex];
+  userAnswers[currentIndex] = choiceIdx;
+  if (choiceIdx === q.a) wrongIds.delete(q.id);
+  else wrongIds.add(q.id);
+  renderQuestion();
+}
+
+function prevQuestion() {
+  if (currentIndex > 0) { currentIndex--; renderQuestion(); }
+}
+
+function nextQuestion() {
+  if (currentIndex < activePool.length - 1) {
+    currentIndex++;
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  document.getElementById('quizArea').style.display = 'none';
+  document.getElementById('resultArea').style.display = 'block';
+  const sc = calcScore();
+  const pct = Math.round((sc.pts / sc.maxPts) * 100);
+  document.getElementById('finalScore').textContent = `${sc.pts} / ${sc.maxPts} pts (${pct}%)`;
+  document.getElementById('finalComment').textContent = wrongIds.size > 0
+    ? `現在、復習リストに ${wrongIds.size} 問の要注意問題があります。`
+    : `素晴らしい成績です！すべての問題をクリアしました！`;
+  document.getElementById('retryBtnEnd').style.display = wrongIds.size > 0 ? 'inline-block' : 'none';
+}
+
+startCategoryMode();
+</script>
+</body>
+</html>
