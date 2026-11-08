@@ -1,0 +1,747 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>America Bowl 肖像クイズ</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --wall:#e3e7ee; --wall-deep:#d2d8e2; --paper:#fbfaf6; --ink:#17213a; --muted:#56607a; --line:#c3cad7;
+  --gilt:#9a7228; --gilt-hi:#d9be7a; --accent:#1e3a6f; --on-accent:#ffffff;
+  --ok:#21603e; --ok-bg:#dfeee5; --ng:#9d2329; --ng-bg:#f5e0e0; --shadow:rgba(23,33,58,.24);
+  --f-display:"Libre Caslon Text", Georgia, "Times New Roman", serif;
+  --f-body:"Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", system-ui, sans-serif;
+  --f-mono:"DM Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+img{max-width:100%}
+[hidden]:not([hidden=until-found i]){display:none!important}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --wall:#111725; --wall-deep:#0b101b; --paper:#1b2336; --ink:#e8ebf2; --muted:#a3acc0; --line:#313c54;
+    --gilt:#b8923f; --gilt-hi:#e3c888; --accent:#a9c1f0; --on-accent:#0e1628;
+    --ok:#86d3a8; --ok-bg:#15301f; --ng:#f2a1a5; --ng-bg:#3b1b20; --shadow:rgba(0,0,0,.55);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --wall:#111725; --wall-deep:#0b101b; --paper:#1b2336; --ink:#e8ebf2; --muted:#a3acc0; --line:#313c54;
+  --gilt:#b8923f; --gilt-hi:#e3c888; --accent:#a9c1f0; --on-accent:#0e1628;
+  --ok:#86d3a8; --ok-bg:#15301f; --ng:#f2a1a5; --ng-bg:#3b1b20; --shadow:rgba(0,0,0,.55);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--wall); color:var(--ink); font-family:var(--f-body); font-size:15px; line-height:1.7;
+  padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:24px 56px;
+}
+.wrap{max-width:1060px; margin:0 auto; display:grid; gap:22px}
+button, select, input{font:inherit; color:inherit}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+code{font-family:var(--f-mono); font-size:.88em; background:var(--wall-deep); padding:1px 5px; border-radius:2px}
+
+.eyebrow{font-family:var(--f-mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin:0}
+.top{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px; border-bottom:1px solid var(--line); padding-bottom:16px}
+.brand{min-width:0; flex:1 1 420px}
+h1{font-family:var(--f-display); font-weight:700; font-size:clamp(1.6rem, 1.1rem + 2vw, 2.4rem); line-height:1.15; margin:6px 0 8px; text-wrap:balance; letter-spacing:-.01em}
+.lede{margin:0; color:var(--muted); max-width:62ch}
+.scorebox{display:grid; justify-items:end; gap:2px}
+.scorebox .num{font-family:var(--f-mono); font-size:1.6rem; font-weight:500; font-variant-numeric:tabular-nums; line-height:1.1}
+
+.controls{display:flex; flex-wrap:wrap; gap:12px 18px; align-items:center; justify-content:space-between}
+.seg{display:flex; flex-wrap:wrap; border:1px solid var(--line); border-radius:3px; overflow:hidden; background:var(--paper)}
+.seg button{border:0; background:transparent; padding:8px 14px; cursor:pointer; font-weight:500; border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button .n{font-family:var(--f-mono); font-size:12px; color:var(--muted); margin-left:4px}
+.seg button[aria-pressed="true"]{background:var(--ink); color:var(--paper)}
+.seg button[aria-pressed="true"] .n{color:inherit; opacity:.75}
+.opts{display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center}
+.sel select{margin-left:6px; padding:6px 8px; border:1px solid var(--line); border-radius:3px; background:var(--paper)}
+.chk{display:inline-flex; gap:6px; align-items:center; cursor:pointer}
+.chk input{accent-color:var(--accent); width:16px; height:16px}
+
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:9px 16px; border-radius:3px; border:1px solid var(--line); background:transparent; cursor:pointer; font-weight:500; text-decoration:none; line-height:1.3}
+.btn:hover:not(:disabled){border-color:var(--ink)}
+.btn.primary{background:var(--accent); border-color:var(--accent); color:var(--on-accent)}
+.btn.primary:hover:not(:disabled){filter:brightness(1.08)}
+.btn.small{padding:5px 11px; font-size:.86rem}
+.btn:disabled{opacity:.4; cursor:not-allowed}
+
+.stage{display:grid; grid-template-columns:minmax(0, 5fr) minmax(0, 6fr); gap:clamp(20px, 4vw, 44px); align-items:start}
+.exhibit{margin:0; min-width:0}
+.frame{padding:11px; background:linear-gradient(145deg, var(--gilt-hi), var(--gilt) 32%, var(--gilt-hi) 52%, var(--gilt) 78%, var(--gilt-hi)); box-shadow:0 18px 34px -16px var(--shadow)}
+.mat{background:var(--paper); padding:clamp(10px, 2.6vw, 22px); box-shadow:inset 0 0 0 1px var(--line)}
+.portrait{aspect-ratio:4 / 5; width:100%; max-width:100%; background:var(--wall-deep); display:grid; place-items:center; overflow:hidden; position:relative}
+.portrait img{width:100%; height:100%; object-fit:cover; display:block}
+.portrait.is-empty{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:18px; text-align:center; color:var(--muted)}
+.portrait.is-drop{outline:3px dashed var(--accent); outline-offset:-10px}
+.sil{width:42%; max-width:150px; color:var(--line)}
+.pe-title{margin:0; font-weight:700; color:var(--ink)}
+.pe-note{margin:0; font-size:.78rem; max-width:24ch; line-height:1.5}
+.label{margin:18px auto 0; width:min(88%, 340px); background:var(--paper); border:1px solid var(--line); padding:12px 16px 13px; box-shadow:0 2px 0 var(--line)}
+.l-name{font-family:var(--f-display); font-weight:700; font-size:1.22rem; line-height:1.25; margin:5px 0 2px}
+.l-name.is-unknown{letter-spacing:.3em; color:var(--muted)}
+.l-ja{font-size:.86rem; margin:0}
+.l-meta{font-size:.8rem; color:var(--muted); margin:2px 0 0}
+
+.panel{min-width:0; display:grid; gap:14px; align-content:start}
+.qhead{display:flex; justify-content:space-between; align-items:center; gap:10px}
+.tag{font-size:.82rem; font-weight:700; color:var(--accent)}
+.pos{font-family:var(--f-mono); font-size:.86rem; color:var(--muted); font-variant-numeric:tabular-nums}
+.progress{height:3px; background:var(--line)}
+.progress span{display:block; height:100%; width:0; background:var(--gilt); transition:width .25s ease}
+.prompt{font-family:var(--f-display); font-weight:400; font-style:italic; font-size:clamp(1.7rem, 1.2rem + 2vw, 2.5rem); line-height:1.1; margin:4px 0 0}
+.prompt-ja{margin:-6px 0 0; color:var(--muted); font-size:.9rem}
+.clues{margin:0; padding:12px 16px 12px 34px; background:var(--paper); border:1px solid var(--line); display:grid; gap:6px}
+.clues li{padding-left:2px; line-height:1.6}
+.clues li::marker{font-family:var(--f-mono); color:var(--gilt); font-weight:500}
+.choices{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.choice{display:flex; gap:12px; align-items:center; text-align:left; min-height:66px; padding:11px 14px; background:var(--paper); color:var(--ink); border:1px solid var(--line); border-radius:3px; cursor:pointer; min-width:0}
+.choice:hover:not(:disabled){border-color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent)}
+.choice:disabled{cursor:default}
+.choice .k{flex:none; width:24px; height:24px; display:grid; place-items:center; font-family:var(--f-mono); font-size:12px; color:var(--muted); border:1px solid var(--line)}
+.choice .nm{min-width:0}
+.choice .en{display:block; font-family:var(--f-display); font-weight:700; font-size:1.02rem; line-height:1.25}
+.choice .ja{display:block; font-size:.78rem; color:var(--muted); margin-top:2px; line-height:1.4}
+.choice.is-ok{border-color:var(--ok); background:var(--ok-bg); box-shadow:inset 0 0 0 1px var(--ok)}
+.choice.is-ok .k{background:var(--ok); border-color:var(--ok); color:var(--paper)}
+.choice.is-ng{border-color:var(--ng); background:var(--ng-bg)}
+.choice.is-ng .k{background:var(--ng); border-color:var(--ng); color:var(--paper)}
+.choice.is-dim{opacity:.5}
+
+.feedback{background:var(--paper); border:1px solid var(--line); border-top:3px solid var(--ok); padding:14px 16px; display:grid; gap:6px}
+.feedback.ng{border-top-color:var(--ng)}
+.verdict{margin:0; font-weight:700; font-size:.9rem}
+.feedback.ok .verdict{color:var(--ok)}
+.feedback.ng .verdict{color:var(--ng)}
+.fb-name{margin:0; font-family:var(--f-display); font-weight:700; font-size:1.3rem; line-height:1.25}
+.fb-name .ja{font-family:var(--f-body); font-weight:500; font-size:.9rem; color:var(--muted); margin-left:8px}
+.fb-meta{margin:0; font-size:.86rem; color:var(--muted)}
+.fb-facts{margin:4px 0 2px; padding-left:20px; display:grid; gap:4px}
+.fb-row{display:flex; flex-wrap:wrap; gap:8px; margin-top:4px}
+
+.nav{display:flex; gap:10px}
+.nav .btn{flex:1; padding-block:11px}
+.hintrow{display:flex; gap:10px; align-items:center}
+.keys{margin:0; font-size:.78rem; color:var(--muted)}
+
+.empty, .result{background:var(--paper); border:1px solid var(--line); padding:clamp(18px, 4vw, 36px); display:grid; gap:12px; justify-items:start}
+.empty h2, .result h2{font-family:var(--f-display); margin:0; font-size:1.6rem; line-height:1.2}
+.result .big{font-family:var(--f-mono); font-size:clamp(2rem, 1.4rem + 3vw, 3.2rem); font-weight:500; margin:0; font-variant-numeric:tabular-nums; line-height:1.1}
+.result p{margin:0}
+.reswrong{display:flex; flex-wrap:wrap; gap:6px}
+.reswrong span{border:1px solid var(--ng); color:var(--ng); background:var(--ng-bg); padding:2px 9px; font-size:.84rem; border-radius:2px}
+
+.manager{border-top:1px solid var(--line); padding-top:8px}
+.manager summary{cursor:pointer; list-style:none; display:flex; align-items:center; gap:12px; padding:10px 0; font-weight:700}
+.manager summary::-webkit-details-marker{display:none}
+.manager summary::before{content:"+"; font-family:var(--f-mono); width:22px; height:22px; display:grid; place-items:center; border:1px solid var(--line); background:var(--paper); font-weight:500}
+.manager[open] summary::before{content:"−"}
+.manager summary .cnt{font-family:var(--f-mono); font-weight:400; color:var(--muted); font-size:.86rem}
+.mgr-body{display:grid; gap:16px; padding-bottom:8px}
+.mgr-body > p{margin:0; max-width:70ch}
+.bulk{display:flex; flex-wrap:wrap; gap:12px 18px; align-items:center}
+.rule{margin:0; font-size:.88rem; color:var(--muted); max-width:62ch; flex:1 1 300px}
+.status{margin:0; font-size:.88rem; min-height:1.4em}
+.groups{display:grid; gap:20px}
+.group h3{margin:0 0 8px; font-size:1rem; display:flex; gap:10px; align-items:baseline}
+.group h3 span{font-family:var(--f-mono); font-weight:400; font-size:.82rem; color:var(--muted)}
+.group ul{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap:6px}
+.row{display:flex; align-items:center; gap:10px; background:var(--paper); border:1px solid var(--line); padding:6px 8px; min-width:0}
+.thumb{flex:none; width:36px; height:45px; background:var(--wall-deep); display:grid; place-items:center; overflow:hidden; font-family:var(--f-mono); font-size:11px; color:var(--muted)}
+.thumb img{width:100%; height:100%; object-fit:cover}
+.fid{flex:none; font-family:var(--f-mono); font-size:.8rem; color:var(--muted); width:2.6em}
+.rn{min-width:0; flex:1; line-height:1.3}
+.rn b{display:block; font-family:var(--f-display); font-size:.92rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.rn small{display:block; font-size:.74rem; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.acts{flex:none; display:flex; gap:4px}
+
+.toast{position:fixed; left:50%; transform:translateX(-50%); bottom:calc(16px + env(safe-area-inset-bottom, 0px)); max-width:min(560px, calc(100% - 32px)); background:var(--ink); color:var(--paper); padding:10px 16px; border-radius:3px; font-size:.88rem; box-shadow:0 10px 24px -10px var(--shadow); z-index:20}
+
+@media (max-width: 760px){
+  .stage{grid-template-columns:minmax(0, 1fr)}
+  .exhibit{max-width:340px; width:100%; justify-self:center}
+}
+@media (max-width: 520px){
+  .choices{grid-template-columns:minmax(0, 1fr)}
+  .exhibit{max-width:250px}
+  .frame{padding:8px}
+  .label{margin-top:12px; width:100%}
+  .scorebox{justify-items:start}
+  .seg{width:100%}
+  .seg button{flex:1 1 auto}
+}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important; animation:none!important} }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <p class="eyebrow">America Bowl · Portrait Gallery</p>
+      <h1>America Bowl 肖像クイズ</h1>
+      <p class="lede">歴代大統領45人、ハリウッドスター10人、スーパーボウル歌手10人の計65人。写真かヒントを見て、4つの名前から正しい人物を選びます。</p>
+    </div>
+    <div class="scorebox" aria-live="polite">
+      <span class="eyebrow">Score</span>
+      <span id="score" class="num">0 / 0</span>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="seg" role="group" aria-label="出題範囲">
+      <button type="button" data-cat="all" aria-pressed="true">すべて<span class="n">65</span></button>
+      <button type="button" data-cat="pres" aria-pressed="false">大統領<span class="n">45</span></button>
+      <button type="button" data-cat="star" aria-pressed="false">ハリウッドスター<span class="n">10</span></button>
+      <button type="button" data-cat="sing" aria-pressed="false">スーパーボウル歌手<span class="n">10</span></button>
+    </div>
+    <div class="opts">
+      <label class="sel" for="order">順番<select id="order"><option value="shuffle">シャッフル</option><option value="seq">番号順</option></select></label>
+      <label class="chk" for="photoOnly"><input type="checkbox" id="photoOnly">写真のある人物だけ</label>
+      <button type="button" id="reviewBtn" class="btn small" hidden>間違えた問題を復習（<span id="wrongN">0</span>）</button>
+    </div>
+  </div>
+
+  <main id="stage" class="stage">
+    <figure class="exhibit">
+      <div class="frame"><div class="mat"><div id="portrait" class="portrait"></div></div></div>
+      <figcaption class="label">
+        <p id="lCat" class="eyebrow"></p>
+        <p id="lName" class="l-name"></p>
+        <p id="lJa" class="l-ja"></p>
+        <p id="lMeta" class="l-meta"></p>
+      </figcaption>
+    </figure>
+
+    <section class="panel" aria-label="問題">
+      <div class="qhead"><span id="qcat" class="tag"></span><span id="qpos" class="pos"></span></div>
+      <div class="progress" aria-hidden="true"><span id="bar"></span></div>
+      <h2 id="prompt" class="prompt"></h2>
+      <p id="promptJa" class="prompt-ja"></p>
+      <ol id="clues" class="clues"></ol>
+      <div class="hintrow"><button type="button" id="hintBtn" class="btn small">ヒントを1つ見る</button></div>
+      <div id="choices" class="choices"></div>
+      <div id="feedback" class="feedback" hidden></div>
+      <div class="nav">
+        <button type="button" id="prev" class="btn">← 前へ</button>
+        <button type="button" id="next" class="btn primary">次へ →</button>
+      </div>
+      <p class="keys">キーボードでは 1〜4 で解答、Enter で次の問題へ進めます。</p>
+    </section>
+  </main>
+
+  <section id="empty" class="empty" hidden>
+    <h2>出題できる問題がありません</h2>
+    <p id="emptyMsg"></p>
+    <button type="button" id="openMgr" class="btn primary">写真の登録を開く</button>
+  </section>
+
+  <section id="result" class="result" hidden>
+    <p class="eyebrow">Result</p>
+    <h2>結果</h2>
+    <p id="resBig" class="big"></p>
+    <p id="resMsg"></p>
+    <div id="resWrong" class="reswrong"></div>
+    <div class="nav" style="width:100%; max-width:520px">
+      <button type="button" id="again" class="btn primary">もう一度</button>
+      <button type="button" id="resReview" class="btn">間違えた問題だけ</button>
+    </div>
+  </section>
+
+  <details id="manager" class="manager">
+    <summary>写真の登録・管理 <span id="photoCount" class="cnt">0 / 65</span></summary>
+    <div class="mgr-body">
+      <p>Wikipediaから全65人の肖像・顔写真を自動で取得して表示します。ご自身で用意した画像ファイルに差し替えることも可能です（登録した写真はこのブラウザ内だけに保存されます）。</p>
+      <div class="bulk">
+        <button type="button" id="wikiFetchBtn" class="btn primary">Wikipediaから写真を自動取得</button>
+        <button type="button" id="bulkBtn" class="btn">手元の画像をまとめて読み込む</button>
+        <p class="rule">手元の画像をまとめて読み込む場合、ファイル名の先頭を番号にすると自動で振り分けます（大統領: <code>p1</code>〜<code>p46</code>、スター: <code>h1</code>〜<code>h10</code>、歌手: <code>s1</code>〜<code>s10</code>）。</p>
+      </div>
+      <p id="mgrStatus" class="status" role="status"></p>
+      <div id="roster" class="groups"></div>
+    </div>
+  </details>
+</div>
+
+<input type="file" id="single" accept="image/*" hidden>
+<input type="file" id="bulk" accept="image/*" multiple hidden>
+<div id="toast" class="toast" role="status" hidden></div>
+
+<script>
+/* ---------- 出題データ ---------- */
+const P = (n, en, ja, years, party, hints, label, wiki) => ({ id:'p'+n, cat:'pres', ord:n, en, ja, wiki:wiki||en, meta:(label || '第'+n+'代')+'大統領｜'+years+'｜'+party, hints });
+const H = (n, en, ja, meta, hints, wiki) => ({ id:'h'+n, cat:'star', ord:100+n, en, ja, wiki:wiki||en, meta, hints });
+const G = (n, en, ja, meta, hints, wiki) => ({ id:'s'+n, cat:'sing', ord:200+n, en, ja, wiki:wiki||en, meta, hints });
+
+const PEOPLE = [
+  P(1,'George Washington','ジョージ・ワシントン','1789–1797','無所属',['独立戦争で大陸軍の総司令官を務めた','1ドル紙幣と25セント硬貨の肖像','バージニア州マウントバーノンに邸宅がある'],'初代'),
+  P(2,'John Adams','ジョン・アダムズ','1797–1801','連邦党',['初代の副大統領','ホワイトハウスに初めて住んだ大統領','息子も後に第6代大統領になった']),
+  P(3,'Thomas Jefferson','トーマス・ジェファソン','1801–1809','民主共和党',['独立宣言を起草した','1803年にフランスからルイジアナを買収した','2ドル紙幣と5セント硬貨の肖像']),
+  P(4,'James Madison','ジェームズ・マディソン','1809–1817','民主共和党',['「合衆国憲法の父」と呼ばれる','権利章典（修正第1〜10条）づくりで中心的な役割を果たした','米英戦争（1812年戦争）のときの大統領']),
+  P(5,'James Monroe','ジェームズ・モンロー','1817–1825','民主共和党',['1823年、ヨーロッパと南北アメリカの相互不干渉を宣言した','政党の対立が落ち着いた「好感情の時代」の大統領','独立戦争に従軍した建国世代の大統領']),
+  P(6,'John Quincy Adams','ジョン・クインシー・アダムズ','1825–1829','民主共和党',['第2代大統領の息子','前の政権では国務長官として外交方針づくりを担った','退任後に下院議員を17年務めた']),
+  P(7,'Andrew Jackson','アンドリュー・ジャクソン','1829–1837','民主党',['20ドル紙幣の肖像','愛称は「オールド・ヒッコリー」','1830年にインディアン強制移住法に署名し「涙の道」につながった']),
+  P(8,'Martin Van Buren','マーティン・ヴァン・ビューレン','1837–1841','民主党',['独立後に生まれた最初の大統領','ニューヨーク州出身で、母語はオランダ語だった','就任直後に1837年恐慌が起きた']),
+  P(9,'William Henry Harrison','ウィリアム・ヘンリー・ハリソン','1841','ホイッグ党',['就任から約1か月で死去し、在任期間は歴代最短','先住民との「ティピカヌーの戦い」で名を上げた','孫も後に第23代大統領になった']),
+  P(10,'John Tyler','ジョン・タイラー','1841–1845','ホイッグ党',['大統領の死去によって副大統領から昇格した最初の人物','任期の最後にテキサス併合を決めた','在任中に所属政党から除名された']),
+  P(11,'James K. Polk','ジェームズ・K・ポーク','1845–1849','民主党',['米墨戦争でカリフォルニアなど西部の広い地域を獲得した','イギリスとの交渉でオレゴン問題を解決した','「明白な天命（Manifest Destiny）」の時代の大統領']),
+  P(12,'Zachary Taylor','ザカリー・テイラー','1849–1850','ホイッグ党',['米墨戦争の英雄で、愛称は「オールド・ラフ・アンド・レディ」','政治経験がないまま大統領になった軍人','在任中の1850年に病死した']),
+  P(13,'Millard Fillmore','ミラード・フィルモア','1850–1853','ホイッグ党',['ペリー提督に自分の親書を持たせて日本へ派遣した','大統領の死去で副大統領から昇格した','「1850年の妥協」に署名した']),
+  P(14,'Franklin Pierce','フランクリン・ピアース','1853–1857','民主党',['在任中の1854年に日米和親条約が結ばれた','カンザス・ネブラスカ法に署名し、奴隷制をめぐる対立が激しくなった','ニューハンプシャー州出身の唯一の大統領']),
+  P(15,'James Buchanan','ジェームズ・ブキャナン','1857–1861','民主党',['生涯独身だった唯一の大統領','在任中の1858年に日米修好通商条約が結ばれた','1860年に江戸幕府の遣米使節団とホワイトハウスで会見した']),
+  P(16,'Abraham Lincoln','エイブラハム・リンカーン','1861–1865','共和党',['南北戦争のときの大統領で、1863年に奴隷解放宣言を出した','ゲティスバーグ演説「人民の、人民による、人民のための政治」','5ドル紙幣と1セント硬貨の肖像。1865年に暗殺された']),
+  P(17,'Andrew Johnson','アンドリュー・ジョンソン','1865–1869','国民統一党',['暗殺された大統領の後を継いだ副大統領','1867年にロシアからアラスカを購入した','初めて弾劾訴追された大統領（上院で1票差の無罪）']),
+  P(18,'Ulysses S. Grant','ユリシーズ・S・グラント','1869–1877','共和党',['南北戦争で北軍の総司令官を務めた','50ドル紙幣の肖像','退任後の1879年に来日し、明治天皇と会見した']),
+  P(19,'Rutherford B. Hayes','ラザフォード・B・ヘイズ','1877–1881','共和党',['1876年の大接戦の選挙で、選挙人1票差で当選した','「1877年の妥協」で南部の再建期（Reconstruction）が終わった','ホワイトハウスのイースター・エッグ・ロールを始めた']),
+  P(20,'James A. Garfield','ジェームズ・A・ガーフィールド','1881','共和党',['就任から約4か月後に銃撃され、同じ年に死去した','在任期間は約200日','南北戦争で北軍の将軍だった']),
+  P(21,'Chester A. Arthur','チェスター・A・アーサー','1881–1885','共和党',['大統領の死去で副大統領から昇格した','公務員を試験で採用するペンドルトン法（1883年）に署名した','ホワイトハウスを大規模に改装した']),
+  P(22,'Grover Cleveland','グロバー・クリーブランド','1885–1889, 1893–1897','民主党',['連続しない2期を務めた最初の大統領','在任中にホワイトハウスで結婚式を挙げた唯一の大統領','ニューヨーク州知事やバッファロー市長を務めた'],'第22代・第24代'),
+  P(23,'Benjamin Harrison','ベンジャミン・ハリソン','1889–1893','共和党',['第9代大統領の孫','在任中にホワイトハウスに電気が引かれた','前後の任期を同じ人物（第22代・第24代）に挟まれている']),
+  P(25,'William McKinley','ウィリアム・マッキンリー','1897–1901','共和党',['1898年の米西戦争のときの大統領','1898年にハワイを併合した','2期目が始まった1901年に暗殺された']),
+  P(26,'Theodore Roosevelt','セオドア・ルーズベルト','1901–1909','共和党',['42歳で就任した史上最年少の大統領','日露戦争の講和（ポーツマス条約）を仲介し、1906年にノーベル平和賞','テディベアの名前の由来。「スクエア・ディール」を掲げた']),
+  P(27,'William Howard Taft','ウィリアム・ハワード・タフト','1909–1913','共和党',['退任後に最高裁判所長官となった唯一の大統領','1912年、妻がポトマック河畔に日本から贈られた桜を植えた','メジャーリーグで大統領の始球式を始めた']),
+  P(28,'Woodrow Wilson','ウッドロウ・ウィルソン','1913–1921','民主党',['第一次世界大戦のときの大統領','「14か条の平和原則」で国際連盟を提唱した','1919年のノーベル平和賞を受賞した']),
+  P(29,'Warren G. Harding','ウォレン・G・ハーディング','1921–1923','共和党',['「平常への復帰（Return to Normalcy）」を掲げた','日本も参加した軍縮会議、ワシントン会議（1921〜22年）を開いた','ティーポット・ドーム事件。在任中に病死した']),
+  P(30,'Calvin Coolidge','カルビン・クーリッジ','1923–1929','共和党',['口数が少なく「サイレント・カル」と呼ばれた','好景気に沸いた「狂騒の20年代」の大統領','7月4日の独立記念日生まれの唯一の大統領']),
+  P(31,'Herbert Hoover','ハーバート・フーヴァー','1929–1933','共和党',['就任した1929年に世界恐慌が始まった','ネバダ州とアリゾナ州の境にある巨大ダムの名前の由来','第一次世界大戦中にヨーロッパへの食料援助を指揮した']),
+  P(32,'Franklin D. Roosevelt','フランクリン・D・ルーズベルト','1933–1945','民主党',['ニューディール政策で世界恐慌に対応した','史上ただ一人、4回当選した大統領','10セント硬貨の肖像。第二次世界大戦中に死去した']),
+  P(33,'Harry S. Truman','ハリー・S・トルーマン','1945–1953','民主党',['第二次世界大戦を終わらせ、日本への原爆投下を決めた','1951年にサンフランシスコ講和条約と日米安全保障条約が結ばれた','朝鮮戦争のときの大統領']),
+  P(34,'Dwight D. Eisenhower','ドワイト・D・アイゼンハワー','1953–1961','共和党',['ノルマンディー上陸作戦で連合国軍の最高司令官を務めた','州間高速道路網を整備した','1960年に新しい日米安全保障条約が結ばれた（日本側は岸信介首相）']),
+  P(35,'John F. Kennedy','ジョン・F・ケネディ','1961–1963','民主党',['選挙で選ばれた最年少の大統領（43歳）','1962年のキューバ危機のときの大統領','1963年にテキサス州ダラスで暗殺された。50セント硬貨の肖像']),
+  P(36,'Lyndon B. Johnson','リンドン・B・ジョンソン','1963–1969','民主党',['1964年の公民権法に署名した','「偉大な社会（Great Society）」政策を進めた','ベトナム戦争を拡大した']),
+  P(37,'Richard Nixon','リチャード・ニクソン','1969–1974','共和党',['1972年に中国を訪問した','在任中の1972年に沖縄が日本に返還された','ウォーターゲート事件で辞任した唯一の大統領']),
+  P(38,'Gerald Ford','ジェラルド・フォード','1974–1977','共和党',['選挙で大統領にも副大統領にも選ばれずに大統領になった唯一の人物','現職大統領として初めて日本を訪問した（1974年）','前の大統領の辞任を受けて就任した']),
+  P(39,'Jimmy Carter','ジミー・カーター','1977–1981','民主党',['エジプトとイスラエルのキャンプ・デービッド合意（1978年）を仲介した','退任後の2002年にノーベル平和賞','100歳まで生き、歴代で最も長生きした大統領']),
+  P(40,'Ronald Reagan','ロナルド・レーガン','1981–1989','共和党',['元ハリウッド俳優で、カリフォルニア州知事を務めた','1987年にベルリンで「この壁を壊しなさい」と演説した','中曽根康弘首相と愛称で呼び合う関係を築いた']),
+  P(41,'George H. W. Bush','ジョージ・H・W・ブッシュ','1989–1993','共和党',['冷戦終結と湾岸戦争（1991年）のときの大統領','元CIA長官','息子も後に大統領になった']),
+  P(42,'Bill Clinton','ビル・クリントン','1993–2001','民主党',['アーカンソー州知事出身','在任中に連邦財政が黒字になった','1998年に弾劾訴追された（上院で無罪）']),
+  P(43,'George W. Bush','ジョージ・W・ブッシュ','2001–2009','共和党',['2001年の同時多発テロ（9.11）のときの大統領','父も大統領だった','元テキサス州知事']),
+  P(44,'Barack Obama','バラク・オバマ','2009–2017','民主党',['初のアフリカ系アメリカ人の大統領','2009年にノーベル平和賞','2016年、現職大統領として初めて広島を訪問した']),
+  P(45,'Donald Trump','ドナルド・トランプ','2017–2021, 2025–','共和党',['連続しない2期を務めた2人目の大統領','2025年の就任時は78歳で、就任時の年齢として史上最高齢','実業家で、テレビ番組の司会者としても知られた'],'第45代・第47代'),
+  P(46,'Joe Biden','ジョー・バイデン','2021–2025','民主党',['オバマ政権で副大統領を務めた','デラウェア州選出の上院議員を約36年務めた','2021年にジューンティーンスを連邦祝日にする法律に署名した']),
+
+  H(1,'Tom Cruise','トム・クルーズ','俳優｜『トップガン』『ミッション：インポッシブル』',['『トップガン』（1986年）と続編『トップガン マーヴェリック』（2022年）に主演','『ミッション：インポッシブル』シリーズでイーサン・ハントを演じる','危険なスタントを自分で演じることで知られる']),
+  H(2,'Leonardo DiCaprio','レオナルド・ディカプリオ','俳優｜『タイタニック』『レヴェナント：蘇えりし者』',['『タイタニック』（1997年）でジャック役','『レヴェナント：蘇えりし者』でアカデミー主演男優賞（2016年）','『インセプション』『ウルフ・オブ・ウォールストリート』にも主演']),
+  H(3,'Brad Pitt','ブラッド・ピット','俳優・プロデューサー｜『ファイト・クラブ』『F1／エフワン』',['『ワンス・アポン・ア・タイム・イン・ハリウッド』でアカデミー助演男優賞（2020年）','プロデューサーとして『それでも夜は明ける』で作品賞','『F1／エフワン』（2025年）でベテランのレーサー役']),
+  H(4,'Tom Hanks','トム・ハンクス','俳優｜『フォレスト・ガンプ』『トイ・ストーリー』',['『フィラデルフィア』と『フォレスト・ガンプ』で2年連続のアカデミー主演男優賞','『トイ・ストーリー』シリーズでウッディの声を担当','『プライベート・ライアン』『キャスト・アウェイ』に主演']),
+  H(5,'Meryl Streep','メリル・ストリープ','俳優｜『プラダを着た悪魔』『マーガレット・サッチャー 鉄の女の涙』',['アカデミー賞の演技部門で史上最多のノミネート','『プラダを着た悪魔』で鬼編集長ミランダを演じた','オスカーを3回受賞（3回目は『マーガレット・サッチャー 鉄の女の涙』）']),
+  H(6,'Julia Roberts','ジュリア・ロバーツ','俳優｜『プリティ・ウーマン』『エリン・ブロコビッチ』',['『プリティ・ウーマン』（1990年）で一躍スターに','『エリン・ブロコビッチ』でアカデミー主演女優賞（2001年）','『ノッティングヒルの恋人』『オーシャンズ11』に出演']),
+  H(7,'Denzel Washington','デンゼル・ワシントン','俳優｜『トレーニング デイ』『グラディエーターII』',['『グローリー』でアカデミー助演男優賞（1990年）','『トレーニング デイ』でアカデミー主演男優賞（2002年）','『グラディエーターII』（2024年）に出演']),
+  H(8,'Will Smith','ウィル・スミス','俳優・歌手｜『メン・イン・ブラック』『ドリームプラン』',['テレビドラマ『ベルエアのフレッシュ・プリンス』で人気者に','『メン・イン・ブラック』シリーズや実写版『アラジン』のジーニー役','『ドリームプラン』でアカデミー主演男優賞（2022年）']),
+  H(9,'Scarlett Johansson','スカーレット・ヨハンソン','俳優｜『ロスト・イン・トランスレーション』『ブラック・ウィドウ』',['東京が舞台の映画『ロスト・イン・トランスレーション』（2003年）に主演','マーベル映画でブラック・ウィドウを演じた','『ジュラシック・ワールド／復活の大地』（2025年）に主演']),
+  H(10,'Robert Downey Jr.','ロバート・ダウニー・Jr.','俳優｜『アイアンマン』『オッペンハイマー』',['マーベル映画でアイアンマン（トニー・スターク）を演じた','『オッペンハイマー』でアカデミー助演男優賞（2024年）','『シャーロック・ホームズ』シリーズで名探偵役']),
+
+  G(1,'Whitney Houston','ホイットニー・ヒューストン','歌手｜第25回スーパーボウル（1991年）国歌独唱',['第25回スーパーボウル（1991年）で国歌を独唱。湾岸戦争のさなかの名唱として知られる','映画『ボディガード』の主題歌「I Will Always Love You」','1980〜90年代を代表する歌姫']),
+  G(2,'Michael Jackson','マイケル・ジャクソン','歌手｜第27回スーパーボウル（1993年）ハーフタイムショー',['第27回スーパーボウル（1993年）のハーフタイムショーに出演。大物歌手が出る今の形のきっかけになった','「キング・オブ・ポップ」と呼ばれる','アルバム『スリラー』は史上最も売れたアルバムとされる']),
+  G(3,'Beyoncé','ビヨンセ','歌手｜第47回スーパーボウル（2013年）ハーフタイムショー',['第47回スーパーボウル（2013年）でハーフタイムショー。デスティニーズ・チャイルドの再結成も話題に','第38回（2004年）では国歌を独唱した','グラミー賞の最多受賞記録を持つ']),
+  G(4,'Bruno Mars','ブルーノ・マーズ','歌手｜第48回スーパーボウル（2014年）ハーフタイムショー',['第48回スーパーボウル（2014年）のハーフタイムショーに出演','ハワイ州ホノルル出身','「Uptown Funk」や、ROSÉとの「APT.」がヒット']),
+  G(5,'Katy Perry','ケイティ・ペリー','歌手｜第49回スーパーボウル（2015年）ハーフタイムショー',['第49回スーパーボウル（2015年）でハーフタイムショー。踊りがずれた「レフト・シャーク」が話題に','「Firework」「Roar」がヒット','2025年にブルーオリジンの宇宙船で宇宙へ飛んだ']),
+  G(6,'Lady Gaga','レディー・ガガ','歌手｜第51回スーパーボウル（2017年）ハーフタイムショー',['第50回（2016年）で国歌、第51回（2017年）でハーフタイムショー。スタジアムの屋上から登場した','映画『アリー／スター誕生』の「Shallow」でアカデミー歌曲賞','2024年のパリ五輪開会式でも歌った']),
+  G(7,'Justin Timberlake','ジャスティン・ティンバーレイク','歌手｜第52回スーパーボウル（2018年）ハーフタイムショー',['第52回スーパーボウル（2018年）でハーフタイムショー。会場のミネアポリスでプリンスに敬意を表した','ハーフタイムショーに3回出演（2001・2004・2018年）','元*NSYNC（イン・シンク）のメンバー']),
+  G(8,'Jennifer Lopez','ジェニファー・ロペス','歌手・俳優｜第54回スーパーボウル（2020年）ハーフタイムショー',['第54回スーパーボウル（2020年）でシャキーラとハーフタイムショー（マイアミ）','ニューヨーク・ブロンクス出身のプエルトリコ系','俳優としても活躍し、映画『ハスラーズ』などに出演']),
+  G(9,'Usher','アッシャー','歌手｜第58回スーパーボウル（2024年）ハーフタイムショー',['第58回スーパーボウル（2024年）でハーフタイムショー（ラスベガス）。ローラースケートを披露した','「Yeah!」が大ヒット','アトランタを拠点に活躍してきたR&B歌手'],'Usher (musician)'),
+  G(10,'Kendrick Lamar','ケンドリック・ラマー','ラッパー｜第59回スーパーボウル（2025年）ハーフタイムショー',['第59回スーパーボウル（2025年）で、ソロのラッパーとして初めてハーフタイムショーの主役に（ニューオーリンズ）','「Not Like Us」がヒット','2018年、クラシックとジャズ以外の音楽家として初めてピューリッツァー賞を受賞']),
+];
+const BY_ID = Object.fromEntries(PEOPLE.map(p => [p.id, p]));
+const CAT = {
+  pres:{ ja:'大統領', label:'President of the United States' },
+  star:{ ja:'ハリウッドスター', label:'Hollywood Star' },
+  sing:{ ja:'スーパーボウル歌手', label:'Super Bowl Performer' },
+};
+
+/* ---------- 小道具 ---------- */
+const $ = s => document.querySelector(s);
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const store = {
+  get(k, d){ try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+};
+let toastTimer;
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 4500); }
+const canSpeak = 'speechSynthesis' in window;
+function say(text){ try { if (!canSpeak) return; speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = 'en-US'; u.rate = .95; speechSynthesis.speak(u); } catch (e) {} }
+
+/* ---------- 写真の保存とWikipedia自動取得 ---------- */
+const Photos = (() => {
+  let db = null;
+  const mem = new Map(), urls = new Map();
+  const remoteUrls = new Map(Object.entries(store.get('abq-wiki-urls', {})));
+
+  const saveRemote = () => store.set('abq-wiki-urls', Object.fromEntries(remoteUrls));
+  const open = () => new Promise(res => {
+    try {
+      const r = indexedDB.open('abq-portraits', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('photos');
+      r.onsuccess = () => { db = r.result; res(); };
+      r.onerror = () => res(); r.onblocked = () => res();
+    } catch (e) { res(); }
+  });
+  const loadAll = () => new Promise(res => {
+    if (!db) return res();
+    try {
+      const req = db.transaction('photos', 'readonly').objectStore('photos').openCursor();
+      req.onsuccess = () => { const c = req.result; if (c) { if (BY_ID[c.key]) mem.set(c.key, c.value); c.continue(); } else res(); };
+      req.onerror = () => res();
+    } catch (e) { res(); }
+  });
+  const forget = id => { const u = urls.get(id); if (u) { URL.revokeObjectURL(u); urls.delete(id); } };
+  const put = (id, blob) => {
+    mem.set(id, blob); forget(id);
+    if (!db) return Promise.resolve(false);
+    return new Promise(res => {
+      try { const tx = db.transaction('photos', 'readwrite'); tx.objectStore('photos').put(blob, id); tx.oncomplete = () => res(true); tx.onerror = () => res(false); tx.onabort = () => res(false); } catch (e) { res(false); }
+    });
+  };
+  const setRemote = (id, urlStr) => {
+    if (!urlStr) return;
+    remoteUrls.set(id, urlStr);
+    saveRemote();
+  };
+  const del = id => {
+    mem.delete(id); forget(id);
+    remoteUrls.delete(id); saveRemote();
+    if (!db) return Promise.resolve();
+    return new Promise(res => {
+      try { const tx = db.transaction('photos', 'readwrite'); tx.objectStore('photos').delete(id); tx.oncomplete = () => res(); tx.onerror = () => res(); } catch (e) { res(); }
+    });
+  };
+  const has = id => mem.has(id) || remoteUrls.has(id);
+  const url = id => {
+    if (mem.has(id)) {
+      if (!urls.has(id)) urls.set(id, URL.createObjectURL(mem.get(id)));
+      return urls.get(id);
+    }
+    return remoteUrls.get(id) || '';
+  };
+  const count = () => PEOPLE.filter(p => has(p.id)).length;
+  return { open, loadAll, put, setRemote, del, url, has, hasBlob: id => mem.has(id), count, persistent:() => !!db };
+})();
+
+async function fetchWikipediaPortraits(forceAll = false){
+  const targets = PEOPLE.filter(p => forceAll || !Photos.has(p.id));
+  if (!targets.length) return;
+
+  $('#mgrStatus').textContent = 'Wikipediaから顔写真を取得しています...';
+  const batchSize = 35;
+  for (let i = 0; i < targets.length; i += batchSize) {
+    const chunk = targets.slice(i, i + batchSize);
+    const titles = chunk.map(p => p.wiki).join('|');
+    try {
+      const apiUrl = `https://en.wikipedia.org/w/api.php?action=query&redirects=1&prop=pageimages&piprop=thumbnail&pithumbsize=600&format=json&origin=*&titles=${encodeURIComponent(titles)}`;
+      const res = await fetch(apiUrl);
+      if (res.ok) {
+        const data = await res.json();
+        const q = data.query || {};
+        const normMap = new Map((q.normalized || []).map(x => [x.from, x.to]));
+        const redirMap = new Map((q.redirects || []).map(x => [x.from, x.to]));
+        const pageByTitle = new Map();
+        for (const pg of Object.values(q.pages || {})) {
+          if (pg.title && pg.thumbnail?.source) pageByTitle.set(pg.title, pg.thumbnail.source);
+        }
+        for (const p of chunk) {
+          let t = normMap.get(p.wiki) || p.wiki;
+          t = redirMap.get(t) || t;
+          const src = pageByTitle.get(t);
+          if (src) Photos.setRemote(p.id, src);
+        }
+      }
+    } catch (e) {}
+  }
+
+  const remaining = PEOPLE.filter(p => !Photos.has(p.id));
+  await Promise.all(remaining.map(async p => {
+    try {
+      const r = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(p.wiki)}`);
+      if (r.ok) {
+        const d = await r.json();
+        const src = d.thumbnail?.source || d.originalimage?.source;
+        if (src) Photos.setRemote(p.id, src);
+      }
+    } catch (e) {}
+  }));
+
+  renderRoster();
+  if (!$('#stage').hidden) render();
+  $('#mgrStatus').textContent = `全${PEOPLE.length}人中 ${Photos.count()}人の顔写真が利用可能です。`;
+
+  for (const p of PEOPLE) {
+    if (!Photos.hasBlob(p.id) && Photos.has(p.id)) {
+      const u = Photos.url(p.id);
+      fetch(u).then(r => r.ok ? r.blob() : null).then(b => { if (b) Photos.put(p.id, b); }).catch(() => {});
+    }
+  }
+}
+
+async function shrink(file){
+  try {
+    const bmp = await createImageBitmap(file);
+    const s = Math.min(1, 900 / Math.max(bmp.width, bmp.height));
+    const w = Math.max(1, Math.round(bmp.width * s)), h = Math.max(1, Math.round(bmp.height * s));
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); ctx.drawImage(bmp, 0, 0, w, h);
+    if (bmp.close) bmp.close();
+    const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', .88));
+    return blob || file;
+  } catch (e) { return file; }
+}
+function idFromName(name){
+  const m = name.toLowerCase().replace(/\.[a-z0-9]+$/, '').match(/^([phs])[\s_-]?0*(\d{1,2})(?!\d)/);
+  if (!m) return null;
+  let n = +m[2];
+  if (m[1] === 'p') { if (n === 24) n = 22; if (n === 47) n = 45; }
+  const id = m[1] + n;
+  return BY_ID[id] ? id : null;
+}
+async function addFiles(list, forcedId){
+  const files = [...list].filter(f => f.type.startsWith('image/'));
+  if (!files.length) { toast('画像ファイルが見つかりませんでした。'); return; }
+  let ok = 0; const miss = [];
+  for (const f of (forcedId ? files.slice(0, 1) : files)) {
+    const id = forcedId || idFromName(f.name);
+    if (!id) { miss.push(f.name); continue; }
+    await Photos.put(id, await shrink(f)); ok++;
+  }
+  let msg = ok ? `${ok}枚の写真を登録しました。` : '写真は登録されませんでした。';
+  if (forcedId && ok) msg = `${BY_ID[forcedId].en} の写真を登録しました。`;
+  if (miss.length) msg += ` ファイル名から人物を判別できなかった画像: ${miss.slice(0, 6).join('、')}${miss.length > 6 ? ` ほか${miss.length - 6}枚` : ''}`;
+  if (ok && !Photos.persistent()) msg += ' このブラウザでは保存できないため、ページを閉じると写真は消えます。';
+  $('#mgrStatus').textContent = msg; toast(msg);
+  renderRoster(); if (!$('#stage').hidden) render();
+}
+
+/* ---------- クイズの状態 ---------- */
+const S = { cat:'all', order:'shuffle', photoOnly:false, mode:'normal', pool:[], i:0, answers:{}, opts:{}, hints:{}, pickId:null,
+  wrong:new Set(store.get('abq-wrong', []).filter(id => BY_ID[id])) };
+const saveWrong = () => store.set('abq-wrong', [...S.wrong]);
+
+function makeOptions(p){
+  let cands = PEOPLE.filter(x => x.cat === p.cat && x.id !== p.id);
+  if (p.cat === 'pres') cands = cands.sort((a, b) => Math.abs(a.ord - p.ord) - Math.abs(b.ord - p.ord)).slice(0, 8);
+  return shuffle([p, ...shuffle(cands).slice(0, 3)]).map(x => x.id);
+}
+function buildPool(){
+  let list = S.mode === 'review' ? PEOPLE.filter(p => S.wrong.has(p.id))
+           : S.cat === 'all' ? PEOPLE.slice() : PEOPLE.filter(p => p.cat === S.cat);
+  if (S.photoOnly) list = list.filter(p => Photos.has(p.id));
+  list = S.order === 'shuffle' ? shuffle(list) : list.slice().sort((a, b) => a.ord - b.ord);
+  S.pool = list.map(p => p.id); S.i = 0; S.answers = {}; S.opts = {}; S.hints = {};
+  $('#result').hidden = true;
+  render();
+}
+function tally(){
+  let answered = 0, correct = 0;
+  for (const id of S.pool) if (S.answers[id] !== undefined) { answered++; if (S.answers[id] === id) correct++; }
+  return { answered, correct };
+}
+function updateChrome(){
+  const t = tally();
+  $('#score').textContent = `${t.correct} / ${t.answered}`;
+  $('#wrongN').textContent = S.wrong.size;
+  $('#reviewBtn').hidden = S.wrong.size === 0;
+  document.querySelectorAll('.seg button').forEach(b => b.setAttribute('aria-pressed', String(S.mode !== 'review' && b.dataset.cat === S.cat)));
+}
+
+/* ---------- 描画 ---------- */
+const SIL = '<svg class="sil" viewBox="0 0 120 140" aria-hidden="true"><circle cx="60" cy="46" r="27" fill="currentColor"/><path d="M12 140c2-36 22-56 48-56s46 20 48 56z" fill="currentColor"/></svg>';
+
+function render(){
+  updateChrome();
+  const empty = S.pool.length === 0;
+  $('#empty').hidden = !empty; $('#stage').hidden = empty;
+  if (empty) {
+    $('#result').hidden = true;
+    $('#emptyMsg').textContent = S.mode === 'review' ? '間違えた問題はもうありません。' : '写真が登録された人物がいません。下の「写真の登録・管理」から写真を取得するか、「写真のある人物だけ」をオフにしてください。';
+    return;
+  }
+  const id = S.pool[S.i], p = BY_ID[id];
+  if (!S.opts[id]) S.opts[id] = makeOptions(p);
+  const answered = S.answers[id] !== undefined;
+  const hasPhoto = Photos.has(id);
+
+  $('#qcat').textContent = (S.mode === 'review' ? '復習｜' : '') + CAT[p.cat].ja;
+  $('#qpos').textContent = `${S.i + 1} / ${S.pool.length}`;
+  $('#bar').style.width = ((S.i + 1) / S.pool.length * 100) + '%';
+
+  const pt = $('#portrait'); pt.innerHTML = '';
+  if (hasPhoto) {
+    pt.classList.remove('is-empty');
+    const img = new Image();
+    img.referrerPolicy = 'no-referrer';
+    img.src = Photos.url(id);
+    img.alt = answered ? `${p.en}の写真` : '出題中の人物の写真';
+    pt.appendChild(img);
+  } else {
+    pt.classList.add('is-empty');
+    pt.innerHTML = SIL + '<p class="pe-title">写真読込中 / 未登録</p><button type="button" class="btn small" id="addHere">この人物の写真を追加</button><p class="pe-note">画像をここにドラッグするか、貼り付けても追加できます。</p>';
+    $('#addHere').addEventListener('click', () => pickFor(id));
+  }
+
+  $('#lCat').textContent = CAT[p.cat].label;
+  const ln = $('#lName'); ln.textContent = answered ? p.en : '? ? ?'; ln.classList.toggle('is-unknown', !answered);
+  $('#lJa').textContent = answered ? p.ja : '';
+  $('#lMeta').textContent = answered ? p.meta : '名前を選ぶと表示されます';
+
+  $('#prompt').textContent = hasPhoto ? 'Who is this?' : 'Who am I?';
+  $('#promptJa').textContent = hasPhoto ? '写真の人物は誰でしょう？' : 'ヒントから人物を当ててください。';
+
+  const shown = hasPhoto ? (S.hints[id] || 0) : p.hints.length;
+  const cl = $('#clues'); cl.innerHTML = '';
+  p.hints.slice(0, shown).forEach(h => { const li = document.createElement('li'); li.textContent = h; cl.appendChild(li); });
+  cl.hidden = answered || shown === 0;
+  $('#hintBtn').hidden = answered || !hasPhoto || shown >= p.hints.length;
+
+  const box = $('#choices'); box.innerHTML = '';
+  S.opts[id].forEach((oid, k) => {
+    const o = BY_ID[oid], b = document.createElement('button');
+    b.type = 'button'; b.className = 'choice';
+    b.innerHTML = `<span class="k">${k + 1}</span><span class="nm"><span class="en"></span><span class="ja"></span></span>`;
+    b.querySelector('.en').textContent = o.en; b.querySelector('.ja').textContent = o.ja;
+    if (answered) {
+      b.disabled = true;
+      b.classList.add(oid === id ? 'is-ok' : oid === S.answers[id] ? 'is-ng' : 'is-dim');
+    } else b.addEventListener('click', () => answer(oid));
+    box.appendChild(b);
+  });
+
+  const fb = $('#feedback');
+  if (answered) {
+    const ok = S.answers[id] === id;
+    fb.className = 'feedback ' + (ok ? 'ok' : 'ng'); fb.hidden = false;
+    fb.innerHTML = `<p class="verdict">${ok ? '正解' : '不正解'}</p><p class="fb-name"><span class="en"></span><span class="ja"></span></p><p class="fb-meta"></p><ul class="fb-facts"></ul><div class="fb-row"></div>`;
+    fb.querySelector('.fb-name .en').textContent = p.en;
+    fb.querySelector('.fb-name .ja').textContent = p.ja;
+    fb.querySelector('.fb-meta').textContent = p.meta;
+    const ul = fb.querySelector('.fb-facts');
+    p.hints.forEach(h => { const li = document.createElement('li'); li.textContent = h; ul.appendChild(li); });
+    if (canSpeak) {
+      const sb = document.createElement('button'); sb.type = 'button'; sb.className = 'btn small'; sb.textContent = '名前の発音を聞く';
+      sb.addEventListener('click', () => say(p.en)); fb.querySelector('.fb-row').appendChild(sb);
+    }
+  } else fb.hidden = true;
+
+  $('#prev').disabled = S.i === 0;
+  $('#next').textContent = S.i === S.pool.length - 1 ? '結果を見る →' : '次へ →';
+}
+
+function answer(oid){
+  const id = S.pool[S.i];
+  if (S.answers[id] !== undefined) return;
+  S.answers[id] = oid;
+  if (oid === id) S.wrong.delete(id); else S.wrong.add(id);
+  saveWrong(); render(); $('#next').focus({ preventScroll:true });
+}
+function next(){ if (S.i < S.pool.length - 1) { S.i++; render(); } else showResult(); }
+function prev(){ if (S.i > 0) { S.i--; render(); } }
+
+function showResult(){
+  try { if (canSpeak) speechSynthesis.cancel(); } catch (e) {}
+  const t = tally(), n = S.pool.length;
+  $('#stage').hidden = true; $('#result').hidden = false;
+  $('#resBig').textContent = `${t.correct} / ${n}`;
+  const skipped = n - t.answered;
+  $('#resMsg').textContent = `正答率 ${Math.round(t.correct / n * 100)}%` + (skipped ? `（未回答 ${skipped}問）` : '') + (t.correct === n ? '。全問正解です。' : '。');
+  const wrongHere = S.pool.filter(id => S.answers[id] !== undefined && S.answers[id] !== id);
+  const rw = $('#resWrong'); rw.innerHTML = '';
+  wrongHere.forEach(id => { const s = document.createElement('span'); s.textContent = BY_ID[id].en; rw.appendChild(s); });
+  $('#resReview').hidden = S.wrong.size === 0;
+  $('#result').scrollIntoView({ block:'nearest' });
+}
+
+function renderRoster(){
+  $('#photoCount').textContent = `${Photos.count()} / ${PEOPLE.length}`;
+  const root = $('#roster'); root.innerHTML = '';
+  for (const cat of ['pres', 'star', 'sing']) {
+    const list = PEOPLE.filter(p => p.cat === cat);
+    const g = document.createElement('section'); g.className = 'group';
+    g.innerHTML = `<h3>${CAT[cat].ja}<span>${list.filter(p => Photos.has(p.id)).length} / ${list.length}</span></h3><ul></ul>`;
+    const ul = g.querySelector('ul');
+    for (const p of list) {
+      const has = Photos.has(p.id), li = document.createElement('li'); li.className = 'row';
+      li.innerHTML = `<span class="thumb">${has ? '' : '—'}</span><code class="fid"></code><span class="rn"><b></b><small></small></span><span class="acts"></span>`;
+      if (has) {
+        const im = new Image();
+        im.referrerPolicy = 'no-referrer';
+        im.src = Photos.url(p.id);
+        im.alt = '';
+        li.querySelector('.thumb').appendChild(im);
+      }
+      li.querySelector('.fid').textContent = p.id;
+      li.querySelector('b').textContent = p.en;
+      li.querySelector('small').textContent = p.ja + (p.cat === 'pres' ? '｜' + p.meta.split('｜')[0] : '');
+      const add = document.createElement('button'); add.type = 'button'; add.className = 'btn small'; add.textContent = has ? '変更' : '追加';
+      add.setAttribute('aria-label', `${p.en} の写真を${has ? '変更' : '追加'}`);
+      add.addEventListener('click', () => pickFor(p.id));
+      li.querySelector('.acts').appendChild(add);
+      if (has) {
+        const del = document.createElement('button'); del.type = 'button'; del.className = 'btn small'; del.textContent = '削除';
+        del.setAttribute('aria-label', `${p.en} の写真を削除`);
+        del.addEventListener('click', async () => { await Photos.del(p.id); $('#mgrStatus').textContent = `${p.en} の写真を削除しました。`; renderRoster(); if (!$('#stage').hidden) render(); });
+        li.querySelector('.acts').appendChild(del);
+      }
+      ul.appendChild(li);
+    }
+    root.appendChild(g);
+  }
+}
+function pickFor(id){ S.pickId = id; const inp = $('#single'); inp.value = ''; inp.click(); }
+
+/* ---------- 操作 ---------- */
+document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => { S.cat = b.dataset.cat; S.mode = 'normal'; buildPool(); }));
+$('#order').addEventListener('change', e => { S.order = e.target.value; buildPool(); });
+$('#photoOnly').addEventListener('change', e => { S.photoOnly = e.target.checked; buildPool(); });
+$('#reviewBtn').addEventListener('click', () => { S.mode = 'review'; buildPool(); });
+$('#resReview').addEventListener('click', () => { S.mode = 'review'; buildPool(); });
+$('#again').addEventListener('click', buildPool);
+$('#next').addEventListener('click', next);
+$('#prev').addEventListener('click', prev);
+$('#hintBtn').addEventListener('click', () => { const id = S.pool[S.i]; S.hints[id] = (S.hints[id] || 0) + 1; render(); });
+$('#openMgr').addEventListener('click', () => { const m = $('#manager'); m.open = true; m.scrollIntoView({ behavior:'smooth', block:'start' }); });
+$('#wikiFetchBtn').addEventListener('click', () => fetchWikipediaPortraits(true));
+$('#bulkBtn').addEventListener('click', () => { const inp = $('#bulk'); inp.value = ''; inp.click(); });
+$('#bulk').addEventListener('change', e => addFiles(e.target.files, null));
+$('#single').addEventListener('change', e => { if (S.pickId) addFiles(e.target.files, S.pickId); });
+
+const pt = $('#portrait');
+pt.addEventListener('dragover', e => { if ([...(e.dataTransfer?.types || [])].includes('Files')) { e.preventDefault(); pt.classList.add('is-drop'); } });
+pt.addEventListener('dragleave', () => pt.classList.remove('is-drop'));
+pt.addEventListener('drop', e => { e.preventDefault(); pt.classList.remove('is-drop'); const id = S.pool[S.i]; if (id && e.dataTransfer?.files?.length) addFiles(e.dataTransfer.files, id); });
+document.addEventListener('paste', e => {
+  if ($('#stage').hidden || e.target.closest?.('input, textarea, select')) return;
+  const files = [...(e.clipboardData?.files || [])].filter(f => f.type.startsWith('image/'));
+  const id = S.pool[S.i];
+  if (files.length && id) { e.preventDefault(); addFiles(files, id); }
+});
+document.addEventListener('keydown', e => {
+  if ($('#stage').hidden || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.target.closest?.('input, select, textarea, summary')) return;
+  const id = S.pool[S.i]; if (!id) return;
+  if (/^[1-4]$/.test(e.key) && S.answers[id] === undefined) { e.preventDefault(); answer(S.opts[id][+e.key - 1]); }
+  else if (e.key === 'Enter' && e.target.tagName !== 'BUTTON') { e.preventDefault(); next(); }
+  else if (e.key === 'ArrowRight') { e.preventDefault(); next(); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+});
+
+/* ---------- 起動 ---------- */
+buildPool();
+renderRoster();
+(async () => {
+  await Photos.open();
+  await Photos.loadAll();
+  renderRoster();
+  if (!$('#stage').hidden) render();
+  await fetchWikipediaPortraits(false);
+})();
+</script>
+
+</body>
+</html>
