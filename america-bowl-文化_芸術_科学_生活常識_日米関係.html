@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>U.S. Culture, Science & U.S.-Japan 500 Quiz & Listening Trainer</title>
+<style>
+  :root { --navy: #0a2540; --red: #d9381e; --blue: #1d4ed8; --bg: #f4f6f9; --correct: #16a34a; --wrong: #dc2626; }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: #1e293b; margin: 0; padding: 16px; }
+  .container { max-width: 880px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); padding: 24px; }
+  h1 { margin: 0 0 8px; color: var(--navy); font-size: 1.5rem; text-align: center; }
+  .subtitle { text-align: center; color: #64748b; font-size: 0.9rem; margin-bottom: 16px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0; }
+  .audio-bar { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; background: #eff6ff; padding: 10px 12px; border-radius: 8px; margin-bottom: 16px; border: 1px solid #bfdbfe; }
+  select, input[type="number"], .btn-ctrl { padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.88rem; cursor: pointer; background: #fff; font-weight: 600; }
+  .btn-ctrl.primary { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .btn-ctrl.accent { background: var(--red); color: #fff; border-color: var(--red); }
+  .btn-ctrl.audio { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .btn-ctrl.active-toggle { background: #0f766e; color: #fff; border-color: #0f766e; }
+  .status-bar { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; background: #f8fafc; padding: 10px 16px; border-radius: 8px; margin-bottom: 16px; font-weight: 600; font-size: 0.95rem; }
+  .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; background: #dbeafe; color: var(--blue); }
+  .badge.bonus { background: #fef3c7; color: #b45309; margin-left: 6px; }
+  .question-box { font-size: 1.15rem; font-weight: 600; line-height: 1.5; margin: 16px 0; color: #0f172a; min-height: 3.2rem; }
+  .question-box.blind { background: #f1f5f9; color: #475569; border: 2px dashed #94a3b8; border-radius: 8px; padding: 16px; text-align: center; font-weight: 500; }
+  .options { display: grid; gap: 10px; margin-bottom: 16px; }
+  .opt-btn { text-align: left; padding: 14px 16px; border-radius: 10px; border: 2px solid #e2e8f0; background: #fff; font-size: 1rem; cursor: pointer; transition: 0.15s; font-weight: 500; color: #1e293b; }
+  .opt-btn:hover:not(:disabled) { border-color: var(--blue); background: #eff6ff; }
+  .opt-btn.correct { border-color: var(--correct); background: #dcfce7; color: #14532d; font-weight: 700; }
+  .opt-btn.wrong { border-color: var(--wrong); background: #fee2e2; color: #7f1d1d; }
+  .feedback { display: none; padding: 14px 16px; border-radius: 10px; background: #f1f5f9; margin-bottom: 16px; line-height: 1.5; font-size: 0.95rem; border-left: 5px solid var(--navy); }
+  .nav-bar { display: flex; justify-content: space-between; gap: 10px; }
+  .nav-btn { flex: 1; padding: 12px; border-radius: 8px; border: none; font-size: 1rem; font-weight: 700; cursor: pointer; background: var(--blue); color: #fff; }
+  .nav-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+  .result-screen { display: none; text-align: center; padding: 20px 0; }
+  .score-big { font-size: 2.4rem; font-weight: 800; color: var(--navy); margin: 12px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🇺🇸 文化・芸術 / 科学・生活常識 / 日米関係 500問統合トレーナー</h1>
+  <div class="subtitle">全500問（文化・芸術200問＋科学・生活常識200問＋日米関係100問）4択＆英語リスニング演習システム</div>
+
+  <div class="controls">
+    <select id="catSelect" onchange="startCategoryMode()">
+      <option value="ALL">全24分野 (500問すべて)</option>
+      <optgroup label="大分類でまとめて選択">
+        <option value="GROUP_CULTURE">【大分類①】アメリカの文化・芸術 (全200問: #1–#200)</option>
+        <option value="GROUP_SCIENCE">【大分類②】アメリカの科学・生活常識 (全200問: #201–#400)</option>
+        <option value="GROUP_USJP">【大分類③】日米関係・DC訪問先 (全100問: #401–#500)</option>
+      </optgroup>
+      <optgroup label="① 文化・芸術 (200問)">
+        <option value="0">1. 食文化・飲料・外食 (25問)</option>
+        <option value="1">2. 祝日・年中行事・伝統習慣 (25問)</option>
+        <option value="2">3. スポーツ・オリンピック (25問)</option>
+        <option value="3">4. 文学・演劇・ジャーナリズム (25問)</option>
+        <option value="4">5. 音楽・ダンス・ミュージカル (25問)</option>
+        <option value="5">6. 映画・アニメーション・TV (25問)</option>
+        <option value="6">7. 美術・建築・博物館 (25問)</option>
+        <option value="7">8. ポップカルチャー・ファッション (25問)</option>
+      </optgroup>
+      <optgroup label="② 科学・生活常識 (200問)">
+        <option value="8">9. 生活常識①：長さ・距離・面積 (25問)</option>
+        <option value="9">10. 生活常識②：重さ・容量・温度・電気 (25問)</option>
+        <option value="10">11. 生活常識③：略語・頭字語・ビジネス表現 (25問)</option>
+        <option value="11">12. 生活常識④：教育・法律・マナー・習慣 (25問)</option>
+        <option value="12">13. 科学①：発明家と歴史的技術革新 (25問)</option>
+        <option value="13">14. 科学②：宇宙開発・NASA・天文・航空 (25問)</option>
+        <option value="14">15. 科学③：物理・原子力・化学・ノーベル賞 (25問)</option>
+        <option value="15">16. 科学④：IT・コンピュータ・医学・環境 (25問)</option>
+      </optgroup>
+      <optgroup label="③ 日米関係 (100問)">
+        <option value="16">17. 日米①：幕末の開国と万延元年遣米使節 (12問)</option>
+        <option value="17">18. 日米②：明治・大正の交流とポーツマス条約 (13問)</option>
+        <option value="18">19. 日米③：桜寄贈・日米協会・アメリカボウル (13問)</option>
+        <option value="19">20. 日米④：太平洋戦争と日系アメリカ人 (12問)</option>
+        <option value="20">21. 日米⑤：戦後占領・サンフランシスコ平和条約・返還 (13問)</option>
+        <option value="21">22. 日米⑥：日米安全保障条約と首脳外交 (12問)</option>
+        <option value="22">23. 日米⑦：経済摩擦と文化・科学・スポーツ交流 (13問)</option>
+        <option value="23">24. 日米⑧：ワシントンD.C.訪問プログラムと名所 (12問)</option>
+      </optgroup>
+    </select>
+    <button class="btn-ctrl primary" onclick="startShuffleAll()">シャッフル全500問</button>
+    <button class="btn-ctrl accent" onclick="startMockExam()">模擬試験 (40問+ボーナス5問)</button>
+    <button class="btn-ctrl" id="retryBtn" onclick="startRetryWrong()" style="display:none;">間違えた問題だけ復習</button>
+    <span style="display:inline-flex; align-items:center; gap:4px;">
+      <input type="number" id="jumpInput" min="1" max="500" placeholder="番号(1-500)" style="width:95px;">
+      <button class="btn-ctrl" onclick="jumpToQuestion()">移動</button>
+    </span>
+  </div>
+
+  <div class="audio-bar">
+    <button class="btn-ctrl audio" onclick="speakCurrentQuestion(false)">🔊 問題文を読み上げ</button>
+    <button class="btn-ctrl audio" onclick="speakCurrentQuestion(true)">🔊 問題＋選択肢を読み上げ</button>
+    <button class="btn-ctrl" onclick="stopSpeech()">⏹ 停止</button>
+    <button class="btn-ctrl" id="autoSpeakBtn" onclick="toggleAutoSpeak()">自動読み上げ: OFF</button>
+    <button class="btn-ctrl" id="blindModeBtn" onclick="toggleBlindMode()">🙈 リスニング専念: OFF</button>
+    <select id="rateSelect" title="読み上げ速度">
+      <option value="0.85">速度 0.85x (ゆっくり)</option>
+      <option value="1.0" selected>速度 1.0x (標準)</option>
+      <option value="1.15">速度 1.15x (速め)</option>
+    </select>
+  </div>
+
+  <div id="quizArea">
+    <div class="status-bar">
+      <div>
+        <span id="qProgress">Q 1 / 500</span>
+        <span id="qCat" class="badge">1. 食文化・飲料</span>
+        <span id="qBonus" class="badge bonus" style="display:none;">★BONUS 3pts</span>
+      </div>
+      <div id="scoreDisplay">Score: 0</div>
+    </div>
+    <div id="questionText" class="question-box"></div>
+    <div id="optionsContainer" class="options"></div>
+    <div id="feedbackBox" class="feedback"></div>
+    <div class="nav-bar">
+      <button class="nav-btn" id="prevBtn" onclick="prevQuestion()">← 前の問題</button>
+      <button class="nav-btn" id="nextBtn" onclick="nextQuestion()">次の問題 →</button>
+    </div>
+  </div>
+
+  <div id="resultArea" class="result-screen">
+    <h2>演習結果</h2>
+    <div id="finalScore" class="score-big"></div>
+    <p id="finalComment"></p>
+    <button class="btn-ctrl primary" onclick="startCategoryMode()">最初からやり直す</button>
+    <button class="btn-ctrl accent" id="retryBtnEnd" onclick="startRetryWrong()">間違えた問題を復習する</button>
+  </div>
+</div>
+
+<script>
+const CATS = [
+  "1. 食文化・飲料", "2. 祝日・年中行事", "3. スポーツ・五輪", "4. 文学・演劇",
+  "5. 音楽・ミュージカル", "6. 映画・アニメ・TV", "7. 美術・建築・博物館", "8. ポップカルチャー",
+  "9. 生活常識①：長さ・距離・面積", "10. 生活常識②：重さ・容量・温度", "11. 生活常識③：略語・頭字語", "12. 生活常識④：教育・法律・習慣",
+  "13. 科学①：発明家と技術革新", "14. 科学②：宇宙開発・NASA・航空", "15. 科学③：物理・化学・ノーベル賞", "16. 科学④：IT・医学・バイオ・環境",
+  "17. 日米①：幕末の開国と遣米使節", "18. 日米②：明治・大正とポーツマス条約", "19. 日米③：桜寄贈・日米協会・大会", "20. 日米④：太平洋戦争と日系米国人",
+  "21. 日米⑤：戦後占領と平和条約・返還", "22. 日米⑥：日米安全保障と首脳外交", "23. 日米⑦：経済摩擦と文化・スポーツ交流", "24. 日米⑧：ワシントンD.C.訪問先"
+];
+
+// [catIdx, question, [optA, optB, optC, optD], ansIdx, explanation]
+const RAW_DATA = [
+  // ==================== PART 1: 文化・芸術 (200問: #1–#200) ====================
+  // 1. 食文化・飲料 (#1–#25)
+  [0,"Which creamy soup made with clams and potatoes is a signature dish of New England, especially Boston?",["Gumbo","New England Clam Chowder","Gazpacho","Bisque"],1,"アサリとジャガイモを使った白いクリームスープ「ニューイングランド・クラムチャウダー」はボストンなどニューイングランド地方の代表料理です。"],
+  [0,"Which traditional African American cuisine from the Southern United States features fried chicken, fried catfish, cornbread, and collard greens?",["Tex-Mex","Soul Food","Cajun Cuisine","California Cuisine"],1,"南部発祥のアフリカ系アメリカ人の伝統料理は「ソウルフード（Soul Food）」と呼ばれます。"],
+  [0,"In which city in New York State were 'Buffalo wings' invented in 1964 at the Anchor Bar?",["Rochester","Syracuse","Buffalo","Albany"],2,"バッファローウィングは1964年にニューヨーク州バッファローの「アンカー・バー」で考案されました。"],
+  [0,"Which thick, hearty style of pizza baked in a deep pan is a famous culinary specialty of Chicago?",["Neapolitan Pizza","Deep-Dish Pizza","New York-Style Thin Crust","Flatbread"],1,"シカゴは深い焼き型にチーズとトマトソースをたっぷり詰めて焼く「ディープディッシュ・ピザ（シカゴピザ）」で有名です。"],
+  [0,"Which sandwich consisting of thinly sliced beefsteak and melted cheese in a long roll is the signature dish of Philadelphia?",["Reuben Sandwich","Philly Cheesesteak","Po' Boy","Cuban Sandwich"],1,"ペンシルベニア州フィラデルフィアの名物サンドイッチは「フィリー・チーズステーキ」です。"],
+  [0,"Which rich stew originated in Louisiana, combining West African, French, and Native American culinary traditions with okra or filé powder?",["Gumbo","Chili con Carne","Clam Chowder","Succotash"],0,"ルイジアナ州発祥のクレオール・ケイジャン料理を代表する濃厚なシチューは「ガンボ（Gumbo）」です。"],
+  [0,"Which square-shaped fried dough pastry topped with powdered sugar is the official state doughnut of Louisiana and a famous treat in New Orleans?",["Cronut","Beignet","Churro","Funnel Cake"],1,"フランス発祥でニューオーリンズ名物となった粉砂糖たっぷりの揚げ菓子は「ベニエ（Beignet）」です。"],
+  [0,"Which fusion cuisine combining Texas and Mexican food traditions popularized fajitas, nachos, and chili con carne?",["Creole","Tex-Mex","Floribbean","Pacific Rim"],1,"テキサス州とメキシコの食文化が融合した料理は「テックス・メックス（Tex-Mex）」と呼ばれます。"],
+  [0,"Which bird is the traditional main course served at Thanksgiving dinner in the United States?",["Duck","Goose","Turkey","Pheasant"],2,"感謝祭（Thanksgiving）の伝統的なメインディッシュは七面鳥（Turkey）のローストです。"],
+  [0,"What campfire treat consists of a roasted marshmallow and a piece of chocolate sandwiched between two graham crackers?",["S'more","Twinkie","Brownie","Whoopie Pie"],0,"焼いたマシュマロとチョコレートをグラハムクラッカーで挟むキャンプの定番菓子は「スモア（S'more = some moreの略）」です。"],
+  [0,"Which dessert, often associated with the phrase 'as American as...', is made with a flaky pastry crust and spiced sliced apples?",["Key Lime Pie","Apple Pie","Pecan Pie","Boston Cream Pie"],1,"「アップルパイのようにアメリカらしい（as American as apple pie）」という慣用句があるほど、アップルパイはアメリカの象徴的デザートです。"],
+  [0,"Which tart pie made with small lime juice, egg yolks, and sweetened condensed milk originated in the Florida Keys?",["Key Lime Pie","Lemon Meringue Pie","Shoofly Pie","Mississippi Mud Pie"],0,"フロリダ・キーズ発祥の小さなライムを使った名物パイは「キーライムパイ（Key Lime Pie）」です。"],
+  [0,"Waiters in the U.S. rely heavily on gratuity; what is the standard tipping percentage expected at sit-down restaurants?",["5% to 8%","15% to 20%","30% to 35%","No tipping is allowed"],1,"アメリカのレストランでは、飲食代の15%〜20%程度のチップを渡すのが一般的なマナーです。"],
+  [0,"In which city and state did pharmacist John Stith Pemberton invent Coca-Cola in 1886?",["Atlanta, Georgia","Dallas, Texas","Chicago, Illinois","St. Louis, Missouri"],0,"コカ・コーラは1886年にジョージア州アトランタで薬剤師ジョン・ペンバートンによって発明されました。"],
+  [0,"In which city did Starbucks open its very first coffee store at Pike Place Market in 1971?",["Portland, Oregon","Seattle, Washington","San Francisco, California","Boston, Massachusetts"],1,"スターバックス1号店は1971年にワシントン州シアトルのパイク・プレイス・マーケットに開店しました。"],
+  [0,"In which California city did brothers Richard and Maurice McDonald open their original hamburger stand in 1940?",["San Bernardino","San Diego","Sacramento","Santa Monica"],0,"マクドナルド兄弟は1940年にカリフォルニア州サンバーナーディーノで最初の店舗を開業しました。"],
+  [0,"Who founded Kentucky Fried Chicken (KFC) using his secret '11 herbs and spices' recipe?",["Ray Kroc","Harland Sanders (Colonel Sanders)","Dave Thomas","Howard Schultz"],1,"KFC（ケンタッキーフライドチキン）を創業したのはカーネル・サンダース（ハーランド・サンダース）です。"],
+  [0,"Which Southern state is world-famous for producing Bourbon whiskey, centered around Louisville and Lexington?",["Tennessee","Kentucky","Virginia","Georgia"],1,"バーボン・ウイスキーの本場として世界的に知られるのはケンタッキー州です。"],
+  [0,"Which valley in Northern California is the most famous wine-producing region in the United States?",["Silicon Valley","Death Valley","Napa Valley","Hudson Valley"],2,"カリフォルニア州北部のナパ・バレー（Napa Valley）はアメリカを代表する高級ワインの産地です。"],
+  [0,"Which Northeastern state is the largest producer of lobster in the United States?",["Vermont","Maine","Connecticut","Delaware"],1,"アメリカ本土最東端のメイン州（Maine）はロブスターの最大産地として知られます。"],
+  [0,"Which Northeastern state is the largest producer of maple syrup in the United States?",["Vermont","Rhode Island","New Jersey","Maryland"],0,"バーモント州（Vermont）は全米最大のメープルシロップ生産州です。"],
+  [0,"In which state was the hamburger sandwich famously served in 1900 at Louis' Lunch in New Haven, recognized by the Library of Congress as its birthplace?",["Connecticut","Texas","California","Ohio"],0,"コネチカット州ニューヘイブンの「ルイス・ランチ」は、1900年にハンバーガーを考案した発祥の店として米国議会図書館に認定されています。"],
+  [0,"What is the name of the colorful ring-shaped cake eaten during the Mardi Gras season in New Orleans that hides a tiny plastic baby inside?",["Angel Food Cake","King Cake","Red Velvet Cake","Bundt Cake"],1,"ニューオーリンズのマルディグラで食べられる、中に小さな人形が入ったカラフルなケーキは「キングケーキ（King Cake）」です。"],
+  [0,"Which crisp salad made of romaine lettuce, croutons, Parmesan cheese, and a dressing with Worcestershire sauce was created in 1924 by restaurateur Caesar Cardini?",["Waldorf Salad","Cobb Salad","Caesar Salad","Chef Salad"],2,"シーザーサラダは1924年にイタリア系移民の料理人シーザー・カルディーニによって考案されました。"],
+  [0,"Which breakfast dish consists of poached eggs and Canadian bacon on an English muffin, topped with hollandaise sauce, and originated in New York City?",["Eggs Benedict","Huevos Rancheros","Biscuits and Gravy","French Toast"],0,"イングリッシュマフィンにポーチドエッグとベーコンを乗せオランデーズソースをかけたニューヨーク発祥の朝食は「エッグベネディクト」です。"],
+
+  // 2. 祝日・年中行事 (#26–#50)
+  [1,"On what date does the United States celebrate Independence Day, commonly known as the Fourth of July?",["May 4","June 4","July 4","August 4"],2,"1776年7月4日の独立宣言採択を記念し、毎年7月4日が独立記念日（Independence Day）として祝われます。"],
+  [1,"When is Thanksgiving Day celebrated every year in the United States?",["First Monday in September","Second Monday in October","Fourth Thursday in November","Third Monday in January"],2,"アメリカの感謝祭（Thanksgiving Day）は毎年11月の第4木曜日に祝われます。"],
+  [1,"What is the Friday immediately following Thanksgiving Day called, which marks the start of the Christmas holiday shopping season?",["Cyber Monday","Black Friday","Good Friday","Super Tuesday"],1,"感謝祭翌日の金曜日は小売店が黒字になる大規模セールの日として「ブラックフライデー（Black Friday）」と呼ばれます。"],
+  [1,"Which department store has sponsored the famous Thanksgiving Day Parade in New York City since 1924?",["Sears","Macy's","Bloomingdale's","Nordstrom"],1,"ニューヨークで毎年感謝祭の朝に巨大バルーンのパレードを開催しているのは老舗百貨店「メイシーズ（Macy's）」です。"],
+  [1,"Which federal holiday observed on the last Monday of May honors U.S. military personnel who died while serving in the Armed Forces?",["Veterans Day","Memorial Day","Labor Day","Armed Forces Day"],1,"5月最終月曜日の「メモリアルデー（戦没将兵追悼記念日）」は、戦没者を追悼し夏の始まりを告げる祝日です。"],
+  [1,"On what date is Veterans Day observed every year to honor all military veterans who served in the U.S. Armed Forces?",["May 30","July 4","September 11","November 11"],3,"第一次世界大戦の休戦記念日に由来する「ベテランズデー（復員軍人の日）」は毎年11月11日です。"],
+  [1,"When is Labor Day celebrated in the United States to honor the American labor movement and mark the unofficial end of summer?",["May 1","First Monday in September","Last Monday in May","Second Monday in October"],1,"アメリカの「レイバーデー（労働者の日）」は毎年9月の第1月曜日で、夏の終わりと新学期の始まりを象徴します。"],
+  [1,"Which civil rights leader is honored with a federal holiday on the third Monday of January?",["Malcolm X","Martin Luther King Jr.","Rosa Parks","Frederick Douglass"],1,"毎年1月第3月曜日は、公民権運動の指導者を称える「マーティン・ルーサー・キング・ジュニア・デー」です。"],
+  [1,"Which federal holiday on the third Monday of February originally honored George Washington's birthday and now honors all U.S. Presidents?",["Patriots' Day","Presidents' Day","Constitution Day","Flag Day"],1,"2月第3月曜日はワシントンとリンカーンの誕生日を合わせて歴代大統領を称える「プレジデンツ・デー」です。"],
+  [1,"On what date is Juneteenth celebrated as a federal holiday commemorating the emancipation of enslaved African Americans in Texas in 1865?",["January 1","May 5","June 19","August 28"],2,"ジューンティーンス（Juneteenth）はJune（6月）とNineteenth（19日）を組み合わせた名称で、毎年6月19日に祝われます。"],
+  [1,"Which month is officially designated as 'Black History Month' in the United States?",["January","February","June","October"],1,"アメリカではリンカーンとフレデリック・ダグラスの誕生月である2月が「黒人歴史月間（Black History Month）」と定められています。"],
+  [1,"In which city is the river famously dyed bright green every year to celebrate St. Patrick's Day on March 17?",["Boston","Chicago","New York City","Savannah"],1,"イリノイ州シカゴでは毎年セント・パトリックス・デーにシカゴ川を鮮やかな緑色に染める伝統があります。"],
+  [1,"Which carnival celebration held in New Orleans before Ash Wednesday means 'Fat Tuesday' in French and features parades and bead throwing?",["Cinco de Mayo","Mardi Gras","Coachella","Burning Man"],1,"フランス語で「肥沃な火曜日」を意味する「マルディグラ（Mardi Gras）」は、ニューオーリンズ最大級の謝肉祭イベントです。"],
+  [1,"What historical event does 'Cinco de Mayo' (celebrated on May 5 in the U.S. and Mexico) actually commemorate?",["Mexican Independence from Spain","Mexico's victory over France at the Battle of Puebla in 1862","The end of the Mexican-American War","The signing of NAFTA"],1,"5月5日のシンコ・デ・マヨはメキシコ独立記念日ではなく、1862年のプエブラの戦いでのフランス軍に対する勝利を記念する日です。"],
+  [1,"Who campaigned for the creation of Mother's Day, which President Woodrow Wilson made an official U.S. holiday on the second Sunday in May in 1914?",["Susan B. Anthony","Anna Jarvis","Eleanor Roosevelt","Clara Barton"],1,"亡き母を追悼してアンナ・ジャービス（Anna Jarvis）が始めた運動により、1914年に5月第2日曜日が「母の日」に制定されました。"],
+  [1,"On what date do children in the United States dress up in costumes, carve jack-o'-lanterns, and go 'trick-or-treating'?",["October 15","October 31","November 1","November 5"],1,"ハロウィン（Halloween）は毎年10月31日に行われ、カボチャのランタン（ジャック・オー・ランタン）や仮装を楽しみます。"],
+  [1,"Where in New York City does the famous 'Ball Drop' take place at midnight on New Year's Eve?",["Central Park","Times Square","Brooklyn Bridge","Wall Street"],1,"大晦日の深夜0時にクリスタルボールが降下するカウントダウン行事「ボールドロップ」はニューヨークのタイムズスクエアで行われます。"],
+  [1,"Where in New York City is the famous giant outdoor Christmas Tree lit every year in late November or early December?",["Empire State Building","Rockefeller Center","Grand Central Terminal","Battery Park"],1,"ニューヨークの冬の風物詩である巨大クリスマスツリーの点灯式はロックフェラー・センターで行われます。"],
+  [1,"In which Pennsylvania town does the groundhog 'Punxsutawney Phil' predict the arrival of spring on Groundhog Day (February 2)?",["Gettysburg","Punxsutawney","Hershey","Lancaster"],1,"2月2日のグラウンドホッグ・デーでは、ペンシルベニア州パンクサトーニーのウッドチャック「フィル」が春の訪れを占います。"],
+  [1,"Which California city hosts the Tournament of Roses Parade and the Rose Bowl college football game on New Year's Day?",["Pasadena","Anaheim","Santa Barbara","Malibu"],0,"元日に生花で飾られたフロートが行進するローズ・パレードとローズボウルはカリフォルニア州パサデナで開催されます。"],
+  [1,"What formal dance is traditionally held at American high schools at the end of the academic year for juniors and seniors?",["Homecoming","Prom (Promenade)","Cotillion","Sadie Hawkins Dance"],1,"アメリカの高校で学年末（主に5〜6月）に開催されるフォーマルなダンスパーティーは「プロム（Prom）」と呼ばれます。"],
+  [1,"What autumn tradition at American high schools and colleges welcomes back alumni with a football game, parade, and dance?",["Spring Break","Homecoming","Commencement","Rush Week"],1,"秋に卒業生を母校に迎え、アメリカンフットボールの試合やパレードを行う伝統行事は「ホームカミング（Homecoming）」です。"],
+  [1,"Which annual event is hosted by the President and First Lady on the White House South Lawn on the Monday after Easter?",["White House Turkey Pardon","White House Easter Egg Roll","State of the Union","Kennedy Center Honors"],1,"イースター翌日の月曜日にホワイトハウスの南庭で開催される伝統行事は「イースター・エッグ・ロール（卵転がし）」です。"],
+  [1,"Who wrote the 'Pledge of Allegiance' in 1892 to mark the 400th anniversary of Christopher Columbus's arrival?",["Francis Scott Key","Francis Bellamy","John Philip Sousa","Katharine Lee Bates"],1,"星条旗に向かって唱える「忠誠の誓い（Pledge of Allegiance）」は1892年にフランシス・ベラミーによって起草されました。"],
+  [1,"In which city and state does the annual 'Cherry Blossom Festival' celebrate the 1912 gift of cherry trees from Tokyo?",["Washington, D.C.","San Francisco, California","Seattle, Washington","Boston, Massachusetts"],0,"1912年に東京から贈られたポトマック河畔の桜を祝う全米桜祭り（National Cherry Blossom Festival）はワシントンD.C.で開催されます。"],
+
+  // 3. スポーツ・五輪 (#51–#75)
+  [2,"Which sport is traditionally known as 'America's National Pastime'?",["Basketball","Baseball","Ice Hockey","Soccer"],1,"野球（Baseball）は19世紀以来、アメリカの「国民的娯楽（National Pastime）」と呼ばれています。"],
+  [2,"Which Major League Baseball (MLB) team holds the record for the most World Series championships (27 titles)?",["Boston Red Sox","Los Angeles Dodgers","New York Yankees","St. Louis Cardinals"],2,"MLBでワールドシリーズ最多優勝（27回）を誇るのはニューヨーク・ヤンキースです。"],
+  [2,"Which African American baseball player broke MLB's color barrier on April 15, 1947, when he debuted for the Brooklyn Dodgers?",["Babe Ruth","Jackie Robinson","Hank Aaron","Willie Mays"],1,"ジャッキー・ロビンソンは1947年4月15日にブルックリン・ドジャースでデビューし、MLBの人種差別壁を打ち破りました（背番号42は全球団永久欠番）。"],
+  [2,"Which legendary baseball player, nicknamed 'The Bambino' and 'The Sultan of Swat,' hit 714 career home runs mainly for the New York Yankees?",["Lou Gehrig","Babe Ruth","Joe DiMaggio","Mickey Mantle"],1,"「バンビーノ」の愛称で親しまれたベーブ・ルースは、ヤンキース黄金時代を築いたアメリカ野球史上最大の英雄です。"],
+  [2,"Which Japanese player won multiple MLB Most Valuable Player (MVP) awards and became the first player in MLB history to achieve 50 home runs and 50 stolen bases in a single season in 2024?",["Ichiro Suzuki","Hideki Matsui","Shohei Ohtani","Yu Darvish"],2,"大谷翔平選手はロサンゼルス・ドジャースに所属した2024年にMLB史上初の「50本塁打・50盗塁（50-50）」を達成し、複数回のMVPに輝きました。"],
+  [2,"What is the annual championship game of the National Football League (NFL) held in February called?",["World Series","Super Bowl","Stanley Cup","Rose Bowl"],1,"毎年2月に開催されるNFL（プロアメリカンフットボール）の王座決定戦は「スーパーボウル（Super Bowl）」です。"],
+  [2,"Which NFL quarterback won a record seven Super Bowl championships with the New England Patriots and Tampa Bay Buccaneers?",["Peyton Manning","Tom Brady","Joe Montana","Patrick Mahomes"],1,"トム・ブレイディはペイトリオッツで6回、バッカニアーズで1回の計7回スーパーボウルを制覇した史上最多優勝クォーターバックです。"],
+  [2,"In which city and state did Dr. James Naismith invent the game of basketball in 1891?",["Springfield, Massachusetts","Indianapolis, Indiana","Lexington, Kentucky","Lawrence, Kansas"],0,"バスケットボールは1891年にマサチューセッツ州スプリングフィールドの国際YMCAトレーニングスクールでジェームズ・ネイスミスによって考案されました。"],
+  [2,"Which basketball legend led the Chicago Bulls to six NBA championships in the 1990s and popularized the 'Air Jordan' sneaker brand?",["Kobe Bryant","Michael Jordan","Magic Johnson","Shaquille O'Neal"],1,"マイケル・ジョーダンは1990年代にシカゴ・ブルズを6度のNBA優勝に導き、「バスケットボールの神様」と称されました。"],
+  [2,"Which NBA player became the all-time leading scorer in NBA regular-season history in 2023, surpassing Kareem Abdul-Jabbar?",["Stephen Curry","LeBron James","Kevin Durant","Larry Bird"],1,"レブロン・ジェームズは2023年にカリーム・アブドゥル＝ジャバーを抜いてNBA通算得点歴代1位となりました。"],
+  [2,"What is the popular nickname for the annual NCAA Division I college basketball tournament held every spring?",["March Madness","Spring Fever","Final Countdown","Winter Classic"],0,"毎年3月に全米が熱狂するNCAA大学バスケットボールトーナメントは「マーチ・マッドネス（March Madness）」と呼ばれます。"],
+  [2,"Which four major professional sports leagues in North America are collectively known as the 'Big Four'?",["NFL, MLB, NBA, NHL","NFL, MLB, MLS, PGA","NBA, MLB, NASCAR, WWE","NFL, NBA, WNBA, NCAA"],0,"北米4大プロスポーツリーグはNFL（アメフト）、MLB（野球）、NBA（バスケ）、NHL（アイスホッケー）の4つです。"],
+  [2,"Which prestigious horse race, called 'The Most Exciting Two Minutes in Sports,' is held on the first Saturday in May at Churchill Downs in Louisville?",["Belmont Stakes","Preakness Stakes","Kentucky Derby","Breeders' Cup"],2,"ケンタッキー州ルイビルのチャーチルダウンズ競馬場で5月第1土曜日に開催される米国三冠競走の初戦は「ケンタッキーダービー」です。"],
+  [2,"Which prestigious golf tournament held every April in Augusta, Georgia awards a famous 'Green Jacket' to the winner?",["U.S. Open","The Masters Tournament","PGA Championship","The Open Championship"],1,"ジョージア州オーガスタで毎年4月に開催され、優勝者にグリーンジャケットが贈られるゴルフの祭典は「マスターズ・トーナメント」です。"],
+  [2,"Which American golfer won 15 major championships, including five Masters titles, and revolutionized the sport in the late 1990s and 2000s?",["Jack Nicklaus","Tiger Woods","Arnold Palmer","Phil Mickelson"],1,"タイガー・ウッズは1997年に史上最年少（当時）でマスターズを制するなどメジャー15勝を挙げ、ゴルフ界に旋風を巻き起こしました。"],
+  [2,"Which Grand Slam tennis tournament is held annually in late August and early September in Queens, New York City?",["Australian Open","French Open","Wimbledon","US Open"],3,"毎年8月下旬からニューヨーク市クイーンズのフラッシング・メドウズで開催される4大大会の最終戦は「全米オープン（US Open）」です。"],
+  [2,"Which American female tennis player won 23 Grand Slam singles titles in the Open Era?",["Billie Jean King","Venus Williams","Serena Williams","Chris Evert"],2,"セリーナ・ウィリアムズはオープン化以降最多となる4大大会シングルス23勝を達成したアメリカのテニス選手です。"],
+  [2,"Which famous 500-mile automobile race is held every Memorial Day weekend at a speedway in Indiana?",["Daytona 500","Indianapolis 500 (Indy 500)","Monaco Grand Prix","24 Hours of Le Mans"],1,"インディアナ州で毎年メモリアルデーの週末に開催される世界3大レースの一つは「インディ500（Indianapolis 500）」です。"],
+  [2,"Which American swimmer is the most decorated Olympian of all time with 28 total medals, including 23 gold medals?",["Mark Spitz","Michael Phelps","Ryan Lochte","Katie Ledecky"],1,"競泳のマイケル・フェルプスは金メダル23個を含む通算28個のメダルを獲得したオリンピック史上最多メダリストです。"],
+  [2,"Which African American track and field athlete won four gold medals at the 1936 Berlin Olympics, defying Adolf Hitler's Aryan supremacy ideology?",["Jesse Owens","Carl Lewis","Usain Bolt","Michael Johnson"],0,"ジェシー・オーエンスはナチス政権下の1936年ベルリン五輪で100m・200m・走幅跳・4×100mリレーの4冠を達成しました。"],
+  [2,"Which American track and field star won nine Olympic gold medals across four Olympic Games from 1984 to 1996, including four consecutive golds in the long jump?",["Edwin Moses","Carl Lewis","Maurice Greene","Bob Beamon"],1,"カール・ルイスは1984年ロサンゼルス五輪での4冠や走幅跳4連覇など、五輪通算9個の金メダルを獲得しました。"],
+  [2,"Which heavyweight boxing champion, born Cassius Clay, was nicknamed 'The Greatest' and lit the Olympic cauldron in Atlanta in 1996?",["Joe Frazier","George Foreman","Muhammad Ali","Mike Tyson"],2,"モハメド・アリ（旧名カシアス・クレイ）は「蝶のように舞い、蜂のように刺す」のスタイルと公民権運動・反戦の姿勢で世界に大きな影響を与えました。"],
+  [2,"Which American gymnast is the most decorated gymnast in history, winning 11 Olympic medals (7 golds) and 30 World Championship medals?",["Nadia Comăneci","Mary Lou Retton","Simone Biles","Shannon Miller"],2,"シモーネ・バイルズは五輪金7個を含む11個のメダルと世界選手権30個のメダルを獲得した史上最も成功した体操選手です。"],
+  [2,"Which U.S. city has hosted the Summer Olympic Games in 1932 and 1984 and is scheduled to host them again in 2028?",["Atlanta","St. Louis","Los Angeles","Chicago"],2,"カリフォルニア州ロサンゼルスは1932年と1984年に夏季五輪を開催し、2028年に3度目の開催を予定しています。"],
+  [2,"In which city and state is the oldest annual marathon in the world (started in 1897) held every Patriots' Day?",["New York City, New York","Boston, Massachusetts","Chicago, Illinois","Philadelphia, Pennsylvania"],1,"1897年に始まった世界最古の都市マラソンは、毎年4月の愛国者の日にマサチューセッツ州で開催されるボストンマラソンです。"],
+
+  // 4. 文学・演劇 (#76–#100)
+  [3,"Who wrote the classic American novels 'The Adventures of Tom Sawyer' and 'Adventures of Huckleberry Finn'?",["Herman Melville","Mark Twain","Nathaniel Hawthorne","Jack London"],1,"ミシシッピ川を舞台に『トム・ソーヤーの冒険』や『ハックルベリー・フィンの冒険』を執筆したのはマーク・トウェイン（本名サミュエル・クレメンズ）です。"],
+  [3,"Who wrote the 1925 Jazz Age novel 'The Great Gatsby'?",["Ernest Hemingway","F. Scott Fitzgerald","William Faulkner","John Steinbeck"],1,"1920年代の「狂騒の20年代（ジャズ・エイジ）」の栄光と虚無を描いた『グレート・ギャツビー』の著者はF・スコット・フィッツジェラルドです。"],
+  [3,"Which American author won the Nobel Prize in Literature in 1954 and wrote 'The Old Man and the Sea' and 'A Farewell to Arms'?",["Ernest Hemingway","John Updike","Saul Bellow","Norman Mailer"],0,"『老人と海』『武器よさらば』『誰がために鐘は鳴る』で知られるアーネスト・ヘミングウェイは1954年にノーベル文学賞を受賞しました。"],
+  [3,"Who wrote the 1939 Pulitzer Prize-winning novel 'The Grapes of Wrath' about Dust Bowl migrant farmers moving to California?",["Sinclair Lewis","John Steinbeck","Upton Sinclair","Richard Wright"],1,"世界恐慌期にオクラマからカリフォルニアへ移住する農民一家を描いた『怒りの葡萄』や『エデンの東』の著者はジョン・スタインベックです。"],
+  [3,"Who wrote the 1851 epic novel 'Moby-Dick' about Captain Ahab's obsessive quest for a giant white whale?",["Herman Melville","James Fenimore Cooper","Washington Irving","Edgar Allan Poe"],0,"白鯨とエイハブ船長の死闘を描いた1851年の長編小説『白鯨（Moby-Dick）』の著者はハーマン・メルヴィルです。"],
+  [3,"Who wrote the 1850 novel 'The Scarlet Letter' set in 17th-century Puritan Massachusetts?",["Henry James","Nathaniel Hawthorne","Stephen Crane","Walt Whitman"],1,"17世紀ピューリタン社会のボストンを舞台に姦通の烙印「A」を胸につけた女性を描いた『緋文字（The Scarlet Letter）』の著者はナサニエル・ホーソーンです。"],
+  [3,"Which 19th-century American writer is credited with inventing the modern detective story with 'The Murders in the Rue Morgue' and wrote the poem 'The Raven'?",["Edgar Allan Poe","H. P. Lovecraft","O. Henry","Ambrose Bierce"],0,"エドガー・アラン・ポーは世界初の推理小説『モルグ街の殺人』やゴシック詩『大鴉（The Raven）』で知られる作家・詩人です。"],
+  [3,"Who wrote the beloved 1868 novel 'Little Women' about the four March sisters (Meg, Jo, Beth, and Amy)?",["Edith Wharton","Louisa May Alcott","Willa Cather","Kate Chopin"],1,"マーチ家の4姉妹の成長を描いた『若草物語（Little Women）』の著者はルイーザ・メイ・オルコットです。"],
+  [3,"Who wrote the 1960 Pulitzer Prize-winning novel 'To Kill a Mockingbird' featuring lawyer Atticus Finch and his daughter Scout?",["Harper Lee","Margaret Mitchell","Alice Walker","Flannery O'Connor"],0,"アラバマ州の小さな町で黒人青年の無実を弁護するアティカス・フィンチを描いた『アラバマ物語（To Kill a Mockingbird）』の著者はハーパー・リーです。"],
+  [3,"Who wrote the 1951 novel 'The Catcher in the Rye' featuring teenage protagonist Holden Caulfield?",["Jack Kerouac","J. D. Salinger","Kurt Vonnegut","Philip Roth"],1,"少年ホールデン・コールフィールドの繊細な内面を描いた『ライ麦畑でつかまえて（The Catcher in the Rye）』の著者はJ・D・サリンジャーです。"],
+  [3,"Who wrote the 1936 bestselling historical romance novel 'Gone with the Wind' set in Georgia during the Civil War?",["Margaret Mitchell","Pearl S. Buck","Zora Neale Hurston","Carson McCullers"],0,"南北戦争前後のジョージア州アトランタを舞台にスカーレット・オハラの半生を描いた『風と共に去りぬ』の著者はマーガレット・ミッチェルです。"],
+  [3,"Which African American author wrote 'Beloved' and 'Song of Solomon' and became the first Black woman to win the Nobel Prize in Literature in 1993?",["Maya Angelou","Toni Morrison","Alice Walker","Octavia Butler"],1,"トニ・モリスンは『ソロモンの歌』『ビラヴド』などの作品で知られ、1993年にアフリカ系アメリカ人として初のノーベル文学賞を受賞しました。"],
+  [3,"Which 19th-century essayist lived in a cabin by a pond in Concord, Massachusetts and wrote 'Walden' and 'Civil Disobedience'?",["Ralph Waldo Emerson","Henry David Thoreau","Bronson Alcott","Margaret Fuller"],1,"マサチューセッツ州のウォールデン池畔で森の生活を送り『森の生活（Walden）』や『市民の反抗』を著したのはヘンリー・デイヴィッド・ソローです。"],
+  [3,"Which 19th-century poet is known as the 'Father of Free Verse' for his landmark poetry collection 'Leaves of Grass'?",["Robert Frost","Walt Whitman","Henry Wadsworth Longfellow","Carl Sandburg"],1,"生涯を通じて改訂し続けた詩集『草の葉（Leaves of Grass）』で知られるウォルト・ホイットマンは、アメリカ自由詩の父と称されます。"],
+  [3,"Which reclusive 19th-century poet from Amherst, Massachusetts wrote nearly 1,800 poems, including 'Because I could not stop for Death'?",["Sylvia Plath","Emily Dickinson","Elizabeth Bishop","Edna St. Vincent Millay"],1,"マサチューセッツ州アマーストの生家で生涯のほとんどを過ごし、没後に約1,800篇の独創的な詩が発見された詩人はエミリー・ディキンソンです。"],
+  [3,"Which 20th-century American poet wrote 'The Road Not Taken' and recited a poem at President John F. Kennedy's inauguration in 1961?",["T. S. Eliot","Robert Frost","Ezra Pound","Wallace Stevens"],1,"ニューイングランドの自然を題材にした『選ばれざる道（The Road Not Taken）』で知られるロバート・フロストは、4度のピューリッツァー賞を受賞した国民的詩人です。"],
+  [3,"Which poet and playwright was the leading figure of the 1920s Harlem Renaissance, writing 'The Negro Speaks of Rivers'?",["Langston Hughes","James Baldwin","Ralph Ellison","Countee Cullen"],0,"ラングストン・ヒューズはジャズやブルースのリズムを取り入れた詩で1920年代のハーレム・ルネサンスを牽引した代表的詩人です。"],
+  [3,"Who wrote the 1957 novel 'On the Road,' the defining work of the postwar 'Beat Generation'?",["Allen Ginsberg","Jack Kerouac","William S. Burroughs","Charles Bukowski"],1,"1950年代のビート・ジェネレーションを代表する放浪小説『路上（On the Road）』の著者はジャック・ケルアックです。"],
+  [3,"Which American playwright wrote the classic tragedies 'Death of a Salesman' and 'The Crucible'?",["Eugene O'Neill","Arthur Miller","Tennessee Williams","Edward Albee"],1,"ウィリー・ローマンの悲劇を描いた『セールスマンの死』やセイラム魔女裁判を題材にした『るつぼ』の劇作家はアーサー・ミラーです。"],
+  [3,"Which American playwright wrote 'A Streetcar Named Desire' and 'The Glass Menagerie'?",["Tennessee Williams","Thornton Wilder","Neil Simon","August Wilson"],0,"ニューオーリンズを舞台にした『欲望という名の電車』や『ガラスの動物園』を執筆した劇作家はテネシー・ウィリアムズです。"],
+  [3,"Which prestigious American award for achievements in journalism, literature, and musical composition is administered by Columbia University?",["National Book Award","Pulitzer Prize","Tony Award","Peabody Award"],1,"新聞王ジョセフ・ピューリッツァーの遺志により1917年に創設され、コロンビア大学が授与する報道・文学・音楽の賞は「ピューリッツァー賞」です。"],
+  [3,"What is the highest annual award recognizing excellence in live Broadway theatre in New York City?",["Emmy Award","Tony Award","Grammy Award","Oscar"],1,"ブロードウェイ演劇・ミュージカルの最高峰の賞は「トニー賞（Tony Award）」です。"],
+  [3,"Which short story writer, famous for surprise twist endings, wrote 'The Gift of the Magi' and 'The Last Leaf'?",["O. Henry","Bret Harte","Ray Bradbury","Sherwood Anderson"],0,"ペーソスと意外な結末（ツイスト・エンディング）で知られる『賢者の贈り物』『最後の一葉』の著者はオー・ヘンリー（O. Henry）です。"],
+  [3,"Who wrote the 1900 children's novel 'The Wonderful Wizard of Oz' featuring Dorothy and her dog Toto from Kansas?",["L. Frank Baum","Dr. Seuss","E. B. White","Beverly Cleary"],0,"カンザスから竜巻で飛ばされた少女ドロシーの冒険を描いた児童文学『オズの魔法使い』の著者はライマン・フランク・ボームです。"],
+  [3,"Which science fiction author wrote the 1953 dystopian novel 'Fahrenheit 451' about a future American society where books are burned?",["Isaac Asimov","Ray Bradbury","Philip K. Dick","Robert A. Heinlein"],1,"本が禁じられ焼却される近未来社会を描いたSF小説『華氏451度（Fahrenheit 451）』の著者はレイ・ブラッドベリです。"],
+
+  // 5. 音楽・ミュージカル (#101–#125)
+  [4,"Which Southern port city in Louisiana, home to the French Quarter, is celebrated worldwide as the birthplace of Jazz?",["Memphis","New Orleans","Nashville","Savannah"],1,"ルイジアナ州ニューオーリンズ（特にフレンチ・クォーター周辺）は、19世紀末〜20世紀初頭にジャズが誕生した発祥地です。"],
+  [4,"Which jazz trumpeter and vocalist from New Orleans, nicknamed 'Satchmo,' recorded 'What a Wonderful World'?",["Miles Davis","Louis Armstrong","Dizzy Gillespie","Chet Baker"],1,"「サッチモ」の愛称で親しまれたルイ・アームストロングは、ニューオーリンズ出身のジャズの象徴的トランペット奏者・歌手です。"],
+  [4,"Which jazz pianist and big band leader composed standards like 'Take the 'A' Train' and 'It Don't Mean a Thing (If It Ain't Got That Swing)'?",["Duke Ellington","Count Basie","Glenn Miller","Benny Goodman"],0,"デューク・エリントンはハーレムのコットン・クラブを拠点にビッグバンドを率い、スウィング・ジャズ黄金期を築きました。"],
+  [4,"Which innovative jazz trumpeter led the creation of cool jazz and modal jazz with his 1959 masterpiece album 'Kind of Blue'?",["John Coltrane","Miles Davis","Charlie Parker","Thelonious Monk"],1,"『カインド・オブ・ブルー』などでジャズの歴史を幾度も革新し、「ジャズの帝王」と呼ばれたトランペット奏者はマイルス・デイヴィスです。"],
+  [4,"Which city in Tennessee serves as the global capital of Country Music and is home to the Grand Ole Opry?",["Knoxville","Chattanooga","Nashville","Memphis"],2,"テネシー州の州都ナッシュビルは「ミュージック・シティ」と呼ばれ、カントリー音楽の聖地グランド・オール・オプリがあります。"],
+  [4,"Which street in Memphis, Tennessee is historic as the center of the Blues and early Rock and Roll?",["Bourbon Street","Beale Street","Wall Street","Abbey Road"],1,"テネシー州メンフィスのビール・ストリート（Beale Street）はブルース発展の中心地として知られます（バーボン・ストリートはニューオーリンズ）。"],
+  [4,"Which legendary blues guitarist and singer, nicknamed 'The King of the Blues,' was famous for his black Gibson guitar named 'Lucille'?",["Muddy Waters","B.B. King","Robert Johnson","John Lee Hooker"],1,"愛器「ルシール」を奏で「ブルースの王様」と称されたギタリスト・歌手はB.B.キングです。"],
+  [4,"Which singer, known as the 'King of Rock and Roll,' lived at the Graceland mansion in Memphis and sang 'Hound Dog' and 'Jailhouse Rock'?",["Chuck Berry","Elvis Presley","Buddy Holly","Little Richard"],1,"エルヴィス・プレスリーは1950年代にロックンロールを世界的ブームにし、メンフィスの邸宅グレイスランドは今も聖地となっています。"],
+  [4,"Which record label founded by Berry Gordy Jr. in Detroit in 1959 launched soul and pop stars like Stevie Wonder, The Supremes, and The Jackson 5?",["Sun Records","Chess Records","Motown Records","Atlantic Records"],2,"自動車の街デトロイト（Motor Town）で創設された「モータウン・レコード（Motown）」は、黒人音楽とポップを融合させた数々の世界的スターを輩出しました。"],
+  [4,"Which singer, crowned the 'Queen of Soul,' became famous for her 1967 anthem 'Respect' and was the first woman inducted into the Rock and Roll Hall of Fame?",["Diana Ross","Aretha Franklin","Whitney Houston","Tina Turner"],1,"「ソウルの女王」と呼ばれたアレサ・フランクリンは『リスペクト』などの名唱で知られ、女性初のロックの殿堂入りを果たしました。"],
+  [4,"Which singer-songwriter wrote folk and protest anthems like 'Blowin' in the Wind' and 'Like a Rolling Stone' and won the 2016 Nobel Prize in Literature?",["Paul Simon","Bob Dylan","Bruce Springsteen","Billy Joel"],1,"ボブ・ディランは『風に吹かれて』などでフォークとロックに詩的革命をもたらし、2016年にミュージシャンとして初めてノーベル文学賞を受賞しました。"],
+  [4,"Which outdoor music festival held in upstate New York in August 1969 became the ultimate symbol of the 1960s counterculture and 'Peace and Music'?",["Lollapalooza","Woodstock","Monterey Pop Festival","Bonnaroo"],1,"1969年8月にニューヨーク州ベセルで開催された「ウッドストック・フェスティバル」は、40万人以上を集めた1960年代カウンターカルチャーの象徴です。"],
+  [4,"Which legendary left-handed rock guitarist electrified the 1969 Woodstock Festival with his distorted rendition of 'The Star-Spangled Banner'?",["Eric Clapton","Jimi Hendrix","Carlos Santana","Duane Allman"],1,"ジミ・ヘンドリックスは1969年のウッドストックでアメリカ国歌『星条旗』をエレキギターのフィードバック奏法で演奏し、ロック史に残る名演を残しました。"],
+  [4,"Which artist, known as the 'King of Pop,' released the 1982 album 'Thriller,' the best-selling album in music history?",["Prince","Michael Jackson","Stevie Wonder","Lionel Richie"],1,"「キング・オブ・ポップ」ことマイケル・ジャクソンが1982年に発表した『スリラー（Thriller）』は、史上最も売れたアルバムとしてギネス記録に認定されています。"],
+  [4,"Which female pop icon, nicknamed the 'Queen of Pop,' rose to fame in the 1980s with hits like 'Like a Virgin,' 'Material Girl,' and 'Vogue'?",["Cyndi Lauper","Madonna","Cher","Mariah Carey"],1,"1980年代に『ライク・ア・ヴァージン』などで時代を席巻し「クイーン・オブ・ポップ」と呼ばれたのはマドンナです。"],
+  [4,"In which New York City borough did Hip-Hop music and culture originate at block parties in the 1970s?",["Manhattan","The Bronx","Staten Island","Queens"],1,"ヒップホップ（DJ・ラップ・ブレイクダンス・グラフィティ）は1970年代初頭にニューヨーク市のブロンクス区（The Bronx）のパーティーで誕生しました。"],
+  [4,"Which city in Washington State gave birth to the early 1990s 'Grunge' rock movement led by Nirvana and Pearl Jam?",["Tacoma","Seattle","Olympia","Spokane"],1,"1990年代初頭にニルヴァーナやパール・ジャムを中心とする「グランジ（Grunge）」ロックが生まれたのはワシントン州シアトルです。"],
+  [4,"Which American singer holds the all-time record for the most Grammy Awards won by any artist in history?",["Taylor Swift","Beyoncé","Lady Gaga","Adele"],1,"ビヨンセ（Beyoncé）はグラミー賞において史上最多受賞記録を保持するアーティストです。"],
+  [4,"Which singer-songwriter became the first artist in history to win the Grammy Award for Album of the Year four times (with Fearless, 1989, Folklore, and Midnights)?",["Billie Eilish","Taylor Swift","Ariana Grande","Katy Perry"],1,"テイラー・スウィフトはグラミー賞の最優秀アルバム賞を史上初めて4度受賞し、『The Eras Tour』で世界興行収入記録を塗り替えました。"],
+  [4,"Which American composer blended jazz and classical music in masterpieces like 'Rhapsody in Blue' and the folk opera 'Porgy and Bess'?",["Aaron Copland","George Gershwin","Leonard Bernstein","Cole Porter"],1,"ジャズとクラシックを融合させた『ラプソディ・イン・ブルー』『パリのアメリカ人』『ポーギーとベス』を作曲したのはジョージ・ガーシュウィンです。"],
+  [4,"Which American composer and conductor wrote the music for the 1957 Broadway musical 'West Side Story' and served as Music Director of the New York Philharmonic?",["Stephen Sondheim","Leonard Bernstein","Richard Rodgers","John Williams"],1,"シェイクスピアの『ロミオとジュリエット』をニューヨークに置き換えたミュージカル『ウエスト・サイド物語』を作曲したのは指揮者・作曲家のレナード・バーンスタインです。"],
+  [4,"Who created and starred in the 2015 hip-hop Broadway musical 'Hamilton' about Founding Father Alexander Hamilton?",["Andrew Lloyd Webber","Lin-Manuel Miranda","Jonathan Larson","Alan Menken"],1,"建国の父アレクサンダー・ハミルトンの生涯をヒップホップやR&Bで描いた大ヒットミュージカル『ハミルトン』の作者・主演はリン＝マニュエル・ミランダです。"],
+  [4,"Which American composer, known as 'The March King,' composed the official National March of the United States, 'The Stars and Stripes Forever'?",["Scott Joplin","John Philip Sousa","Irving Berlin","Stephen Foster"],1,"アメリカの国の行進曲『星条旗よ永遠なれ（The Stars and Stripes Forever）』を作曲し「マーチ王」と呼ばれたのはジョン・フィリップ・スーザです。"],
+  [4,"In which Ohio city on the shore of Lake Erie is the Rock and Roll Hall of Fame Museum located, featuring a glass pyramid designed by I. M. Pei?",["Columbus","Cincinnati","Cleveland","Toledo"],2,"ロックの殿堂（Rock and Roll Hall of Fame）博物館は、ラジオDJアラン・フリードゆかりの地であるオハイオ州クリーブランドにあります。"],
+  [4,"Which famous annual music and arts festival is held every April in the Colorado Desert (Indio) in Southern California?",["Austin City Limits","Coachella Valley Music and Arts Festival","Newport Folk Festival","Ultra Music Festival"],1,"毎年4月にカリフォルニア州インディオの砂漠地帯で開催される世界最大級の野外音楽フェスは「コーチェラ・フェスティバル（Coachella）」です。"],
+
+  // 6. 映画・アニメ・TV (#126–#150)
+  [5,"Which district in Los Angeles, California is the historic center of the American film industry and features a famous 45-foot-tall white sign on Mount Lee?",["Beverly Hills","Hollywood","Santa Monica","Malibu"],1,"ロサンゼルスのハリウッド地区はアメリカ映画産業の中心地であり、リー山に掲げられた白い「HOLLYWOOD」サインで有名です。"],
+  [5,"What is the popular nickname of the gold-plated statuette awarded annually at the Academy Awards?",["Emmy","Oscar","Tony","Grammy"],1,"映画芸術科学アカデミー（AMPAS）が授与するアカデミー賞の黄金のトロフィー像は「オスカー（Oscar）」の愛称で呼ばれます。"],
+  [5,"Which theater on Hollywood Boulevard in Los Angeles has hosted the Academy Awards ceremony since 2002?",["Chinese Theatre","Dolby Theatre (formerly Kodak Theatre)","Pantages Theatre","El Capitan Theatre"],1,"アカデミー賞授賞式の会場となっているハリウッドの劇場は「ドルビー・シアター（旧コダック・シアター）」です。"],
+  [5,"Which 1927 musical film starring Al Jolson was the first feature-length 'talkie' (motion picture with synchronized dialogue and singing)?",["City Lights","The Jazz Singer","Sunrise","Wings"],1,"1927年公開のワーナー・ブラザース作品『ジャズ・シンガー（The Jazz Singer）』は世界初の長編トーキー（発声映画）として映画史を変えました。"],
+  [5,"Who created Mickey Mouse in 1928 ('Steamboat Willie') and released the first full-length cel-animated feature film 'Snow White and the Seven Dwarfs' in 1937?",["Tex Avery","Walt Disney","Chuck Jones","Max Fleischer"],1,"ウォルト・ディズニーは1928年の『蒸気船ウィリー』でミッキーマウスを世に出し、1937年に世界初の長編カラーアニメ映画『白雪姫』を公開しました。"],
+  [5,"Which 1941 film directed by and starring a 25-year-old Orson Welles is widely acclaimed by critics as one of the greatest films ever made?",["Casablanca","Citizen Kane","The Maltese Falcon","Sunset Boulevard"],1,"新聞王の生涯を革新的な撮影技法で描いたオーソン・ウェルズ監督・主演の1941年作品『市民ケーン（Citizen Kane）』は映画史上の最高傑作の一つと称されます。"],
+  [5,"Which 1942 romantic drama starring Humphrey Bogart and Ingrid Bergman is famous for the line 'Here's looking at you, kid'?",["Gone with the Wind","Casablanca","Roman Holiday","Sabrina"],1,"ハンフリー・ボガートとイングリッド・バーグマンが共演した1942年の名作『カサブランカ』は「君の瞳に乾杯（Here's looking at you, kid）」のセリフで有名です。"],
+  [5,"Who directed the 1972 Mafia masterpiece 'The Godfather' starring Marlon Brando and Al Pacino?",["Martin Scorsese","Francis Ford Coppola","Brian De Palma","Michael Cimino"],1,"マリオ・プーゾの小説を原作にコルレオーネ・ファミリーを描いた『ゴッドファーザー』の監督はフランシス・フォード・コッポラです。"],
+  [5,"Which filmmaker directed blockbusters and Oscar winners including 'Jaws,' 'E.T. the Extra-Terrestrial,' 'Jurassic Park,' and 'Schindler's List'?",["George Lucas","Steven Spielberg","James Cameron","Robert Zemeckis"],1,"『ジョーズ』『E.T.』『ジュラシック・パーク』『シンドラーのリスト』などを監督したハリウッドの巨匠はスティーヴン・スピルバーグです。"],
+  [5,"Who created the 'Star Wars' and 'Indiana Jones' franchises and founded the visual effects company Industrial Light & Magic (ILM)?",["Gene Roddenberry","George Lucas","Ridley Scott","Ron Howard"],1,"1977年公開の『スター・ウォーズ』シリーズを生み出し、ルーカスフィルムやILMを創設したのはジョージ・ルーカスです。"],
+  [5,"Which three films are tied for the all-time record of winning 11 Academy Awards?",["Ben-Hur (1959), Titanic (1997), and The Lord of the Rings: The Return of the King (2003)","Gone with the Wind, Star Wars, and Avatar","West Side Story, The Godfather, and Oppenheimer","Casablanca, Forrest Gump, and La La Land"],0,"アカデミー賞史上最多の11部門受賞を達成した3作品は『ベン・ハー』『タイタニック』『ロード・オブ・ザ・リング／王の帰還』です。"],
+  [5,"Which 1995 film produced by Pixar Animation Studios was the world's first entirely computer-animated feature film?",["A Bug's Life","Toy Story","Shrek","Monsters, Inc."],1,"1995年に公開されたピクサー制作の『トイ・ストーリー（Toy Story）』は、世界初のフルCG長編アニメーション映画です。"],
+  [5,"Which 1994 film starring Tom Hanks won 6 Academy Awards and features the famous line 'Life is like a box of chocolates'?",["Saving Private Ryan","Forrest Gump","Cast Away","Philadelphia"],1,"トム・ハンクスが主演し作品賞・主演男優賞など6部門を受賞した1994年の名作は『フォレスト・ガンプ／一期一会』です。"],
+  [5,"Which largest independent film festival in the United States was founded by actor Robert Redford and is held annually in Utah?",["Tribeca Film Festival","Sundance Film Festival","Telluride Film Festival","SXSW"],1,"俳優ロバート・レッドフォードが創設し、ユタ州パークシティで毎年開催される全米最大のインディペンデント映画祭は「サンダンス映画祭」です。"],
+  [5,"Which actor holds the record for the most Academy Award nominations (21 nominations) and won three Oscars including for 'The Iron Lady'?",["Katharine Hepburn","Meryl Streep","Frances McDormand","Bette Davis"],1,"メリル・ストリープはアカデミー賞で史上最多の21回ノミネートされ、『クレイマー、クレイマー』『ソフィーの選択』『マーガレット・サッチャー 鉄の女の涙』で3度受賞しています。"],
+  [5,"Which actress holds the record for the most Best Actress Academy Awards won, with four Oscars?",["Audrey Hepburn","Katharine Hepburn","Ingrid Bergman","Elizabeth Taylor"],1,"キャサリン・ヘプバーンはアカデミー主演女優賞を史上最多の4度受賞した伝説的女優です。"],
+  [5,"Which biographical film directed by Christopher Nolan won 7 Oscars, including Best Picture, at the 96th Academy Awards in 2024?",["Barbie","Oppenheimer","Poor Things","Killers of the Flower Moon"],1,"2024年の第96回アカデミー賞で作品賞・監督賞・主演男優賞など最多7部門を受賞したのはクリストファー・ノーラン監督の『オッペンハイマー』です。"],
+  [5,"Which American actress won her second Best Actress Oscar in 2024 for 'Poor Things' after previously winning for 'La La Land'?",["Emma Stone","Jennifer Lawrence","Natalie Portman","Brie Larson"],0,"エマ・ストーンは『ラ・ラ・ランド』（2016年）に続き、2024年の『哀れなるものたち（Poor Things）』で2度目の主演女優賞を受賞しました。"],
+  [5,"What is the premier annual award recognizing excellence in the American television industry?",["Tony Award","Emmy Award","Grammy Award","Clio Award"],1,"アメリカのテレビ番組・ドラマ界における最高峰の賞は「エミー賞（Emmy Award）」です。"],
+  [5,"What does the acronym 'EGOT' stand for in American entertainment?",["Emmy, Grammy, Oscar, and Tony Awards","Entertainment Guild of Television","European and Global Oscar Trophy","Eastern Group of Opera Theaters"],0,"テレビ（Emmy）・音楽（Grammy）・映画（Oscar）・演劇（Tony）の4大エンターテインメント賞をすべて受賞する偉業を「EGOT」と呼びます。"],
+  [5,"Which long-running animated sitcom created by Matt Groening follows a yellow-skinned family (Homer, Marge, Bart, Lisa, and Maggie) in Springfield?",["Family Guy","The Simpsons","South Park","Peanuts"],1,"1989年から放送が続くアメリカテレビ史上最長のアニメ・シットコムは、ホーマー一家を描く『ザ・シンプソンズ（The Simpsons）』です。"],
+  [5,"Which iconic 1994–2004 television sitcom followed six young adults (Rachel, Monica, Phoebe, Joey, Chandler, and Ross) living in Manhattan?",["Seinfeld","Friends","Cheers","How I Met Your Mother"],1,"ニューヨークのカフェ「セントラル・パーク」に集う男女6人の日常を描き世界中で大ヒットしたシットコムは『フレンズ（Friends）』です。"],
+  [5,"Which educational children's television series, airing since 1969, features Jim Henson's Muppets like Big Bird, Elmo, and Cookie Monster?",["Mister Rogers' Neighborhood","Sesame Street","The Electric Company","Reading Rainbow"],1,"1969年に放送開始された子ども向け教育番組『セサミストリート』は、ビッグバードやエルモなどのマペットで世界中で親しまれています。"],
+  [5,"Which late-night live sketch comedy show created by Lorne Michaels has aired on NBC from New York's Studio 8H since 1975?",["The Tonight Show","Saturday Night Live (SNL)","The Daily Show","Late Show"],1,"1975年からNBCで生放送されている政治風刺やコメディスケッチの長寿番組は『サタデー・ナイト・ライブ（SNL）』です。"],
+  [5,"What were the traditional 'Big Three' commercial broadcast television networks in the United States during the 20th century?",["ABC, CBS, and NBC","CNN, Fox, and MSNBC","HBO, Netflix, and Disney+","PBS, NPR, and BBC"],0,"アメリカの伝統的な3大地上波テレビネットワーク（Big Three）は、ABC、CBS、NBCの3社です。"],
+
+  // 7. 美術・建築・博物館 (#151–#175)
+  [6,"Which artist was the leading figure of the 1960s 'Pop Art' movement, famous for his silkscreen prints of Campbell's Soup Cans and Marilyn Monroe?",["Roy Lichtenstein","Andy Warhol","Keith Haring","Jean-Michel Basquiat"],1,"キャンベルのスープ缶やマリリン・モンローのシルクスクリーン作品で1960年代ポップアートの旗手となったのはアンディ・ウォーホルです。"],
+  [6,"Which Abstract Expressionist painter, nicknamed 'Jack the Dripper,' became famous in the late 1940s for his 'drip painting' (action painting) technique?",["Mark Rothko","Jackson Pollock","Willem de Kooning","Barnett Newman"],1,"床に広げた巨大キャンバスに絵具を垂らし飛沫させる「ドリップ・ペインティング（アクション・ペインティング）」で抽象表現主義を代表した画家はジャクソン・ポロックです。"],
+  [6,"Who painted the iconic 1930 artwork 'American Gothic,' depicting a stern farmer holding a pitchfork beside a woman in front of a white house?",["Edward Hopper","Grant Wood","Andrew Wyeth","Thomas Hart Benton"],1,"三又の熊手（ピッチフォーク）を持つ農夫と娘を描いたアメリカ絵画の代名詞『アメリカン・ゴシック（1930年）』の作者はグラント・ウッドです。"],
+  [6,"Who painted the famous 1942 realist work 'Nighthawks,' depicting four people inside a brightly lit downtown diner late at night?",["Norman Rockwell","Edward Hopper","Winslow Homer","John Singer Sargent"],1,"深夜の都会のダイナーに佇む人々の孤独を描いた1942年の傑作『ナイトホークス（夜ふかしする人々）』の作者はエドワード・ホッパーです。"],
+  [6,"Which 20th-century artist and illustrator painted warm scenes of everyday American life for The Saturday Evening Post and the 'Four Freedoms' series?",["Norman Rockwell","N. C. Wyeth","Maxfield Parrish","Frederic Remington"],0,"ノーマン・ロックウェルは『サタデー・イブニング・ポスト』誌の表紙画やルーズベルト大統領の理念を描いた連作『四つの自由』で愛された国民的イラストレーター・画家です。"],
+  [6,"Which female modernist painter is known as the 'Mother of American Modernism' for her large-scale paintings of flowers and New Mexico desert landscapes?",["Mary Cassatt","Georgia O'Keeffe","Grandma Moses","Helen Frankenthaler"],1,"拡大された花の絵やニューメキシコ州の砂漠・動物の骨を描き「アメリカ・モダニズムの母」と呼ばれた画家はジョージア・オキーフです。"],
+  [6,"Which American-born Impressionist painter lived in France and became famous for her tender paintings of mothers and children?",["Georgia O'Keeffe","Mary Cassatt","Cecilia Beaux","Lilla Cabot Perry"],1,"フランスでドガら印象派の画家たちと共に活動し、母子像の名作を数多く残したアメリカ出身の女性画家はメアリー・カサットです。"],
+  [6,"Which American painter created 'Arrangement in Grey and Black No. 1' in 1871, famously known as 'Whistler's Mother'?",["John Singleton Copley","James McNeill Whistler","Gilbert Stuart","Thomas Eakins"],1,"『灰色と黒のアレンジメント第1番（母の肖像 / Whistler's Mother）』を描いた19世紀のアメリカ人画家はジェームズ・マクニール・ホイッスラーです。"],
+  [6,"Who painted the unfinished 1796 'Athenaeum Portrait' of George Washington that is used on the U.S. one-dollar bill?",["Charles Willson Peale","Gilbert Stuart","Benjamin West","John Trumbull"],1,"1ドル紙幣の肖像の元となったジョージ・ワシントンの未完の肖像画（アテネウム・ポートレート）を描いた画家はギルバート・スチュアートです。"],
+  [6,"Which pioneering American architect promoted 'organic architecture' and designed 'Fallingwater' (in Pennsylvania) and the Guggenheim Museum (in NYC)?",["Louis Sullivan","Frank Lloyd Wright","Philip Johnson","Frank Gehry"],1,"「有機的建築」を提唱し、ペンシルベニア州の『落水荘（Fallingwater）』やNYのグッゲンハイム美術館、旧帝国ホテルを設計したのはフランク・ロイド・ライトです。"],
+  [6,"Which Chinese-American architect designed the glass pyramid at the Louvre in Paris and the East Building of the National Gallery of Art in Washington, D.C.?",["Maya Lin","I. M. Pei","Minoru Yamasaki","César Pelli"],1,"パリのルーヴル美術館のガラスのピラミッドやワシントンD.C.のナショナル・ギャラリー東館を設計した中国系アメリカ人建築家はイオ・ミン・ペイ（I. M. Pei）です。"],
+  [6,"Which architect designed the titanium-clad Walt Disney Concert Hall in Los Angeles and the Guggenheim Museum in Bilbao, Spain?",["Richard Meier","Frank Gehry","Daniel Libeskind","Robert Venturi"],1,"うねるような金属曲面のロサンゼルス「ウォルト・ディズニー・コンサートホール」やビルバオ・グッゲンハイム美術館を設計したのはフランク・ゲーリーです。"],
+  [6,"Which 19th-century Chicago architect is called the 'Father of Skyscrapers' and coined the phrase 'form follows function'?",["Daniel Burnham","Louis Sullivan","William Le Baron Jenney","Henry Hobson Richardson"],1,"「形態は機能に従う（form follows function）」を唱え、高層ビル建築の基礎を築いたシカゴ派の巨匠はルイス・サリヴァンです。"],
+  [6,"Which Art Deco skyscraper in New York City, featuring a gleaming stainless-steel spire with sunburst motifs, was briefly the world's tallest building in 1930?",["Empire State Building","Chrysler Building","Woolworth Building","Flatiron Building"],1,"1930年に完成したステンレス鋼の美しい尖塔を持つニューヨークのアール・デコ建築の傑作は「クライスラー・ビルディング」です。"],
+  [6,"Which 102-story Art Deco skyscraper in Midtown Manhattan was completed in 1931 and stood as the world's tallest building for nearly 40 years?",["One World Trade Center","Empire State Building","Willis Tower","MetLife Building"],1,"1931年に竣工し、『キング・コング』などの映画でも知られるマンハッタンの象徴的な摩天楼は「エンパイア・ステート・ビルディング」です。"],
+  [6,"Which country gifted the Statue of Liberty (designed by sculptor Frédéric Auguste Bartholdi) to the United States in 1886?",["United Kingdom","France","Italy","Spain"],1,"ニューヨーク港のリバティ島に立つ「自由の女神像」は、アメリカ独立100周年を記念してフランスから寄贈され1886年に除幕されました。"],
+  [6,"Which four U.S. Presidents are carved into the granite face of Mount Rushmore in South Dakota by sculptor Gutzon Borglum?",["Washington, Jefferson, Jackson, and Lincoln","Washington, Jefferson, Theodore Roosevelt, and Lincoln","Washington, Adams, Lincoln, and Franklin D. Roosevelt","Washington, Madison, Lincoln, and Wilson"],1,"サウスダコタ州のマウント・ラシュモア国立記念碑に彫られている4人の大統領は、ワシントン、ジェファソン、セオドア・ルーズベルト、リンカーンです。"],
+  [6,"What is the name of the Virginia plantation estate designed by Thomas Jefferson himself, which is designated a UNESCO World Heritage Site?",["Mount Vernon","Monticello","Montpelier","The Hermitage"],1,"第3代大統領トーマス・ジェファソンが自ら新古典主義様式で設計したバージニア州の邸宅は「モンティチェロ（Monticello）」です（マウント・バーノンはワシントンの邸宅）。"],
+  [6,"What is the title of the large fresco painted by Constantino Brumidi in 1865 on the ceiling of the U.S. Capitol Rotunda?",["The Birth of Liberty","The Apotheosis of Washington","Washington Crossing the Delaware","Spirit of '76"],1,"ワシントンD.C.の連邦議会議事堂ロタンダ（円形広間）の天井に描かれているフレスコ画は『ワシントンの神格化（The Apotheosis of Washington）』です。"],
+  [6,"Which museum on Fifth Avenue in New York City is the largest art museum in the Americas?",["Museum of Modern Art (MoMA)","The Metropolitan Museum of Art (The Met)","Whitney Museum of American Art","Frick Collection"],1,"ニューヨーク5番街のセントラル・パーク脇にある「メトロポリタン美術館（The Met）」は、西半球最大の美術館です。"],
+  [6,"Which museum in Midtown Manhattan is famous for housing Vincent van Gogh's 'The Starry Night' and Picasso's 'Les Demoiselles d'Avignon'?",["The Guggenheim","The Museum of Modern Art (MoMA)","New Museum","Brooklyn Museum"],1,"ゴッホの『星月夜』やピカソの『アヴィニョンの娘たち』など近現代美術の至宝を所蔵するのはニューヨーク近代美術館（MoMA）です。"],
+  [6,"Which world-famous complex of 21 museums, galleries, and a zoo, located mostly along the National Mall in Washington, D.C., offers free admission?",["The Getty Center","The Smithsonian Institution","The Carnegie Museums","The Field Museum"],1,"ワシントンD.C.のナショナル・モールを中心に展開する世界最大の博物館・研究複合施設は「スミソニアン博物館群（Smithsonian Institution）」です。"],
+  [6,"Which iconic 630-foot stainless-steel monument designed by Eero Saarinen stands in St. Louis, Missouri as a symbol of westward expansion?",["Space Needle","Gateway Arch","Cloud Gate","Washington Monument"],1,"ミズーリ州セントルイスにそびえる高さ192mのステンレス製アーチは、西部開拓の玄関口を象徴する「ゲートウェイ・アーチ」です。"],
+  [6,"In which city is the famous 'International Orange' suspension bridge, the Golden Gate Bridge, located?",["Los Angeles","San Francisco","Seattle","Portland"],1,"1937年に開通した鮮やかなインターナショナル・オレンジ色の吊り橋「ゴールデン・ゲート・ブリッジ」はカリフォルニア州サンフランシスコにあります。"],
+  [6,"Which UNESCO World Heritage Site in Colorado preserves the famous cliff dwellings built by the Ancestral Pueblo people?",["Grand Canyon","Mesa Verde National Park","Carlsbad Caverns","Mammoth Cave"],1,"コロラド州にある「メサ・ヴェルデ国立公園」は、先住民プエブロ族が断崖の窪みに築いた精巧な崖住居遺跡で知られる世界文化遺産です。"],
+
+  // 8. ポップカルチャー (#176–#200)
+  [7,"In which city and year did Levi Strauss and tailor Jacob Davis patent copper-riveted blue jeans (denim work pants)?",["San Francisco in 1873","New York City in 1901","Dallas in 1889","Chicago in 1865"],0,"1873年、サンフランシスコのリーバイ・ストラウスと仕立屋ジェイコブ・デイビスがリベット補強のデニム作業ズボン（ブルージーンズ）の特許を取得しました。"],
+  [7,"Which iconic superhero, created by Jerry Siegel and Joe Shuster, made his debut in 'Action Comics #1' in 1938?",["Batman","Superman","Spider-Man","Captain America"],1,"1938年の『アクション・コミックス』創刊号で初登場し、アメリカン・コミックスのスーパーヒーローの原点となったのは「スーパーマン」です。"],
+  [7,"Which comic book writer co-created Marvel superheroes including Spider-Man, Iron Man, the X-Men, the Hulk, and the Avengers?",["Bob Kane","Stan Lee","Frank Miller","Alan Moore"],1,"スタン・リー（Stan Lee）はジャック・カービーやスティーヴ・ディッコらと共にスパイダーマンやアベンジャーズなど数々のマーベル・ヒーローを生み出しました。"],
+  [7,"Who created the classic daily comic strip 'Peanuts' featuring Charlie Brown and his beagle dog Snoopy?",["Jim Davis","Charles M. Schulz","Bill Watterson","Gary Larson"],1,"チャーリー・ブラウンとスヌーピーが登場する新聞漫画『ピーナッツ（Peanuts）』を50年間にわたり描き続けた漫画家はチャールズ・M・シュルツです。"],
+  [7,"In what year and in which California city did Walt Disney open the original 'Disneyland' theme park?",["1955 in Anaheim","1971 in Orlando","1937 in Burbank","1964 in Pasadena"],0,"最初のディズニーランドは1955年7月17日にカリフォルニア州アナハイムに開園しました（フロリダ州オーランドのウォルト・ディズニー・ワールドは1971年開園）。"],
+  [7,"Which fashion doll, created by Ruth Handler and launched by American toy company Mattel in 1959, became a global cultural icon?",["Cabbage Patch Kid","Barbie","Raggedy Ann","Blythe"],1,"マテル社共同創業者のルース・ハンドラーが考案し1959年に発売されたファッションドールは「バービー（Barbie）」です。"],
+  [7,"Which historic U.S. highway, running 2,448 miles from Chicago to Santa Monica, is celebrated in pop culture as the 'Mother Road' and 'Main Street of America'?",["Route 1","Route 66","Interstate 95","Pacific Coast Highway"],1,"イリノイ州シカゴからカリフォルニア州サンタモニカまでを結んだ旧国道「ルート66（Route 66）」は、ジョン・スタインベックによって「母なる道（Mother Road）」と呼ばれました。"],
+  [7,"Which desert city in Nevada, famous for 'The Strip,' neon lights, casinos, and mega-resorts, is nicknamed 'The Entertainment Capital of the World'?",["Reno","Las Vegas","Phoenix","Palm Springs"],1,"ネバダ州のラスベガスは、大通り「ストリップ」沿いに巨大カジノホテルやショー劇場が立ち並ぶ世界のエンターテインメントの都です。"],
+  [7,"Which famous pop culture convention, originally focused on comic books and sci-fi/fantasy, is held every summer in San Diego, California?",["E3 Expo","San Diego Comic-Con","CES","Dragon Con"],1,"1970年に始まり毎年夏にカリフォルニア州サンディエゴで開催される世界最大級のポップカルチャーの祭典は「サンディエゴ・コミコン（Comic-Con）」です。"],
+  [7,"Which American sportswear company, founded in Oregon by Phil Knight and Bill Bowerman, uses the 'Swoosh' logo and the slogan 'Just Do It'?",["Converse","Nike","New Balance","Under Armour"],1,"オレゴン州で創業され、勝利の女神ニケに由来する社名と「スウッシュ」ロゴ、「Just Do It」の標語で知られるブランドはナイキ（Nike）です。"],
+  [7,"Which American fashion designer built a global lifestyle empire with his 'Polo' brand featuring an embroidered polo player on a horse?",["Calvin Klein","Ralph Lauren","Tommy Hilfiger","Marc Jacobs"],1,"ポロ競技のプレイヤーの刺繍ロゴで知られ、アメリカン・トラッド（プレッピー・スタイル）を象徴するデザイナーはラルフ・ローレンです。"],
+  [7,"Which luxury American jewelry retailer, founded in 1837 on Broadway in New York City, is famous for its robin's-egg blue boxes?",["Cartier","Tiffany & Co.","Harry Winston","Bulgari"],1,"1837年にニューヨークで創業し、「ティファニー・ブルー」の箱と映画『ティファニーで朝食を』で世界的に知られる宝飾ブランドはティファニー（Tiffany & Co.）です。"],
+  [7,"Which influential fashion magazine, whose U.S. edition was led for decades by editor-in-chief Anna Wintour, organizes the annual 'Met Gala' in NYC?",["Harper's Bazaar","Vogue","Elle","Cosmopolitan"],1,"アナ・ウィンターが長年編集長を務め、毎年5月にメトロポリタン美術館でファッションの祭典「メットガラ（Met Gala）」を主催する雑誌は『ヴォーグ（Vogue）』です。"],
+  [7,"Which weekly American news magazine, founded in 1923 by Henry Luce, has named a 'Person of the Year' (formerly Man of the Year) every year since 1927?",["Newsweek","TIME","The New Yorker","The Atlantic"],1,"赤い枠の表紙と1927年から続く毎年末の「パーソン・オブ・ザ・イヤー（今年の人）」選出で知られるアメリカの週刊ニュース誌は『タイム（TIME）』です。"],
+  [7,"Which biweekly American magazine, founded in 1967 in San Francisco by Jann Wenner, is a premier publication on popular music, rock, and politics?",["Billboard","Rolling Stone","Spin","Variety"],1,"1967年にサンフランシスコで創刊され、ロック音楽やカルチャー、政治ジャーナリズムで大きな影響力を持つ雑誌は『ローリング・ストーン（Rolling Stone）』です。"],
+  [7,"Which American society, founded in 1888 in Washington, D.C., publishes a world-renowned nature and science magazine famous for its yellow rectangular border?",["Smithsonian","National Geographic","Scientific American","Audubon"],1,"黄色い長方形の枠（イエロー・ボーダー）の表紙と美しい写真で知られる地理・科学雑誌は『ナショナル ジオグラフィック（National Geographic）』です。"],
+  [7,"Which cable television channel launched on August 1, 1981, playing 'Video Killed the Radio Star' as its very first music video?",["VH1","MTV (Music Television)","BET","CMT"],1,"1981年8月1日に開局し、最初の曲としてバグルスの『ラジオ・スターの悲劇』を放送してミュージック・ビデオの時代を切り開いたのは「MTV」です。"],
+  [7,"Which classic American board game, published by Parker Brothers in 1935, involves buying and trading properties named after streets in Atlantic City, New Jersey?",["Scrabble","Monopoly","The Game of Life","Risk"],1,"ニュージャージー州アトランティックシティの通り名をモチーフに不動産取引を行う世界的なボードゲームは「モノポリー（Monopoly）」です。"],
+  [7,"Which American motorcycle manufacturer, founded in Milwaukee, Wisconsin in 1903, became an enduring symbol of heavy cruiser bikes and biker culture?",["Indian Motorcycle","Harley-Davidson","Triumph","Ducati"],1,"1903年にウィスコンシン州ミルウォーキーで創業し、映画『イージー・ライダー』などを通じてアメリカの自由とバイカー文化の象徴となったのは「ハーレーダビッドソン」です。"],
+  [7,"What are the four grade levels of American high schools and four-year colleges called in order from 1st year to 4th year?",["Freshman, Sophomore, Junior, Senior","First, Second, Junior, Master","Freshman, Junior, Sophomore, Senior","Primary, Secondary, Junior, Senior"],0,"アメリカの高校・4年制大学の1年生から4年生は順に、Freshman（1年）、Sophomore（2年）、Junior（3年）、Senior（4年）と呼ばれます。"],
+  [7,"What is the collective name for the eight prestigious private universities in the Northeastern United States, including Harvard, Yale, and Princeton?",["Big Ten","Ivy League","Seven Sisters","Public Ivies"],1,"ハーバード、イェール、プリンストン、コロンビア、ペンシルベニア、ブラウン、ダートマス、コーネルの北東部名門私立8大学は「アイビー・リーグ（Ivy League）」と呼ばれます。"],
+  [7,"What metaphor has traditionally been used since a 1908 play by Israel Zangwill to describe American society as a fusion of diverse immigrant cultures?",["Mosaic","Melting Pot","Tapestry","Kaleidoscope"],1,"多様な移民の文化が溶け合って一つの社会を作るというアメリカの伝統的比喩は「人種のるつぼ（Melting Pot）」（近年は多様性を保つ「サラダボウル」も併用）です。"],
+  [7,"Who coined the phrase 'The American Dream' in his 1931 historical book 'The Epic of America' to describe a land where everyone has opportunity according to ability?",["Horatio Alger","James Truslow Adams","Dale Carnegie","Norman Vincent Peale"],1,"生まれや階級に関わらず努力と能力に応じて誰もが成功の機会を得られる理想を「アメリカン・ドリーム（The American Dream）」と名付け広めたのは歴史家ジェームズ・トラスロー・アダムズ（1931年）です。"],
+  [7,"Which iconic personification of the United States government, wearing a tall striped top hat and pointing forward on 'I Want You' recruiting posters, shares initials with 'United States'?",["Brother Jonathan","Uncle Sam","Columbia","John Bull"],1,"星条旗柄のシルクハットをかぶり「I Want You」の募兵ポスターで指をさすアメリカ合衆国の擬人化キャラクターは「アンクル・サム（Uncle Sam = U.S.）」です。"],
+  [7,"Which cultural icon of World War II, depicted flexing her arm in a red-and-white polka-dot bandana under the slogan 'We Can Do It!', represented women factory workers?",["Molly Pitcher","Rosie the Riveter","Lady Liberty","Betty Boop"],1,"第二次世界大戦中に軍需工場で働く女性たちを象徴し、「We Can Do It!」のポスターで知られるキャラクターは「リベット工のロージー（Rosie the Riveter）」です。"],
+
+  // ==================== PART 2: 科学・生活常識 (200問: #201–#400) ====================
+  // 9. 生活常識①：長さ・距離・面積 (#201–#225)
+  [8,"What is the name of the measurement system commonly used in daily life in the United States instead of the Metric System?",["U.S. Customary System (Imperial Units)","Decimal System","Kelvin System","Continental System"],0,"アメリカではメートル法ではなく、インチ・フィート・マイル・ポンド・ガロンなどを用いる「米国慣用単位（ヤード・ポンド法）」が日常生活で使われています。"],
+  [8,"Approximately how many centimeters are in 1 inch?",["1.61 cm","2.54 cm","3.05 cm","3.79 cm"],1,"1インチ（inch）は正確に2.54センチメートルです。"],
+  [8,"How many inches make 1 foot?",["10 inches","12 inches","16 inches","24 inches"],1,"1フィート（foot）は12インチで構成されています。"],
+  [8,"Approximately how many centimeters are in 1 foot?",["25.4 cm","30.48 cm","45.36 cm","91.44 cm"],1,"1フィート（12インチ）は約30.48センチメートル（約30.5cm）です。"],
+  [8,"Approximately how many centimeters is a person who is 6 feet tall (6'0\")?",["165 cm","175 cm","183 cm","195 cm"],2,"6フィートは 30.48cm × 6 ＝ 182.88cm となり、おおよそ183センチメートルです（決勝戦頻出問題）。"],
+  [8,"Approximately how many centimeters is a person who is 5 feet tall (5'0\")?",["142 cm","152 cm","162 cm","172 cm"],1,"5フィートは 30.48cm × 5 ＝ 152.4cm となり、おおよそ152センチメートルです。"],
+  [8,"Approximately how many centimeters is a person whose height is 5 feet 7 inches (5'7\")?",["160 cm","170 cm","180 cm","190 cm"],1,"5フィート7インチは計67インチ（67 × 2.54cm ＝ 170.18cm）で、おおよそ170センチメートルです。"],
+  [8,"In U.S. notation, what do the symbols single prime (') and double prime (\") represent in the measurement 5'10\"?",["5 meters and 10 centimeters","5 yards and 10 feet","5 feet and 10 inches","5 pounds and 10 ounces"],2,"アメリカの長さ・身長表記では、「'」がフィート（feet）、「\"」がインチ（inches）を表し、5'10\"は5フィート10インチ（約178cm）を意味します。"],
+  [8,"How many feet make 1 yard?",["2 feet","3 feet","4 feet","6 feet"],1,"1ヤード（yard）は3フィート（36インチ）です。"],
+  [8,"Approximately how many centimeters (or meters) are in 1 yard?",["60.96 cm (0.61 m)","91.44 cm (0.91 m)","100.0 cm (1.00 m)","121.92 cm (1.22 m)"],1,"1ヤード（3フィート）は約91.44センチメートル（約0.91メートル）です。"],
+  [8,"In American football, what is the length of the playing field between the two goal lines (excluding the two 10-yard end zones)?",["50 yards","80 yards","100 yards","120 yards"],2,"アメリカンフットボールのフィールドはゴールライン間が100ヤード（約91.4m）で、両端に10ヤードずつのエンドゾーンがあります。"],
+  [8,"Approximately how many kilometers are in 1 statute mile?",["1.209 km","1.609 km","2.205 km","2.540 km"],1,"1マイル（mile）は約1.609キロメートル（約1.6km）です。"],
+  [8,"How many feet are in 1 mile (the exact elevation of Denver, the 'Mile High City')?",["3,600 feet","5,000 feet","5,280 feet","6,000 feet"],2,"1マイルは5,280フィート（1,760ヤード）であり、コロラド州デンバーの標高（5,280フィート＝約1,609m）として知られます。"],
+  [8,"If a U.S. highway speed limit sign reads '60 MPH,' approximately how fast is that in kilometers per hour (km/h)?",["About 75 km/h","About 85 km/h","About 96.5 km/h","About 115 km/h"],2,"MPHは「マイル毎時（miles per hour）」を意味し、60 MPHは 60 × 1.609 ＝ 約96.5 km/h です。"],
+  [8,"Approximately how many miles is a full marathon race (42.195 km)?",["13.1 miles","20.0 miles","26.2 miles","31.1 miles"],2,"フルマラソン（42.195km）をマイルで表すと「26.2マイル（26マイル385ヤード）」、ハーフマラソンは「13.1マイル」です。"],
+  [8,"Approximately how many kilometers is a '100-mile' distance?",["About 100 km","About 135 km","About 161 km","About 254 km"],2,"100マイルは約161キロメートルです。"],
+  [8,"In basketball, how high above the floor is a standard NBA/regulation basketball hoop (rim) set?",["8 feet (approx. 244 cm)","10 feet (approx. 305 cm)","12 feet (approx. 366 cm)","15 feet (approx. 457 cm)"],1,"バスケットボールのリングの高さは世界共通で床から「10フィート（約305センチメートル）」と定められています。"],
+  [8,"In Major League Baseball (MLB), what is the exact distance between the bases (and approximately between the pitcher's mound and home plate)?",["90 feet (bases) / 60 feet 6 inches (pitcher to home)","100 feet (bases) / 50 feet (pitcher to home)","60 feet (bases) / 45 feet (pitcher to home)","120 feet (bases) / 70 feet (pitcher to home)"],0,"野球の塁間距離は90フィート（約27.43m）、投手板から本塁までの距離は60フィート6インチ（約18.44m）です。"],
+  [8,"What unit is commonly used in the United States to measure the floor area of houses and apartments?",["Tsubo","Square feet (sq ft)","Acres","Square miles"],1,"アメリカの住宅や部屋の床面積は「スクエア・フィート（平方フィート：sq ft）」で表示されます（1平方メートルは約10.76平方フィート）。"],
+  [8,"What traditional unit of land area (equal to 43,560 square feet, or about 4,047 m²) is commonly used in the U.S. to measure farms and large plots of land?",["Hectare","Acre (エーカー)","League","Furlong"],1,"アメリカの農場や広大な土地の面積を表すのによく使われる単位は「エーカー（Acre、約4,047平方メートル＝約0.4ヘクタール）」です。"],
+  [8,"What unit of speed, equal to 1 nautical mile (1.852 km) per hour, is used in aviation and maritime navigation in the U.S.?",["Mach","Knot (ノット)","Fathom","League"],1,"船舶や航空機の速度には、1時間に1海里（1.852km）進む速さである「ノット（Knot）」が使われます。"],
+  [8,"What traditional nautical unit of water depth (equal to 6 feet or about 1.83 meters) gave Mark Twain his pen name?",["Furlong","Fathom (ファゾム / 尋)","Cubit","Knot"],1,"水深を測る単位「ファゾム（1ファゾム＝6フィート）」において、蒸気船が安全に航行できる水深2ファゾム（12フィート）を意味する掛け声「Mark Twain」が作家マーク・トウェインの筆名の由来です。"],
+  [8,"What is the standard paper size used in U.S. offices and schools (measuring 8.5 × 11 inches), instead of the international A4 size?",["Legal Size","Letter Size (レターサイズ)","Executive Size","Tabloid Size"],1,"アメリカの学校やオフィスでは、A4サイズではなく横幅が少し広く縦が少し短い「レターサイズ（Letter：8.5×11インチ＝約216×279mm）」が標準です。"],
+  [8,"When buying a television or laptop monitor, what does '55-inch' or '15-inch' measure?",["The horizontal width of the screen","The vertical height of the screen","The diagonal length across the screen","The perimeter of the screen"],2,"テレビやPC画面の「〇〇インチ」は、画面の対角線の長さをインチ（1インチ＝2.54cm）で表したものです。"],
+  [8,"In the United States, what is the first floor of a building (at street level) called, compared to British English?",["Ground floor (U.S.) vs. First floor (U.K.)","First floor (U.S.) vs. Ground floor (U.K.)","Basement (U.S.) vs. First floor (U.K.)","Lobby floor (U.S.) vs. Second floor (U.K.)"],1,"アメリカ英語では地上階を日本と同じく「1階（First floor）」と呼びます（イギリス英語では地上階をGround floor、日本の2階をFirst floorと呼びます）。"],
+
+  // 10. 生活常識②：重さ・容量・温度 (#226–#250)
+  [9,"Approximately how many grams are in 1 pound (lb), the standard unit of weight in the United States?",["254 grams","378.5 grams","453.6 grams (approx. 0.45 kg)","600.0 grams"],2,"1ポンド（pound）は約453.6グラム（約0.45キログラム）です。"],
+  [9,"What is the standard abbreviation for 'pound' (derived from the Latin word 'libra')?",["pd","lb","oz","pt"],1,"ポンド（pound）の略号はラテン語の「libra（天秤）」に由来する「lb（複数形はlbs）」です。"],
+  [9,"Approximately how many pounds are in 1 kilogram (kg)?",["1.61 lbs","2.20 lbs","3.79 lbs","4.54 lbs"],1,"1キログラムは約2.205ポンド（約2.2ポンド）です（例：体重60kgは約132ポンド）。"],
+  [9,"How many ounces (oz) make 1 pound (lb) in standard avoirdupois weight?",["10 ounces","12 ounces","16 ounces","20 ounces"],2,"1ポンドは16オンス（ounces）で構成されています。"],
+  [9,"Approximately how many grams are in 1 ounce (oz)?",["14.2 grams","28.35 grams","45.4 grams","56.7 grams"],1,"常衡1オンス（ounce）は約28.35グラムです（ステーキの8オンスは約227グラム）。"],
+  [9,"How many pounds are in 1 U.S. 'short ton' (commonly used in the United States), equal to about 907 kg?",["1,000 pounds","2,000 pounds","2,204 pounds","2,240 pounds"],1,"アメリカで使われる1トン（ショートトン）は2,000ポンド（約907.2kg）です（メートル法の1メトリックトン＝1,000kgとは異なります）。"],
+  [9,"Approximately how many liters are in 1 U.S. liquid gallon (used for gasoline and milk)?",["1.609 liters","2.540 liters","3.785 liters","4.546 liters"],2,"アメリカの1ガロン（U.S. gallon）は約3.785リットル（約3.8L）です（イギリスのインペリアル・ガロン＝約4.546Lより少ない点に注意）。"],
+  [9,"How many quarts make 1 gallon in the U.S. liquid measurement system?",["2 quarts","4 quarts","8 quarts","16 quarts"],1,"「quarter（4分の1）」と同じ語源の通り、4クォート（quarts）で1ガロンになります（1クォートは約946ml）。"],
+  [9,"How many pints make 1 quart, and how many pints make 1 gallon?",["2 pints per quart / 8 pints per gallon","4 pints per quart / 16 pints per gallon","2 pints per quart / 4 pints per gallon","3 pints per quart / 12 pints per gallon"],0,"1クォートは2パイント、1ガロンは8パイントです（米国の1パイント＝16液量オンス＝約473ml）。"],
+  [9,"Approximately how many milliliters (ml) are in 1 U.S. fluid ounce (fl oz)?",["15 ml","29.6 ml (approx. 30 ml)","50 ml","100 ml"],1,"アメリカの1液量オンス（fluid ounce）は約29.57ミリリットル（約30ml）で、一般的な355ml缶飲料は「12 fl oz」と表記されます。"],
+  [9,"In American cooking recipes, approximately how many milliliters is 1 U.S. 'cup' (8 fluid ounces)?",["180 ml","200 ml","240 ml (236.6 ml)","300 ml"],2,"日本の計量カップは1カップ＝200mlですが、アメリカの1カップ（8液量オンス）は約240ミリリットル（236.6ml）です。"],
+  [9,"What temperature scale is used in daily weather forecasts, cooking ovens, and fever thermometers in the United States?",["Celsius (Centigrade)","Fahrenheit (華氏)","Kelvin","Rankine"],1,"アメリカでは日常の気温・体温・オーブン温度にすべて「華氏（Fahrenheit：°F）」が使われます。"],
+  [9,"What is the formula to convert Celsius (°C) to Fahrenheit (°F)?",["°F = °C × 5/9 - 32","°F = °C × 9/5 + 32","°F = °C + 273.15","°F = °C × 2 + 30"],1,"摂氏（°C）から華氏（°F）への変換公式は「°F ＝ °C × 9/5（または1.8）＋ 32」です。"],
+  [9,"At what temperature in Fahrenheit (°F) does water freeze (0°C)?",["0°F","18°F","32°F","100°F"],2,"水の凝固点（摂氏0°C）は、華氏では「32°F」です。"],
+  [9,"At what temperature in Fahrenheit (°F) does water boil (100°C) at standard atmospheric pressure?",["100°F","180°F","212°F","273°F"],2,"水の沸点（摂氏100°C）は、100 × 1.8 ＋ 32 ＝「212°F」です。"],
+  [9,"What is considered normal average human body temperature in Fahrenheit (equivalent to 37°C)?",["68.0°F","98.6°F","100.0°F","104.0°F"],1,"人間の平熱（摂氏37.0°C）は華氏では「98.6°F」であり、100°F（約37.8°C）を超えると発熱（Fever）の目安とされます。"],
+  [9,"If an American weather forecast says the temperature outside is '104°F,' what is that temperature in Celsius?",["30°C","35°C","40°C","45°C"],2,"(104 - 32) ÷ 1.8 ＝ 72 ÷ 1.8 ＝ 40°C となり、華氏104度は摂氏40度の猛暑日です（ちなみに68°F＝20°C、86°F＝30°C）。"],
+  [9,"At what unique temperature do the Fahrenheit and Celsius scales read the exact same numerical value?",["0 degrees","-20 degrees","-32 degrees","-40 degrees (-40°F = -40°C)"],3,"マイナス40度（-40°C × 1.8 + 32 = -40°F）は、摂氏と華氏の数値が一致する唯一の温度です。"],
+  [9,"What is the standard household electrical outlet voltage and frequency in the United States?",["100 volts / 50 Hz","120 volts / 60 Hz","220 volts / 50 Hz","240 volts / 60 Hz"],1,"アメリカの一般家庭のコンセントの標準電圧は「120ボルト（120V）」、周波数は全米共通で「60ヘルツ（60Hz）」です。"],
+  [9,"What unit is used in U.S. agriculture to measure the volume/weight of dry grains such as corn, wheat, and soybeans (approx. 35.24 liters)?",["Barrel","Bushel (ブッシェル)","Gallon","Cord"],1,"トウモロコシ・小麦・大豆などの穀物取引で使われる単位は「ブッシェル（Bushel、容量約35.24リットル）」です。"],
+  [9,"How many U.S. gallons are in 1 standard 'barrel' (bbl) of crude oil on the international market (approx. 159 liters)?",["31.5 gallons","42 gallons","50 gallons","100 gallons"],1,"原油取引の国際単位である1バレル（barrel）は、ペンシルベニア油田の樽の規格に由来し「42米ガロン（約159リットル）」と定められています。"],
+  [9,"How many items are in a 'dozen' (ダース), and how many items are in a 'baker's dozen'?",["10 in a dozen / 12 in a baker's dozen","12 in a dozen / 13 in a baker's dozen","12 in a dozen / 14 in a baker's dozen","15 in a dozen / 16 in a baker's dozen"],1,"1ダース（dozen）は12個ですが、パン屋が量目不足の罰則を避けて1個おまけした慣習から「ベイカーズ・ダズン（baker's dozen）」は13個を意味します。"],
+  [9,"In Abraham Lincoln's Gettysburg Address ('Four score and seven years ago...'), how many years is one 'score'?",["10 years","15 years","20 years","25 years"],2,"古い英語表現の「score」は「20」を意味し、「Four score and seven years ago（20×4＋7＝87年前）」は1863年から87年前の1776年（独立宣言）を指します。"],
+  [9,"In the American numbering system, how many zeros are in a 'Million,' a 'Billion,' and a 'Trillion,' respectively?",["6 zeros (10⁶), 9 zeros (10⁹), and 12 zeros (10¹²)","6 zeros, 8 zeros, and 10 zeros","4 zeros, 8 zeros, and 12 zeros","6 zeros, 12 zeros, and 18 zeros"],0,"英語の数詞は3桁（0が3つ）ごとに単位が上がり、Million＝100万（10⁶）、Billion＝10億（10⁹）、Trillion＝1兆（10¹²）です。"],
+  [9,"What unit is used to measure the purity of gold (out of 24 parts) and the weight of gemstones like diamonds (equal to 0.2 grams)?",["Ounce","Karat / Carat (カラット)","Grain","Troy"],1,"金の純度（24分率：米国ではKaratと綴ることが多い）および宝石の質量（1カラット＝0.2グラム：Carat）を表す単位は「カラット」です。"],
+
+  // 11. 生活常識③：略語・頭字語 (#251–#275)
+  [10,"What does the common abbreviation 'ASAP' stand for?",["Always Stay Calm and Polite","As Soon As Possible","American Standard Postal","At Some Appointed Place"],1,"ASAPは「As Soon As Possible（できるだけ早く・至急）」の略です（決勝戦出題実績あり）。"],
+  [10,"What does 'RSVP' at the bottom of an American party or wedding invitation stand for?",["Remember Special VIPs","Répondez s'il vous plaît (French for 'Please reply')","Reserve Seats Very Promptly","Return Sender Verification Post"],1,"招待状に書かれるRSVPはフランス語の「Répondez s'il vous plaît（ご返事をお願いします＝出欠をご連絡ください）」の略です。"],
+  [10,"What does 'ZIP' stand for in the U.S. Postal Service's 5-digit ZIP Code system introduced in 1963?",["Zone Information Post","Zone Improvement Plan","Zonal Index Process","Zero International Parcel"],1,"アメリカの郵便番号（ZIPコード）のZIPは「Zone Improvement Plan（地域改善計画）」の頭字語です。"],
+  [10,"What does 'BYOB' mean on a restaurant sign or party invitation in the United States?",["Buy Your Own Ticket","Bring Your Own Bottle / Booze (or Beverage)","Be Your Own Boss","Book Your Own Booth"],1,"BYOBは「Bring Your Own Bottle / Booze（飲み物・お酒は各自持参で）」を意味します。"],
+  [10,"What does the common email and office abbreviation 'FYI' stand for?",["From Your Inbox","For Your Information","Find Your Invoice","Follow Your Instructions"],1,"FYIはビジネスメールなどで「ご参考までに」を意味する「For Your Information」の略です。"],
+  [10,"What does the transportation and delivery abbreviation 'ETA' stand for?",["Exact Time of Departure","Estimated Time of Arrival (到着予定時刻)","Emergency Traffic Alert","Express Transit Authority"],1,"空港やナビ、配送などでよく使われるETAは「Estimated Time of Arrival（到着予定時刻）」の略です（出発予定時刻はETD）。"],
+  [10,"What do the Latin abbreviations 'e.g.' and 'i.e.' mean in English writing, respectively?",["e.g. = for example (exempli gratia) / i.e. = that is (id est)","e.g. = that is / i.e. = for example","e.g. = and so forth / i.e. = in other words","e.g. = exact grade / i.e. = in edition"],0,"ラテン語由来の「e.g.（exempli gratia）」は「例えば（for example）」、「i.e.（id est）」は「すなわち・言い換えれば（that is）」を意味します。"],
+  [10,"What do the Latin abbreviations 'A.M.' and 'P.M.' used in 12-hour clock time stand for?",["After Midnight / Past Midday","Ante Meridiem (before noon) / Post Meridiem (after noon)","American Morning / Pacific Morning","At Morning / Past Morning"],1,"A.M.はラテン語の「Ante Meridiem（正午前＝午前）」、P.M.は「Post Meridiem（正午後＝午後）」の略です。"],
+  [10,"What does the abbreviation 'DIY' (popularized by American home improvement stores like Home Depot) stand for?",["Design It Yourself","Do It Yourself","Drive It Yourself","Deliver It Yourself"],1,"日曜大工や自作を意味するDIYは「Do It Yourself（自分でやろう）」の略です。"],
+  [10,"On official U.S. forms and medical records, what does 'DOB' stand for?",["Department of Business","Date of Birth (生年月日)","District of Boston","Day of Boarding"],1,"アメリカの公的書類や申込書にある「DOB」は「Date of Birth（生年月日）」の略です。"],
+  [10,"What does the 9-digit identification number 'SSN' issued to U.S. citizens and residents stand for?",["State Security Number","Social Security Number (社会保障番号)","Standard Serial Number","System Service Number"],1,"アメリカで納税・雇用・銀行口座開設・信用照会に使われる9桁の番号「SSN」は「Social Security Number（社会保障番号）」の略です。"],
+  [10,"In U.S. banking, what do 'ATM' and 'PIN' stand for?",["Automated Teller Machine / Personal Identification Number","American Money Machine / Private Index Number","Automatic Transfer Module / Passcode Input Number","Account Teller Machine / Personal Inquiry Number"],0,"ATMは「Automated Teller Machine（現金自動預払機）」、暗証番号のPINは「Personal Identification Number」の略です。"],
+  [10,"In U.S. supermarkets and retail stores, what does the promotional deal 'BOGO' stand for?",["Best Offer Goes Out","Buy One, Get One (Free / Half Off)","Bargain Only Good Online","Bring One, Give One"],1,"アメリカのスーパーやアパレル店で頻繁に見かける「BOGO（ボゴ）」は「Buy One, Get One（1つ買うともう1つ無料／半額）」のセールを意味します。"],
+  [10,"What do the scheduling abbreviations 'TBD' and 'TBA' stand for?",["To Be Determined (or Decided) / To Be Announced","Time Before Departure / Time Before Arrival","Total Budget Deficit / Total Balance Available","To Be Deleted / To Be Approved"],0,"イベント予定表などで「未定」を表すTBDは「To Be Determined（またはDecided）」、TBAは「To Be Announced（後日発表）」の略です。"],
+  [10,"What does the abbreviation 'AKA' (often used for stage names or nicknames) stand for?",["Always Known Around","Also Known As (別名〜として知られる)","American Knowledge Association","Authorized Key Access"],1,"AKA（a.k.a.）は「Also Known As（別名・通称〜）」の略です。"],
+  [10,"In U.S. corporate titles, what do 'CEO,' 'CFO,' and 'COO' stand for?",["Chief Executive Officer, Chief Financial Officer, and Chief Operating Officer","Central Executive Official, Central Finance Official, and Central Office Official","Corporate Equity Officer, Corporate Fund Officer, and Corporate Order Officer","Chairman of Executive Office, Chairman of Finance, and Chairman of Operations"],0,"CEOは最高経営責任者（Chief Executive Officer）、CFOは最高財務責任者（Financial）、COOは最高執行責任者（Operating）です。"],
+  [10,"In U.S. schools and universities, what does 'GPA' stand for?",["General Pass Assessment","Grade Point Average (成績平均値)","Graduate Placement Admission","Global Academic Achievement"],1,"アメリカの高校・大学で重視される成績評価指標「GPA（通常4.0満点）」は「Grade Point Average」の略です。"],
+  [10,"In U.S. politics and media, what does the acronym 'POTUS' stand for?",["Parliament of the United States","President of the United States","Party of the United States","Politicians of the United States"],1,"ホワイトハウスやメディアで使われる「POTUS（ポータス）」は「President of the United States（合衆国大統領）」の頭字語です（ファーストレディはFLOTUS、最高裁はSCOTUS）。"],
+  [10,"What does the acronym 'POW / MIA' (seen on black-and-white flags flown at U.S. government buildings) stand for?",["Peace Over War / Military In America","Prisoner of War / Missing in Action (戦争捕虜・戦闘中行方不明者)","Patriots of Washington / Marines in Action","Protection of Witnesses / Military Intelligence Agency"],1,"POWは「Prisoner of War（戦争捕虜）」、MIAは「Missing in Action（戦闘中行方不明者）」を意味します。"],
+  [10,"At U.S. airports, what agency is 'TSA,' which conducts security screenings of passengers and luggage?",["Transport System of America","Transportation Security Administration (運輸保安庁)","Travel Safety Association","Terminal Security Authority"],1,"9.11テロ後に国土安全保障省の下に置かれ、アメリカの空港保安検査を担っている機関「TSA」は「Transportation Security Administration（運輸保安庁）」です。"],
+  [10,"In U.S. real estate and apartment listings, what does 'BR' or '2BR / 1BA' mean?",["2 Basement Rooms / 1 Balcony","2 Bedrooms / 1 Bathroom","2 Boardrooms / 1 Basement","2 Brick Rooms / 1 Back Alley"],1,"アメリカの住宅・アパート広告では、LDKではなく寝室とバスルームの数で表し、「2BR / 1BA」は「2ベッドルーム・1バスルーム」を意味します。"],
+  [10,"In U.S. restaurants and bars, what does it mean when a server says an item is 'on the house'?",["It is cooked on the roof","It is free of charge (complimentary, paid for by the restaurant)","It is the most expensive dish","It must be eaten outside"],1,"レストランなどで「It's on the house.」と言われた場合は、「店のおごり（無料サービス）」という意味です。"],
+  [10,"In American dining, what do customers ask for when they want to take their leftover food home from a restaurant?",["A rain check","A to-go box (or doggy bag)","A Dutch treat","A potluck"],1,"アメリカのレストランでは食べ残しを持ち帰る文化が一般的で、持ち帰り用の容器を「To-go box（またはDoggy bag）」と呼びます。"],
+  [10,"In American retail stores, what is a 'rain check'?",["An umbrella rental ticket","A voucher issued when an advertised sale item is out of stock, allowing you to buy it later at the sale price","A refund for bad weather","A weather insurance policy"],1,"もともと野球の雨天順延引換券に由来する「レインチェック（rain check）」は、特売品が品切れの際に後日同じセール価格で購入できる引換券（または食事の誘いを「また今度にする」表現）です。"],
+  [10,"What is a 'potluck' party in American daily culture?",["A casino night","A gathering where each guest brings a homemade or store-bought dish of food to share","A formal black-tie dinner","A barbecue competition"],1,"参加者がそれぞれ料理を1品ずつ持ち寄って分け合うパーティーを「ポットラック（potluck）」と呼びます。"],
+
+  // 12. 生活常識④：教育・法律・習慣 (#276–#300)
+  [11,"What does the term 'K–12' refer to in the American public education system?",["12 universities in Kentucky","Public schooling from Kindergarten through 12th grade (high school graduation)","A 12-kilometer school district","12 subjects required for college"],1,"アメリカの初等・中等教育は幼稚園年長（Kindergarten）から高校卒業の12年生（12th Grade）までを通算して「K-12（ケイ・トゥエルブ）」と呼びます。"],
+  [11,"What are the four grade levels of a 4-year American high school (Grades 9–12) and 4-year college called in order?",["Freshman, Junior, Sophomore, Senior","Freshman (1st), Sophomore (2nd), Junior (3rd), Senior (4th)","First, Second, Third, Master","Primary, Middle, Junior, Senior"],1,"アメリカの高校（9〜12年生）および4年制大学の学年は、1年生から順に「Freshman、Sophomore、Junior、Senior」と呼ばれます。"],
+  [11,"In which month does the academic school year typically begin in most regions of the United States?",["January","April","Late August or September","November"],2,"アメリカの学校や大学の新学年（新学期）は、4月ではなく8月下旬〜9月初旬（レイバー・デー前後）に始まります。"],
+  [11,"Which two standardized tests are widely used for college admissions across the United States?",["TOEFL and TOEIC","SAT and ACT","GRE and GMAT","LSAT and MCAT"],1,"アメリカの4年制大学進学（学部入試）で広く使われる標準学力テストは「SAT」と「ACT」です（GREは大学院、LSATは法科大学院、MCATはメディカルスクール用）。"],
+  [11,"What is the title given to the graduating student with the highest academic rank (GPA) who delivers the farewell speech at a U.S. graduation ceremony?",["Quarterback","Valedictorian (総代)","Homecoming King","Dean"],1,"アメリカの卒業式（Commencement）で成績最優秀の卒業生総代として告別の辞を述べる生徒は「ヴァレディクトリアン（Valedictorian、次点はSalutatorian）」と呼ばれます。"],
+  [11,"What are public 2-year colleges in the U.S. that offer Associate Degrees and a pathway to transfer to 4-year universities called?",["Boarding Schools","Community Colleges (コミュニティ・カレッジ)","Charter Schools","Magnet Schools"],1,"地域住民に開かれた公立の2年制大学で、準学士号（Associate Degree）の取得や4年制大学3年次への編入ルートを提供する教育機関は「コミュニティ・カレッジ」です。"],
+  [11,"In what order are calendar dates typically written in the United States (for example, how is July 4, 2026 written numerically)?",["DD/MM/YYYY (04/07/2026)","YYYY/MM/DD (2026/07/04)","MM/DD/YYYY (07/04/2026)","YYYY/DD/MM (2026/04/07)"],2,"アメリカでは「月／日／年（MM/DD/YYYY）」の順序で日付を表記します（例：03/14は3月14日＝円周率の日・Pi Day）。"],
+  [11,"What is the standard 10-digit format for telephone numbers in the United States, and what is the international country calling code for the U.S.?",["(XXX) XXX-XXXX / Country code +1","XX-XXXX-XXXX / Country code +44","XXX-XXX-XXX / Country code +81","(XXXX) XX-XXXX / Country code +01"],0,"アメリカの電話番号は3桁の市外局番（エリアコード）を含む10桁「(XXX) XXX-XXXX」が標準で、国際電話の国番号はカナダと共通の「+1」です。"],
+  [11,"What is the three-digit toll-free telephone number used throughout the United States for police, fire, and medical emergencies?",["110","119","911","999"],2,"アメリカの警察・消防・救急すべてに共通する緊急通報番号は「911（ナイン・ワン・ワン）」です。"],
+  [11,"Under the National Minimum Drinking Age Act of 1984, what is the legal minimum age to purchase or publicly consume alcohol across all 50 U.S. states?",["18 years old","19 years old","20 years old","21 years old"],3,"アメリカの法定飲酒可能年齢（およびタバコ・電子タバコ購入可能年齢）は全50州で「21歳以上」と厳格に定められています。"],
+  [11,"In most U.S. states, at what age can teenagers obtain a learner's permit or driver's license (reflecting America's car-oriented society)?",["14 to 15 years old","Around 16 years old","18 years old","21 years old"],1,"車社会のアメリカでは多くの州で「16歳」から運転免許（仮免許は14〜15歳からの州もあり）を取得でき、身分証明書としても使われます。"],
+  [11,"On which side of the road do vehicles drive in the United States, and on which side of the car is the steering wheel located?",["Drive on the left / Steering wheel on the right","Drive on the right / Steering wheel on the left","Drive on the right / Steering wheel on the right","Drive on the left / Steering wheel on the left"],1,"アメリカの道路は「右側通行」であり、自動車は「左ハンドル」です。"],
+  [11,"Unless a sign specifically prohibits it ('No Turn on Red'), what traffic rule is generally permitted at red traffic lights in most parts of the U.S.?",["Making a U-turn on a red light","Turning right on a red light after coming to a complete stop and checking for traffic","Going straight if no cars are coming","Turning left on a two-way street"],1,"アメリカ（ニューヨーク市マンハッタンなどを除く大半の地域）では、赤信号でも一旦完全停止して安全を確認すれば「右折（Right turn on red）」が認められています。"],
+  [11,"What is the iconic color of public school buses across the United States, and what must drivers do when a school bus stops and flashes its red lights?",["Blue / Pass slowly","National School Bus Glossy Yellow / Come to a complete stop and do not pass","Red / Honk before passing","White / Change lanes"],1,"アメリカのスクールバスは視認性の高い「黄色（イエロー）」に統一されており、乗降のため赤色灯を点滅させて停車中は後続車も対向車も完全停止する義務があります。"],
+  [11,"What are the four main continental time zones of the contiguous 48 U.S. states from East to West?",["Atlantic, Eastern, Central, Pacific","Eastern (EST), Central (CST), Mountain (MST), and Pacific (PST)","Eastern, Midwest, Western, Coastal","New York, Chicago, Texas, California"],1,"アメリカ本土48州の4つの時間帯は、東から順に東部時間（Eastern）、中部時間（Central）、山岳部時間（Mountain）、太平洋時間（Pacific）で、それぞれ1時間ずつ時差があります。"],
+  [11,"What is the time difference between New York City (Eastern Time) and Los Angeles (Pacific Time)?",["1 hour","2 hours","3 hours (Los Angeles is 3 hours behind New York)","5 hours"],2,"東海岸のニューヨーク（東部時間）と西海岸のロサンゼルス（太平洋時間）の間には「3時間」の時差があります（NYが正午12時のときLAは朝9時）。"],
+  [11,"Which U.S. state has the largest time difference from Washington, D.C. (and does not observe Daylight Saving Time along with Arizona)?",["California","Alaska","Hawaii","Washington"],2,"首都ワシントンD.C.との時差が最も大きい州はハワイ州（冬は5時間差、夏時間中はハワイが夏時間を行わないため6時間差）です。"],
+  [11,"What English mnemonic phrase helps Americans remember how to adjust their clocks for Daylight Saving Time in the spring and fall?",["Early to bed, early to rise","Spring forward, fall back (春に1時間進め、秋に1時間戻す)","East is ahead, West is behind","Time flies when it's warm"],1,"夏時間（Daylight Saving Time）の切り替えでは、3月の第2日曜日に時計を1時間進め、11月の第1日曜日に1時間戻すことを「Spring forward, fall back」という語呂合わせで覚えます。"],
+  [11,"When shopping in most U.S. stores, why is the final price you pay at the cash register higher than the price tag on the shelf?",["Because a mandatory tip is added","Because state and local Sales Tax is added at the register (tax-exclusive pricing)","Because credit cards cost extra","Because bags cost 20%"],1,"アメリカでは州や郡・市ごとに消費税（Sales Tax）の税率が異なるため、値札は「税抜価格」で表示され、レジ精算時に税金が加算されます。"],
+  [11,"What is the civic duty in the U.S. legal system where ordinary registered citizens are summoned by a court to hear evidence and decide a verdict in a trial?",["Military Conscription","Jury Duty (陪審員義務)","Community Service","Filibuster"],1,"合衆国憲法で陪審裁判を受ける権利が保障されているため、アメリカの成人市民には裁判所から召喚された際に「陪審員を務める市民的義務（Jury Duty）」があります。"],
+  [11,"Which bird was chosen in 1782 as the national bird and official emblem on the Great Seal of the United States?",["Wild Turkey","Bald Eagle (ハクトウワシ)","California Condor","Peregrine Falcon"],1,"アメリカの国鳥であり、国章（Great Seal）や大統領紋章に描かれている象徴は「ハクトウワシ（Bald Eagle）」です。"],
+  [11,"Which flower was designated by President Ronald Reagan in 1986 as the official national floral emblem of the United States?",["Sunflower","Rose (バラ)","Cherry Blossom","Magnolia"],1,"1986年にロナルド・レーガン大統領の署名により、アメリカの国花は「バラ（Rose）」に定められました。"],
+  [11,"Which mammal was designated as the National Mammal of the United States in 2016 when President Barack Obama signed the National Bison Legacy Act?",["Grizzly Bear","American Bison (アメリカバイソン / バッファロー)","White-tailed Deer","Mountain Lion"],1,"2016年にオバマ大統領が署名した法律により、アメリカの国獣（National Mammal）には「アメリカバイソン（American Bison）」が指定されました。"],
+  [11,"How many stars and how many red-and-white stripes are on the current flag of the United States, and what do they represent?",["50 stars (50 states) and 13 stripes (original 13 colonies)","50 stars and 15 stripes","48 stars and 13 stripes","52 stars and 10 stripes"],0,"星条旗には現在の州の数を表す「50個の星」と、独立時の13植民地を表す「13本の赤と白の縞（ストライプ）」が描かれています。"],
+  [11,"In the 'Pledge of Allegiance,' what are the closing six words: '...one Nation under God, indivisible, ___ ___ ___ ___ ___ ___'?",["forever and ever amen","with liberty and justice for all","land of the free and brave","united we stand together"],1,"フランシス・ベラミーが起草した『忠誠の誓い（Pledge of Allegiance）』は、「...one Nation under God, indivisible, with liberty and justice for all.（すべての人に自由と正義が約束された、神の下の分割すべからざる一つの国）」と結ばれます。"],
+
+  // 13. 科学①：発明家と技術革新 (#301–#325)
+  [12,"Which Founding Father and scientist performed the famous 1752 kite experiment in a thunderstorm and invented the lightning rod and bifocal glasses?",["Thomas Jefferson","Benjamin Franklin","Alexander Hamilton","Samuel Adams"],1,"建国の父ベンジャミン・フランクリンは科学者・発明家としても著名で、凧の実験によって雷が電気であることを証明し、避雷針や遠近両用メガネを発明しました。"],
+  [12,"Who invented the 'Cotton Gin' (綿繰り機) in 1793 and pioneered the use of interchangeable parts in manufacturing?",["Robert Fulton","Eli Whitney","Cyrus McCormick","Elias Howe"],1,"イーライ・ホイットニーは1793年に綿繰り機（Cotton Gin）を発明して南部の綿花生産を飛躍させ、互換性部品による工業生産方式も確立しました。"],
+  [12,"Which American engineer built the first commercially successful steamboat, the 'Clermont,' which steamed up the Hudson River in 1807?",["Robert Fulton","Peter Cooper","George Stephenson","Rudolf Diesel"],0,"ロバート・フルトンは1807年に外輪蒸気船「クラーモント号」を建造し、ニューヨークのハドソン川で世界初の商業蒸気船運航に成功しました。"],
+  [12,"Who invented the single-wire electric telegraph and co-developed the dot-and-dash code that bears his name, sending the message 'What hath God wrought' in 1844?",["Alexander Graham Bell","Samuel Morse","Guglielmo Marconi","Thomas Edison"],1,"画家でもあったサミュエル・モールスは電信機と「モールス信号（Morse Code）」を発明し、1844年にワシントン〜ボルティモア間で初の長距離電信を送りました。"],
+  [12,"Which American inventor discovered the 'vulcanization' (加硫法) of rubber in 1839, lending his name to a famous tire company?",["Harvey Firestone","Charles Goodyear","John Dunlop","B.F. Goodrich"],1,"チャールズ・グッドイヤーは1839年に生ゴムに硫黄を加えて加熱し弾性と強度を高める「加硫法」を発見しました。"],
+  [12,"Who demonstrated the first safety elevator brake at the 1854 New York World's Fair, making modern skyscrapers possible?",["Louis Sullivan","Elisha Otis","Andrew Carnegie","George Pullman"],1,"エリシャ・オーチスが1853〜1854年に落下防止安全装置付きエレベーターを発明したことで、都市の高層ビル（摩天楼）の建設が可能になりました。"],
+  [12,"Who received the first U.S. patent for the telephone in 1876 and spoke the famous first words 'Mr. Watson, come here, I want to see you'?",["Thomas Edison","Alexander Graham Bell","Nikola Tesla","Elisha Gray"],1,"スコットランド出身でボストン大学教授だったアレクサンダー・グラハム・ベルが1876年に電話機の特許を取得し、後のAT&T（ベル・システム）の礎を築きました。"],
+  [12,"Which prolific American inventor, nicknamed the 'Wizard of Menlo Park' (in New Jersey), held 1,093 U.S. patents including the phonograph, kinetoscope, and incandescent light bulb?",["Nikola Tesla","Thomas Edison","George Westinghouse","Henry Ford"],1,"ニュージャージー州メンローパークに世界初の産業研究所を設立した「発明王」トーマス・エジソンは、蓄音機・白熱電球・覗き眼鏡式映写機など1,093件の米国特許を取得しました。"],
+  [12,"Which Serbian-American inventor and electrical engineer pioneered the Alternating Current (AC) electrical system, competing against Edison's Direct Current (DC) in the 'War of the Currents'?",["Guglielmo Marconi","Nikola Tesla","Michael Faraday","Enrico Fermi"],1,"ニコラ・テスラは交流（AC）送電システムや誘導モーターを開発してエジソンの直流（DC）との「電流戦争」に勝利し、その名はEVメーカーのテスラ社にも冠されています。"],
+  [12,"Who founded the Eastman Kodak Company in Rochester, New York in 1888, popularizing roll film and snapshot photography with the slogan 'You press the button, we do the rest'?",["Edwin Land","George Eastman","Mathew Brady","Ansel Adams"],1,"ジョージ・イーストマンはニューヨーク州ロチェスターでコダック社を創業し、ロールフィルムと小型カメラによって写真撮影を一般大衆に広めました。"],
+  [12,"Which two brothers from Dayton, Ohio achieved the world's first controlled, powered airplane flight at Kitty Hawk, North Carolina on December 17, 1903?",["Warner Brothers","Orville and Wilbur Wright (The Wright Brothers)","Mayo Brothers","Dodge Brothers"],1,"オハイオ州デイトン出身のライト兄弟（オービルとウィルバー）は、1903年12月17日にノースカロライナ州キティホークでライトフライヤー号による世界初の有人動力飛行に成功しました。"],
+  [12,"Which U.S. state uses the slogan 'First in Flight' on its license plates to commemorate the Wright Brothers' 1903 flight at Kitty Hawk?",["Ohio","North Carolina","Virginia","South Carolina"],1,"キティホークがあるノースカロライナ州は、自動車のナンバープレートに「First in Flight（初飛行の地）」の標語を掲げています（ライト兄弟の出身地オハイオ州は「Birthplace of Aviation」）。"],
+  [12,"Who revolutionized automobile manufacturing in Highland Park, Michigan in 1913 by introducing the moving assembly line for the Model T?",["Ransom Olds","Henry Ford","Walter Chrysler","Alfred P. Sloan"],1,"ヘンリー・フォードは1913年にベルトコンベア式移動組み立てラインを導入し、T型フォードの製造時間を大幅に短縮して大衆車時代を切り開きました。"],
+  [12,"Which American engineer invented modern electrical air conditioning in 1902, transforming population growth across the southern 'Sun Belt'?",["Elisha Otis","Willis Carrier","Clarence Birdseye","Philo Farnsworth"],1,"ウィリス・キャリアが1902年に近代的なエアコン（空調設備）を発明したことで、高温多湿なアメリカ南部・南西部（サンベルト）の都市発展が可能になりました。"],
+  [12,"Which African American agricultural scientist at the Tuskegee Institute became famous for promoting crop rotation and developing hundreds of uses for peanuts and sweet potatoes?",["Booker T. Washington","George Washington Carver","Percy Julian","Charles Drew"],1,"ジョージ・ワシントン・カーヴァーは南部農業の土壌回復のためピーナッツやサツマイモの輪作を奨励し、「ピーナッツ博士」として尊敬を集めました。"],
+  [12,"Which American physicist and inventor launched the world's first liquid-fueled rocket in Auburn, Massachusetts on March 16, 1926?",["Wernher von Braun","Robert H. Goddard","Theodore von Kármán","Carl Sagan"],1,"ロバート・ゴダードは1926年に世界初の液体燃料ロケットの打ち上げに成功した「近代ロケット工学の父」であり、NASAのゴダード宇宙飛行センターにその名が冠されています。"],
+  [12,"Who demonstrated the first all-electronic television system in San Francisco in 1927 at the age of 21?",["David Sarnoff","Philo Farnsworth","Lee de Forest","Edwin Armstrong"],1,"アイダホ州の農村で育った発明家フィロ・ファーンズワースは、1927年に21歳で世界初の完全電子式テレビの映像伝送に成功しました。"],
+  [12,"Which chemist at the DuPont company invented 'Nylon' in 1935, the world's first fully synthetic fiber?",["Leo Baekeland","Wallace Carothers","Stephanie Kwolek","Roy Plunkett"],1,"デュポン社の化学者ウォーレス・カロザースは1935年に世界初の合成繊維「ナイロン（Nylon）」を発明しました（女性用ストッキングやパラシュートに革命を起こしました）。"],
+  [12,"Which engineer at Raytheon accidentally invented the 'Microwave Oven' in 1945 after noticing that radar magnetron waves melted a chocolate bar in his pocket?",["Willis Carrier","Percy Spencer","Chester Carlson","Jack Kilby"],1,"レイセオン社の技師パーシー・スペンサーは、レーダー用のマグネトロン実験中にポケットのチョコレートが溶けたことから1945年に電子レンジ（Microwave Oven）を発明しました。"],
+  [12,"Who co-founded Polaroid Corporation and invented the instant camera in 1948?",["George Eastman","Edwin H. Land","Chester Carlson","Harold Edgerton"],1,"エドウィン・ランドは偏光板（ポラロイド）や撮影したその場で現像できるインスタントカメラを発明しました。"],
+  [12,"Which female chemist at DuPont invented 'Kevlar' in 1965, a lightweight synthetic fiber five times stronger than steel used in bulletproof vests?",["Rachel Carson","Stephanie Kwolek","Grace Hopper","Rosalind Franklin"],1,"デュポン社の女性化学者ステファニー・クオレクは1965年に同じ重さの鋼鉄の5倍の強度を持つアラミド繊維「ケブラー（Kevlar）」を発明し、防弾チョッキなどで多くの命を救いました。"],
+  [12,"What is the name of the U.S. government agency within the Department of Commerce that issues patents and registers trademarks?",["FCC","USPTO (United States Patent and Trademark Office)","NIST","FTC"],1,"アメリカの特許権および商標権の審査・登録を管轄する商務省傘下の機関は「米国特許商標庁（USPTO）」です。"],
+  [12,"Which 19th-century American inventor developed the 'QWERTY' keyboard layout for the typewriter in Milwaukee, Wisconsin?",["Samuel Morse","Christopher Latham Sholes","Ottmar Mergenthaler","Isaac Singer"],1,"現在のパソコンやスマートフォンでも使われている「QWERTY配列」のタイプライターを1860〜70年代に開発したのはクリストファー・レイサム・ショールズです。"],
+  [12,"Who invented 'Xerography' (electrophotography / dry photocopying) in 1938, leading to the modern Xerox photocopier?",["Chester Carlson","Gary Starkweather","Charles Babbage","Herman Hollerith"],0,"チェスター・カールソンは1938年に乾式静電複写技術「ゼログラフィ」を発明し、ゼロックス社のコピー機を生み出しました。"],
+  [12,"Which American test pilot became the first human to break the 'Sound Barrier' (flying faster than Mach 1) in the Bell X-1 rocket plane in October 1947?",["Charles Lindbergh","Chuck Yeager","John Glenn","Neil Armstrong"],1,"チャック・イェーガーは1947年10月14日、ロケット実験機ベルX-1に搭乗して人類で初めて音速の壁（マッハ1）を突破しました。"],
+
+  // 14. 科学②：宇宙開発・NASA・航空 (#326–#350)
+  [13,"What does the acronym 'NASA' (established in 1958 by President Dwight D. Eisenhower) stand for?",["National American Space Agency","National Aeronautics and Space Administration (アメリカ航空宇宙局)","North American Satellite Authority","National Astrological and Space Association"],1,"1958年にアイゼンハワー大統領の下で設立されたNASAは「National Aeronautics and Space Administration（アメリカ航空宇宙局）」の略です。"],
+  [13,"In which U.S. state is NASA's John F. Kennedy Space Center (the primary launch site for Apollo, the Space Shuttle, and Artemis) located?",["Texas","Florida (Merritt Island / Cape Canaveral)","California","Alabama"],1,"アポロ計画やスペースシャトルなどのロケット打ち上げ拠点である「ケネディ宇宙センター」は、フロリダ州メリット島（ケープカナベラル隣接）にあります。"],
+  [13,"In which city and state is NASA's Lyndon B. Johnson Space Center (home to Mission Control and astronaut training, famous for the phrase 'Houston, we have a problem') located?",["Orlando, Florida","Houston, Texas","Huntsville, Alabama","Pasadena, California"],1,"有人宇宙飛行の管制センター（ミッション・コントロール）や宇宙飛行士の訓練施設がある「ジョンソン宇宙センター」は、テキサス州ヒューストンにあります。"],
+  [13,"Where in Southern California is NASA's Jet Propulsion Laboratory (JPL), which manages robotic planetary spacecraft and Mars rovers, located (managed by Caltech)?",["San Diego","Pasadena","San Jose","Sacramento"],1,"火星探査車や惑星探査機の開発・運用を担うNASAの「ジェット推進研究所（JPL）」は、カリフォルニア州パサデナにありカリフォルニア工科大学（Caltech）が運営しています。"],
+  [13,"What was the name of the first U.S. human spaceflight program (1958–1963), whose seven astronauts were known as the 'Original Seven'?",["Project Gemini","Project Mercury (マーキュリー計画)","Project Apollo","Project Artemis"],1,"アメリカ最初の有人宇宙飛行計画は「マーキュリー計画（Project Mercury）」で、その後ジェミニ計画、アポロ計画へと続きました。"],
+  [13,"Who became the first American in space (on a suborbital flight in May 1961), and who became the first American to orbit the Earth (in February 1962)?",["Neil Armstrong (suborbital) / Buzz Aldrin (orbit)","Alan Shepard (first in space) / John Glenn (first to orbit Earth)","John Glenn (first in space) / Alan Shepard (first to orbit)","Gus Grissom / Wally Schirra"],1,"1961年5月にアメリカ人初の宇宙飛行（弾道飛行）を果たしたのがアラン・シェパード、1962年2月にアメリカ人初の地球周回軌道飛行に成功したのがジョン・グレンです。"],
+  [13,"On what date in 1969 did NASA's Apollo 11 Lunar Module 'Eagle' land on the Moon?",["May 25, 1969","July 4, 1969","July 20, 1969","November 19, 1969"],2,"アポロ11号の月着陸船「イーグル」が月面の「静かの海」に着陸したのは1969年7月20日です。"],
+  [13,"Who was the Apollo 11 commander who became the first human to walk on the Moon, saying 'That's one small step for [a] man, one giant leap for mankind'?",["Buzz Aldrin","Neil Armstrong","Michael Collins","Jim Lovell"],1,"「これは一人の人間にとっては小さな一歩だが、人類にとっては偉大な飛躍である」の言葉と共に月面に最初の一歩を記したのはニール・アームストロング船長です。"],
+  [13,"Who were the other two astronauts on the historic Apollo 11 mission alongside Neil Armstrong?",["John Glenn and Alan Shepard","Buzz Aldrin (walked on the Moon) and Michael Collins (Command Module pilot)","Jim Lovell and Pete Conrad","Eugene Cernan and Harrison Schmitt"],1,"アポロ11号の乗組員3名は、船長ニール・アームストロング、共に月面を歩いたバズ・オルドリン、司令船コロンビアで月周回軌道を留守番したマイケル・コリンズです。"],
+  [13,"What was the giant 110-meter-tall three-stage rocket, developed under Wernher von Braun at Huntsville, Alabama, that launched the Apollo astronauts to the Moon?",["Falcon Heavy","Saturn V (サターンV型ロケット)","Atlas V","Titan II"],1,"アポロ計画で人類を月へ送り届けた全長110mの巨大ロケットは、ヴェルナー・フォン・ブラウンらが開発した「サターンV（ファイブ）型ロケット」です。"],
+  [13,"Which twin NASA robotic probes, launched in 1977 carrying the 'Golden Record,' became the first human-made objects to enter interstellar space?",["Pioneer 10 and 11","Voyager 1 and Voyager 2 (ボイジャー1号・2号)","Viking 1 and 2","Mariner 9 and 10"],1,"1977年に打ち上げられ、木星・土星・天王星・海王星を探査した後に太陽圏を脱出して星間空間へ到達した探査機は「ボイジャー1号・2号」です。"],
+  [13,"What was the name of the first NASA Space Shuttle orbiter to fly in space, launched on April 12, 1981?",["Challenger","Columbia (コロンビア)","Discovery","Atlantis"],1,"1981年4月に世界初の再使用型有人宇宙船スペースシャトルの初飛行（STS-1）を行ったオービターは「コロンビア（Columbia）」です。"],
+  [13,"Who became the first American woman in space aboard the Space Shuttle Challenger in June 1983?",["Mae Jemison","Sally Ride (サリー・ライド)","Christa McAuliffe","Peggy Whitson"],1,"物理学者で宇宙飛行士のサリー・ライド（Sally Ride）は、1983年6月にスペースシャトル・チャレンジャー号に搭乗し、アメリカ人女性として初めて宇宙へ行きました（メイ・ジェミソンはアフリカ系女性初）。"],
+  [13,"Who was the Japanese American payload specialist who flew aboard the Space Shuttle Discovery in January 1985 and tragically perished in the Challenger disaster in January 1986?",["Mamoru Mohri","Ellison Onizuka (エリソン・オニヅカ)","Koichi Wakata","Soichi Noguchi"],1,"ハワイ出身の日系アメリカ人宇宙飛行士エリソン・オニヅカは、1985年に日系人初の宇宙飛行を果たしましたが、翌1986年1月のチャレンジャー号爆発事故で殉職しました。"],
+  [13,"Which famous space telescope was launched into low Earth orbit by the Space Shuttle Discovery in April 1990 and revolutionized astronomy?",["Chandra X-ray Observatory","Hubble Space Telescope (ハッブル宇宙望遠鏡)","Spitzer Space Telescope","Kepler Space Telescope"],1,"1990年4月にスペースシャトル・ディスカバリー号で軌道に投入された「ハッブル宇宙望遠鏡」は、大気の揺らぎのない鮮明な天体画像で宇宙観測に革命をもたらしました。"],
+  [13,"Which next-generation infrared space telescope, featuring a 6.5-meter gold-coated segmented mirror, was launched on December 25, 2021 as the successor to Hubble?",["Roman Space Telescope","James Webb Space Telescope (JWST / ジェイムズ・ウェブ宇宙望遠鏡)","Galileo Telescope","Cassini Telescope"],1,"2021年12月に打ち上げられた「ジェイムズ・ウェブ宇宙望遠鏡（JWST）」は、アポロ計画時のNASA長官の名を冠し、初期宇宙や系外惑星の赤外線観測を行っています。"],
+  [13,"Which NASA Mars rover landed in Jezero Crater in February 2021, carrying the small robotic helicopter 'Ingenuity' (which achieved the first powered flight on another planet)?",["Sojourner","Spirit","Curiosity","Perseverance (パーサヴィアランス)"],3,"2021年2月に火星のジェゼロ・クレーターに着陸した探査車「パーサヴィアランス（忍耐）」は、小型ヘリコプター「インジェニュイティ」による地球外の惑星での初飛行を成功させました。"],
+  [13,"What is the name of the current NASA-led international lunar exploration program (named after Apollo's twin sister in Greek mythology) aiming to return humans to the Moon?",["Project Gemini","Artemis Program (アルテミス計画)","Project Orion","Lunar Gateway Program"],1,"ギリシャ神話のアポロンの双子の姉（月の女神）にちなんだ「アルテミス計画（Artemis Program）」は、日本なども参加して月面への有人着陸と持続的探査を目指す計画です。"],
+  [13,"Which private aerospace company was founded by Elon Musk in 2002 and developed the reusable 'Falcon 9' rocket, 'Crew Dragon' spacecraft, and 'Starship'?",["Blue Origin","SpaceX (スペースX)","Virgin Galactic","Rocket Lab"],1,"イーロン・マスクが2002年に設立した「スペースX（SpaceX）」は、ロケット第1段の垂直着陸・再利用や民間初のISS有人輸送（クルードラゴン）を実現しました。"],
+  [13,"Which private aerospace company was founded in 2000 by Amazon founder Jeff Bezos and developed the 'New Shepard' and 'New Glenn' rockets?",["SpaceX","Blue Origin (ブルーオリジン)","Sierra Space","United Launch Alliance"],1,"Amazon創業者のジェフ・ベゾスが設立した宇宙開発企業は「ブルーオリジン（Blue Origin）」です。"],
+  [13,"Which 20th-century American astronomer at Mount Wilson Observatory proved that other galaxies exist beyond the Milky Way and that the universe is expanding?",["Clyde Tombaugh","Edwin Hubble (エドウィン・ハッブル)","Carl Sagan","Harlow Shapley"],1,"エドウィン・ハッブルは1920年代にウィルソン山天文台での観測から、銀河系外に他の銀河が存在することと宇宙が膨張していること（ハッブル＝ルメートルの法則）を発見しました。"],
+  [13,"Which young American astronomer discovered Pluto in 1930 at the Lowell Observatory in Flagstaff, Arizona?",["Percival Lowell","Clyde Tombaugh (クライド・トンボー)","Gerard Kuiper","Mike Brown"],1,"冥王星（Pluto、2006年より準惑星）は1930年にアリゾナ州のローウェル天文台でクライド・トンボーによって発見されました（2015年にNASAの探査機ニュー・ホライズンズが接近探査）。"],
+  [13,"Which Cornell University astronomer and science communicator hosted the 1980 TV series 'Cosmos' and described Earth photographed from 6 billion km away as a 'Pale Blue Dot'?",["Neil deGrasse Tyson","Carl Sagan (カール・セーガン)","Richard Feynman","Stephen Hawking"],1,"天文学者カール・セーガンは科学番組『コスモス』やSF小説『コンタクト』で知られ、ボイジャー1号が撮影した地球の写真を「ペイル・ブルー・ドット（淡く青い点）」と表現しました。"],
+  [13,"Which museum on the National Mall in Washington, D.C. displays the 1903 Wright Flyer, the Spirit of St. Louis, and the Apollo 11 Command Module Columbia?",["American Museum of Natural History","Smithsonian National Air and Space Museum (国立航空宇宙博物館)","Kennedy Space Center","Intrepid Museum"],1,"ワシントンD.C.にあるスミソニアン協会の「国立航空宇宙博物館（National Air and Space Museum）」には、ライトフライヤー号やアポロ11号司令船などの実物が展示されています。"],
+  [13,"Which African American female mathematician at NASA calculated orbital trajectories for Alan Shepard, John Glenn, and Apollo 11, and was portrayed in the 2016 film 'Hidden Figures'?",["Dorothy Vaughan","Katherine Johnson (キャサリン・ジョンソン)","Mary Jackson","Sally Ride"],1,"映画『ドリーム（原題：Hidden Figures）』の主人公となったNASAの数学者キャサリン・ジョンソンは、マーキュリー計画やアポロ11号の軌道計算に多大な貢献を果たしました。"],
+
+  // 15. 科学③：物理・化学・ノーベル賞 (#351–#375)
+  [14,"Where does the United States rank among all countries in the total number of Nobel Prizes won (with over 400 laureates)?",["1st in the world","2nd in the world","3rd in the world","4th in the world"],0,"アメリカ合衆国はノーベル賞の受賞者数が400名を超えており、世界の国別ランキングで圧倒的第1位です。"],
+  [14,"Who was the very first American scientist to win a Nobel Prize in a science category, winning the 1907 Nobel Prize in Physics for measuring the speed of light?",["Robert Millikan","Albert A. Michelson (アルバート・マイケルソン)","Arthur Compton","Ernest Lawrence"],1,"マイケルソン・モーリーの実験や光速の精密測定で知られる物理学者アルバート・マイケルソンは、1907年にアメリカ人として初めて科学部門のノーベル賞（物理学賞）を受賞しました。"],
+  [14,"Which American physicist at Caltech won the 1923 Nobel Prize in Physics for his 'oil-drop experiment' that measured the elementary electric charge of the electron?",["Albert Michelson","Robert A. Millikan (ロバート・ミリカン)","Carl Anderson","Edwin McMillan"],1,"ロバート・ミリカンは「ミリカンの油滴実験」によって電子の電気素量を精密に測定し、1923年にノーベル物理学賞を受賞しました。"],
+  [14,"Which German-born physicist, author of the Theory of Relativity (E = mc²), emigrated to the United States in 1933 and worked at the Institute for Advanced Study in Princeton, New Jersey?",["Niels Bohr","Albert Einstein (アルベルト・アインシュタイン)","Werner Heisenberg","Max Planck"],1,"相対性理論で知られるアルベルト・アインシュタインは、ナチス政権が誕生した1933年にアメリカへ亡命し、ニュージャージー州のプリンストン高等研究所で後半生を送りました。"],
+  [14,"At which university in Illinois did physicist Enrico Fermi achieve the world's first artificial, self-sustaining nuclear chain reaction (Chicago Pile-1) in December 1942?",["Harvard University","University of Chicago (シカゴ大学)","Columbia University","UC Berkeley"],1,"イタリアから亡命した物理学者エンリコ・フェルミは、1942年12月にシカゴ大学のフットボール競技場スタンド下に設けた実験炉「シカゴ・パイル1号」で人類初の制御された核分裂連鎖反応に成功しました。"],
+  [14,"Which American theoretical physicist served as the scientific director of the Manhattan Project's Los Alamos Laboratory in New Mexico during World War II?",["Richard Feynman","J. Robert Oppenheimer (ロバート・オッペンハイマー)","Edward Teller","Ernest Lawrence"],1,"マンハッタン計画においてニューメキシコ州ロスアラモス研究所の初代所長を務め、「原爆の父」と呼ばれた理論物理学者はJ・ロバート・オッペンハイマーです。"],
+  [14,"What was the code name of the world's first nuclear explosion test, conducted on July 16, 1945 in the desert near Alamogordo, New Mexico?",["Operation Crossroads","Trinity Test (トリニティ実験)","Project Ivory","Manhattan Test"],1,"1945年7月16日にニューメキシコ州アラモゴード近郊の砂漠で実施された人類初の核実験のコードネームは「トリニティ実験（Trinity Test）」です。"],
+  [14,"Which charismatic American physicist won the 1965 Nobel Prize in Physics (with Shin'ichiro Tomonaga and Julian Schwinger) for Quantum Electrodynamics (QED) and created 'Feynman Diagrams'?",["Murray Gell-Mann","Richard P. Feynman (リチャード・ファインマン)","Steven Weinberg","Sheldon Glashow"],1,"リチャード・ファインマンは量子電磁力学（QED）の研究で朝永振一郎らと共に1965年ノーベル物理学賞を受賞し、『ご冗談でしょう、ファインマンさん』などの著作でも親しまれました。"],
+  [14,"Which American physicist at Caltech won the 1969 Nobel Prize in Physics for proposing 'Quarks' as the fundamental building blocks of protons and neutrons?",["Richard Feynman","Murray Gell-Mann (マレー・ゲルマン)","Leon Lederman","Frank Wilczek"],1,"陽子や中性子を構成する素粒子「クォーク（Quark）」の概念を提唱し命名したのは、アメリカの理論物理学者マレー・ゲルマンです。"],
+  [14,"Which American physicist is the ONLY person in history to win the Nobel Prize in Physics TWICE (in 1956 for the transistor and in 1972 for the BCS theory of superconductivity)?",["Linus Pauling","John Bardeen (ジョン・バーディーン)","Frederick Sanger","Marie Curie"],1,"ジョン・バーディーンは、トランジスタの発明（1956年）と超伝導のBCS理論（1972年）により、史上唯一ノーベル物理学賞を2度受賞した人物です。"],
+  [14,"Which American chemist is the ONLY person in history to win TWO unshared (solo) Nobel Prizes—winning the Nobel Prize in Chemistry (1954) and the Nobel Peace Prize (1962)?",["Glenn Seaborg","Linus Pauling (ライナス・ポーリング)","Harold Urey","Norman Borlaug"],1,"量子化学のライナス・ポーリングは、1954年にノーベル化学賞、1962年に核実験反対運動でノーベル平和賞を受賞し、共同受賞なしの単独で2度ノーベル賞を受賞した史上唯一の人物です。"],
+  [14,"Which American chemist at the University of Chicago won the 1960 Nobel Prize in Chemistry for developing 'Radiocarbon Dating' (Carbon-14 dating) used in archaeology?",["Gilbert Lewis","Willard Libby (ウィラード・リビー)","Melvin Calvin","Paul Flory"],1,"考古学や地質学で遺跡・化石の年代を特定する「放射性炭素年代測定法（炭素14法）」を開発したのはアメリカの化学者ウィラード・リビーです。"],
+  [14,"Which American nuclear chemist at UC Berkeley co-discovered 10 transuranium elements (including Plutonium and Americium) and has Element 106 named after him?",["Ernest Lawrence","Glenn T. Seaborg (グレン・シーボーグ)","Edwin McMillan","Harold Urey"],1,"カリフォルニア大学バークレー校のグレン・シーボーグはプルトニウムやアメリシウムなど10個の超ウラン元素を発見し、106番元素シーボーギウム（Sg）に名を残しています。"],
+  [14,"Which two chemical elements on the Periodic Table are named directly after the United States/Americas and the state of California?",["Columbium and Virginium","Americium (Am, 95) and Californium (Cf, 98)","Texium and Floridium","Washingtonium and Yorkium"],1,"周期表の元素のうち、95番元素「アメリシウム（Americium）」と98番元素「カリホルニウム（Californium）」（さらに97番バークリウム、117番テネシン）はアメリカにちなんで命名されています。"],
+  [14,"Which Element 117 on the Periodic Table was officially named in 2016 in honor of the U.S. state home to Oak Ridge National Laboratory and Vanderbilt University?",["Californium","Tennessine (Ts / テネシン)","Americium","Livermorium"],1,"2016年に正式命名された117番元素「テネシン（Tennessine：Ts）」は、オークリッジ国立研究所などがあるテネシー州にちなんで名付けられました。"],
+  [14,"Which American physicist built the first working 'Laser' in 1960 at Hughes Research Laboratories in California, following theoretical work by Charles Townes?",["Gordon Gould","Theodore Maiman (セドドア・メイマン)","Arthur Schawlow","Nicolaas Bloembergen"],1,"チャールズ・タウンズらのメーザー・レーザー理論に基づき、1960年にカリフォルニアで世界初のルビー・レーザー発振に成功したのはセオドア・メイマンです。"],
+  [14,"Which American scientist won the 2019 Nobel Prize in Chemistry at age 97 (alongside Stanley Whittingham and Akira Yoshino) for developing the Lithium-ion battery?",["Richard Smalley","John B. Goodenough (ジョン・グッドイナフ)","Alan Heeger","George Olah"],1,"テキサス大学教授のジョン・グッドイナフは、スマートフォンやEVに不可欠なリチウムイオン電池の正極材料を開発し、2019年に吉野彰氏らと共に史上最高齢（97歳）でノーベル化学賞を受賞しました。"],
+  [14,"Which U.S. scientific project (with twin detectors in Hanford, Washington and Livingston, Louisiana) made the historic first direct detection of 'Gravitational Waves' in September 2015?",["CERN","LIGO (Laser Interferometer Gravitational-Wave Observatory)","Fermilab","SETI"],1,"アインシュタインが100年前に予言した「重力波（Gravitational Waves）」を2015年に世界で初めて直接観測したのは、ワシントン州とルイジアナ州にあるアメリカの重力波望遠鏡「LIGO（ライゴ）」です（2017年ノーベル物理学賞）。"],
+  [14,"Which chemist at DuPont accidentally discovered 'Teflon' (PTFE, used in non-stick frying pans) in 1938?",["Wallace Carothers","Roy J. Plunkett (ロイ・プランケット)","Leo Baekeland","Charles Goodyear"],1,"フライパンの焦げ付き防止コーティングなどで知られるフッ素樹脂「テフロン（Teflon）」は、1938年にデュポン社の化学者ロイ・プランケットによって偶然発見されました。"],
+  [14,"Which American agronomist, known as the 'Father of the Green Revolution,' won the 1970 Nobel Peace Prize for developing high-yielding, disease-resistant wheat varieties that saved hundreds of millions from famine?",["George Washington Carver","Norman Borlaug (ノーマン・ボーローグ)","Luther Burbank","Rachel Carson"],1,"アイオワ州出身の農学者ノーマン・ボーローグは、高収量の短稈コムギ品種を開発して「緑の革命（Green Revolution）」を主導し、1970年にノーベル平和賞を受賞しました。"],
+  [14,"What is the name of the premier U.S. national Particle Physics and Accelerator Laboratory located near Chicago in Batavia, Illinois?",["Brookhaven Lab","Fermilab (フェルミ国立加速器研究所)","Sandia Lab","Argonne Lab"],1,"イリノイ州シカゴ郊外にあるアメリカの素粒子物理学の中心拠点は「フェルミ国立加速器研究所（Fermilab）」です。"],
+  [14,"What is the name of the independent federal agency created by Congress in 1950 to fund fundamental scientific research and education across all non-medical fields of science and engineering?",["NIH","NSF (National Science Foundation / アメリカ国立科学財団)","DARPA","NOAA"],1,"アメリカの大学や研究機関における基礎科学・工学研究に助成金を交付する連邦独立機関は「国立科学財団（NSF）」です（医学分野はNIH）。"],
+  [14,"Which prestigious, peer-reviewed weekly scientific journal has been published in the United States since 1880 by the American Association for the Advancement of Science (AAAS) (with initial financial backing from Thomas Edison)?",["Nature","Science (サイエンス)","The Lancet","Cell"],1,"イギリスの『Nature』と並び世界で最も権威ある総合学術雑誌であるアメリカの『Science（サイエンス）』は、1880年にエジソンらの出資で創刊され、米国科学振興協会（AAAS）が発行しています。"],
+  [14,"Which six universities in the United States top the global rankings in total Nobel Prize affiliations?",["Harvard, UC Berkeley, University of Chicago, MIT, Columbia, and Stanford","Ohio State, Texas A&M, Penn State, Florida, Michigan, and UCLA","Georgetown, Duke, Vanderbilt, Rice, Emory, and Notre Dame","Rutgers, Indiana, Purdue, Iowa, Kansas, and Oregon"],0,"ハーバード大学、UCバークレー、シカゴ大学、MIT（マサチューセッツ工科大学）、コロンビア大学、スタンフォード大学は、それぞれ100名近いノーベル賞受賞者を輩出・擁する世界の学術研究の頂点です。"],
+  [14,"Which American physicist at UC Berkeley invented the 'Cyclotron' (particle accelerator) in 1929, winning the 1939 Nobel Prize in Physics and having two national laboratories named after him?",["Robert Oppenheimer","Ernest O. Lawrence (アーネスト・ローレンス)","Luis Alvarez","Emilio Segrè"],1,"円形粒子加速器「サイクロトロン」を発明したアーネスト・ローレンスは1939年にノーベル物理学賞を受賞し、ローレンス・バークレー国立研究所や103番元素ローレンシウムに名を残しています。"],
+
+  // 16. 科学④：IT・医学・バイオ・環境 (#376–#400)
+  [15,"What was the name of the first programmable, electronic, general-purpose digital computer, unveiled at the University of Pennsylvania in February 1946 by John Mauchly and J. Presper Eckert?",["UNIVAC","ENIAC (エニアック)","IBM 701","Altair 8800"],1,"1946年にペンシルベニア大学でジョン・モークリーとプレスパー・エッカートが開発した真空管式の汎用電子計算機は「ENIAC（エニアック）」です。"],
+  [15,"At which renowned industrial research laboratory in Murray Hill, New Jersey did John Bardeen, Walter Brattain, and William Shockley invent the 'Transistor' in 1947?",["Xerox PARC","Bell Labs (ベル研究所)","IBM Watson Center","Lincoln Lab"],1,"現代のあらゆる電子機器・コンピュータの基礎となった「トランジスタ」は1947年にニュージャージー州のAT&Tベル研究所（Bell Labs）で発明されました（UNIXやC言語も同研究所で誕生）。"],
+  [15,"Which two American engineers independently invented the 'Integrated Circuit' (IC / Microchip) in 1958–1959 at Texas Instruments and Fairchild Semiconductor?",["Steve Jobs and Steve Wozniak","Jack Kilby (Texas Instruments) and Robert Noyce (Fairchild / Intel)","Bill Gates and Paul Allen","Vint Cerf and Bob Kahn"],1,"半導体チップ上に複数の素子を集積する「集積回路（IC）」は、1958〜59年にジャック・キルビー（2000年ノーベル物理学賞）とロバート・ノイス（Intel共同創業者）によって発明されました。"],
+  [15,"Which co-founder of Intel formulated the famous 1965 observation ('___'s Law') that the number of transistors on a microchip doubles roughly every two years?",["Andy Grove","Gordon Moore (ゴードン・ムーア / ムーアの法則)","Robert Noyce","Jensen Huang"],1,"「半導体の集積密度は約1.5〜2年ごとに2倍になる」という半導体産業の成長経験則は、インテル共同創業者ゴードン・ムーアが1965年に提唱した「ムーアの法則（Moore's Law）」です。"],
+  [15,"What was the name of the 1969 packet-switching network funded by the U.S. Department of Defense (ARPA) that connected UCLA and Stanford, becoming the direct precursor to the modern Internet?",["Ethernet","ARPANET (アーパネット)","World Wide Web","Intranet"],1,"1969年に米国防総省の高等研究計画局（ARPA、現DARPA）がカリフォルニア大学ロサンゼルス校（UCLA）とスタンフォード研究所などを結んで構築したインターネットの原型は「ARPANET」です。"],
+  [15,"Which two American computer scientists designed the 'TCP/IP' communication protocols in the 1970s and are widely recognized as the 'Fathers of the Internet'?",["Larry Page and Sergey Brin","Vint Cerf and Bob Kahn (ヴィント・サーフとボブ・カーン)","Marc Andreessen and Eric Bina","Dennis Ritchie and Ken Thompson"],1,"インターネットの根幹である通信プロトコル「TCP/IP」を開発し「インターネットの父」と称されるアメリカの科学者は、ヴィント・サーフとボブ・カーンです。"],
+  [15,"Which American engineer at Stanford Research Institute (SRI) invented the 'Computer Mouse' and demonstrated hypertext and video conferencing in his famous 1968 'Mother of All Demos'?",["Alan Kay","Douglas Engelbart (ダグラス・エンゲルバート)","Ivan Sutherland","Ray Tomlinson"],1,"コンピュータの「マウス」を発明し、1968年にサンフランシスコでウィンドウ画面・ハイパーテキスト・ビデオ会議を実演したのはダグラス・エンゲルバートです。"],
+  [15,"Which satellite-based radionavigation system, originally developed by the U.S. Department of Defense in the 1970s and opened for civilian use globally, is used in smartphones and car navigation?",["GLONASS","GPS (Global Positioning System)","Galileo","Radar"],1,"米国防総省が開発し米宇宙軍が運用する全地球測位システムは「GPS（Global Positioning System）」です。"],
+  [15,"Which U.S. Navy Rear Admiral and computer pioneer developed the first compiler, helped create the COBOL programming language, and popularized the term 'computer bug'?",["Ada Lovelace","Grace Hopper (グレース・ホッパー)","Margaret Hamilton","Katherine Johnson"],1,"米海軍少将で計算機科学者のグレース・ホッパーは、コンパイラや事務処理言語COBOLの開発を主導し、リレーに挟まった蛾から「バグ（Bug）」「デバッグ」の言葉を広めました。"],
+  [15,"At which hospital in Boston, Massachusetts did dentist William T. G. Morton perform the first successful public demonstration of ether surgical anesthesia in October 1846?",["Johns Hopkins Hospital","Massachusetts General Hospital (マサチューセッツ総合病院)","Mayo Clinic","Mount Sinai Hospital"],1,"1846年10月にボストンのマサチューセッツ総合病院（MGH）でウィリアム・モートンがエーテルによる全身麻酔手術の公開実験に成功し、近代外科医学の扉を開きました。"],
+  [15,"Which American medical researcher developed the first safe and effective inactivated Polio Vaccine in 1955 and famously refused to patent it ('Could you patent the sun?')?",["Albert Sabin","Jonas Salk (ジョナス・ソーク)","Anthony Fauci","Maurice Hilleman"],1,"ジョナス・ソークは1955年に不活化ポリオワクチンを開発して世界中の子どもたちを小児麻痺から救い、「太陽に特許はあるかね？」と述べて特許を取得せず無償公開しました。"],
+  [15,"Which American biologist co-discovered the double-helix structure of DNA in 1953 alongside British scientist Francis Crick, winning the 1962 Nobel Prize in Physiology or Medicine?",["Craig Venter","James D. Watson (ジェームズ・ワトソン)","Francis Collins","Har Gobind Khorana"],1,"アメリカの生物学者ジェームズ・ワトソンは、1953年にフランシス・クリックと共にDNAの二重らせん構造を解明し、モーリス・ウィルキンスと共に1962年ノーベル生理学・医学賞を受賞しました。"],
+  [15,"Which American biochemist won the 1993 Nobel Prize in Chemistry for inventing the 'Polymerase Chain Reaction' (PCR) method used to amplify DNA sequences?",["Arthur Kornberg","Kary Mullis (キャリー・マリス)","Paul Berg","Walter Gilbert"],1,"微量のDNAを短時間で大量に増幅する「PCR法（ポリメラーゼ連鎖反応）」を1983年に考案したのは、アメリカの生化学者キャリー・マリスです。"],
+  [15,"Which international scientific research effort, led by the U.S. National Institutes of Health (NIH) from 1990 to 2003, successfully mapped and sequenced all human genes?",["Manhattan Project","Human Genome Project (ヒトゲノム計画)","BRAIN Initiative","ENCODE Project"],1,"1990年にアメリカ（NIHおよびエネルギー省）が主導して開始し、2003年にヒトの全DNA塩基配列の解読を完了させた国際プロジェクトは「ヒトゲノム計画（Human Genome Project）」です。"],
+  [15,"Which American biochemist at UC Berkeley won the 2020 Nobel Prize in Chemistry (with Emmanuelle Charpentier) for developing the 'CRISPR-Cas9' genome-editing technology?",["Carolyn Bertozzi","Jennifer Doudna (ジェニファー・ダウドナ)","Frances Arnold","Barbara McClintock"],1,"DNAを自在に書き換える革新的なゲノム編集技術「CRISPR-Cas9（クリスパー・キャスナイン）」を開発し、2020年ノーベル化学賞を受賞したUCバークレー教授はジェニファー・ダウドナです。"],
+  [15,"Which two scientists at the University of Pennsylvania won the 2023 Nobel Prize in Physiology or Medicine for their nucleoside base modification discoveries that enabled mRNA COVID-19 vaccines?",["James Allison and Tasuku Honjo","Katalin Karikó and Drew Weissman (カタリン・カリコとドリュー・ワイスマン)","Harvey Alter and Charles Rice","David Julius and Ardem Patapoutian"],1,"ペンシルベニア大学でmRNAの炎症反応を抑える修飾技術を発見し、新型コロナmRNAワクチンの実用化を可能にして2023年ノーベル生理学・医学賞を受賞したのはカタリン・カリコとドリュー・ワイスマンです。"],
+  [15,"Where in Georgia is the headquarters of the U.S. 'CDC' (Centers for Disease Control and Prevention), the federal agency protecting public health against infectious diseases?",["Washington, D.C.","Atlanta, Georgia","Bethesda, Maryland","Boston, Massachusetts"],1,"感染症対策や公衆衛生を担うアメリカの「疾病予防管理センター（CDC）」の本部は、ジョージア州アトランタにあります。"],
+  [15,"Where in Maryland (just north of Washington, D.C.) is the headquarters of the 'NIH' (National Institutes of Health), the world's largest public biomedical research agency?",["Baltimore","Bethesda, Maryland","Annapolis","Arlington"],1,"27の研究所・センターを擁する世界最大の医学・生命科学研究機関「アメリカ国立衛生研究所（NIH）」の本部は、メリーランド州ベセスダにあります。"],
+  [15,"Which federal agency within the Department of Health and Human Services regulates the safety of food, prescription drugs, vaccines, medical devices, and cosmetics in the U.S.?",["USDA","FDA (Food and Drug Administration / アメリカ食品医薬品局)","EPA","CDC"],1,"食品や医薬品・ワクチン・医療機器・化粧品の承認と安全規制を管轄する連邦機関は「アメリカ食品医薬品局（FDA）」です。"],
+  [15,"Which American marine biologist published the landmark 1962 book 'Silent Spring' (沈黙の春), warning of the dangers of synthetic pesticides like DDT and sparking the modern environmental movement?",["Jane Goodall","Rachel Carson (レイチェル・カーソン)","Sylvia Earle","Marjory Stoneman Douglas"],1,"海洋生物学者レイチェル・カーソンが1962年に発表した『沈黙の春（Silent Spring）』は、DDTなどの化学農薬による生態系破壊を告発し、環境保護運動の原点となりました。"],
+  [15,"In what year was the first 'Earth Day' celebrated across the United States (on April 22), and which federal environmental agency was established later that same year under President Nixon?",["1962 / National Park Service","1970 / EPA (Environmental Protection Agency / 環境保護庁)","1980 / NOAA","1992 / FEMA"],1,"1970年4月22日にアメリカで第1回「アースデイ（地球の日）」が開催され、同年12月にニクソン政権下で「環境保護庁（EPA）」が設立されました。"],
+  [15,"Which major transform fault line runs approximately 1,200 km through California, marking the boundary between the Pacific Plate and the North American Plate and causing major earthquakes (such as the 1906 San Francisco earthquake)?",["New Madrid Fault","San Andreas Fault (サンアンドレアス断層)","Cascadia Fault","Hayward Fault"],1,"カリフォルニア州を縦断する太平洋プレートと北米プレートの境界の横ずれ断層は「サンアンドレアス断層（San Andreas Fault）」で、1906年サンフランシスコ地震などを引き起こしました。"],
+  [15,"What is the name of the meteorological scale (rated from EF0 to EF5) developed at the University of Chicago by Japanese-American meteorologist Tetsuya Theodore Fujita to measure tornado intensity?",["Saffir-Simpson Scale","Fujita Scale / Enhanced Fujita Scale (藤田スケール / EFスケール)","Richter Scale","Beaufort Scale"],1,"シカゴ大学教授だった気象学者・藤田哲也博士が1971年に考案した竜巻（トルネード）の強さを被害状況から分類する尺度は「藤田スケール（Fスケール、現在は改良藤田スケール：EF0〜EF5）」です（ハリケーンはサファ・シンプソン・スケール）。"],
+  [15,"Which two American seismologists at Caltech developed the famous 1935 logarithmic scale used to measure the magnitude of earthquakes?",["Harry Hess and Alfred Wegener","Charles Richter and Beno Gutenberg (チャールズ・リヒターとベノー・グーテンベルク)","Fujita and Saffir","Mercalli and Omori"],1,"カリフォルニア工科大学の地震学者チャールズ・リヒター（およびベノー・グーテンベルク）は1935年に地震の規模（マグニチュード）を表す「リヒター・スケール」を考案しました。"],
+  [15,"What is the name of the federal scientific agency within the Department of Commerce that monitors the oceans, major waterways, atmosphere, and national weather warnings (NWS)?",["USGS","NOAA (National Oceanic and Atmospheric Administration / アメリカ海洋大気庁)","EPA","FEMA"],1,"ハリケーンや竜巻などの気象警報（NWS）、海洋調査、気候変動観測を担う商務省傘下の科学機関は「アメリカ海洋大気庁（NOAA：ノア）」です。"],
+
+  // ==================== PART 3: 日米関係 (100問: #401–#500) ====================
+  // 17. 日米①：幕末の開国と遣米使節 (#401–#412)
+  [16,"Which young Japanese fisherman from Tosa was rescued in 1841 by the American whaling ship 'John Howland' (Captain Whitfield) and became the first Japanese to live and study in the U.S.?",["Hikozo Hamada (Joseph Heco)","John Manjiro (Nakahama Manjiro)","Ranald MacDonald","Sakamoto Ryoma"],1,"1841年に遭難しアメリカの捕鯨船ジョン・ハウランド号（ホイットフィールド船長）に救助されたジョン万次郎（中浜万次郎）は、マサチューセッツ州フェアヘイブンで学び、帰国後に幕府の通訳として貢献しました。"],
+  [16,"In what year did U.S. Navy Commodore Matthew C. Perry first arrive at Uraga (at the entrance to Edo Bay) with four 'Black Ships'?",["1848","1853","1858","1860"],1,"アメリカ東インド艦隊司令長官マシュー・ペリー代将が4隻の黒船（旗艦サスケハナ号など）を率いて浦賀に来航したのは1853年（嘉永6年）です。"],
+  [16,"Which 13th U.S. President sent the official letter carried by Commodore Matthew Perry requesting the Tokugawa Shogunate to open Japan's ports?",["James K. Polk","Millard Fillmore","Franklin Pierce","James Buchanan"],1,"ペリーが幕府に提出した開国を求める親書を送ったのは、第13代ミラード・フィルモア大統領です。"],
+  [16,"Which treaty signed in March 1854 between Commodore Perry and the Tokugawa Shogunate ended Japan's national seclusion and opened the ports of Shimoda and Hakodate?",["Treaty of Amity and Commerce","Convention of Kanagawa (U.S.-Japan Treaty of Peace and Amity / 日米和親条約)","Treaty of Portsmouth","Treaty of San Francisco"],1,"1854年3月に横浜で締結された「日米和親条約（神奈川条約 / Convention of Kanagawa）」により、下田と箱館（函館）の2港が開港されました。"],
+  [16,"Who arrived in Shimoda in 1856 as the first United States Consul General to Japan, setting up the first American consulate at Gyokusen-ji Temple?",["Matthew Perry","Townsend Harris (タウンゼント・ハリス)","Henry Heusken","Rutherford Alcock"],1,"1856年に初代駐日アメリカ総領事として下田に着任し、玉泉寺に総領事館を開設したのはタウンゼント・ハリスです。"],
+  [16,"Which treaty signed in July 1858 aboard the USS Powhatan established commercial trade between the U.S. and Japan and opened Kanagawa (Yokohama), Nagasaki, Niigata, Hyogo (Kobe), and Hakodate?",["Convention of Kanagawa","Treaty of Amity and Commerce (Harris Treaty / 日米修好通商条約)","Treaty of Ghent","Burlington Treaty"],1,"1858年7月に大老・井伊直弼の下でハリスと締結された「日米修好通商条約（ハリス条約）」により、横浜・長崎・新潟・神戸・函館の5港での自由貿易が始まりました。"],
+  [16,"In what year did the Tokugawa Shogunate dispatch its first official diplomatic mission to the United States (the Man'en Gannen Embassy) to exchange ratifications of the Harris Treaty?",["1854","1860","1867","1871"],1,"日米修好通商条約の批准書交換のため、幕府が初の公式外交使節団「万延元年遣米使節」をワシントンD.C.へ派遣したのは1860年です。"],
+  [16,"Who served as the Chief Ambassador (正使) of the 1860 Japanese Embassy to the United States, accompanied by Vice Ambassador Muragaki Norimasa and censor Oguri Tadamasa?",["Iwase Tadanari","Shinmi Masaoki (新見正興)","Katsu Kaishu","Iwakura Tomomi"],1,"1860年の万延元年遣米使節の正使は外国奉行の新見正興（しんみまさおき）、副使は村垣範正、目付（監察）は小栗忠順が務め、米軍艦ポーハタン号で太平洋を渡りました。"],
+  [16,"Which Japanese screw-driven warship, captained by Katsu Kaishu with Fukuzawa Yukichi and John Manjiro aboard, escorted the 1860 mission across the Pacific to San Francisco?",["Kaiyo Maru","Kanrin Maru (咸臨丸)","Mikasa","Chogei Maru"],1,"勝海舟が艦長を務め、福沢諭吉やジョン万次郎らが乗船して1860年にサンフランシスコへの太平洋横断に成功した幕府の蒸気軍艦は「咸臨丸（Kanrin Maru）」です。"],
+  [16,"Which 15th U.S. President warmly received the 1860 Japanese diplomatic mission in the East Room of the White House in Washington, D.C.?",["Millard Fillmore","James Buchanan","Abraham Lincoln","Ulysses S. Grant"],1,"1860年5月、ワシントンD.C.のホワイトハウスで万延元年遣米使節を歓迎し批准書を交換した大統領は、南北戦争直前の第15代ジェームズ・ブキャナン大統領です。"],
+  [16,"In which American city did the 1860 Japanese Embassy receive a massive ticker-tape-style parade up Broadway, inspiring Walt Whitman to write the poem 'A Broadway Pageant'?",["San Francisco","New York City","Boston","Philadelphia"],1,"1860年6月に遣米使節がニューヨーク市を訪れた際、ブロードウェイで大歓迎パレードが行われ、詩人ウォルト・ホイットマンは記念詩『ブロードウェイのページェント』を詠みました。"],
+  [16,"Which young samurai left Hakodate secretly in 1864 to study at Phillips Academy and Amherst College in Massachusetts, becoming the first Japanese to earn a college degree in the West and later founding Doshisha in Kyoto?",["Mori Arinori","Joseph Hardy Neesima (Niijima Jo / 新島襄)","Uchimura Kanzo","Nitobe Inazo"],1,"1864年に函館から渡米してマサチューセッツ州のアマースト大学で日本人初の学士号を取得し、帰国後に京都で同志社英学校（現・同志社大学）を創立したのは新島襄（ジョセフ・ハーディ・新島）です。"],
+
+  // 18. 日米②：明治・大正とポーツマス条約 (#413–#425)
+  [17,"Who led the Meiji government's grand diplomatic mission (1871–1873)—including Kido Takayoshi, Okubo Toshimichi, and Ito Hirobumi—which visited the United States for over seven months before touring Europe?",["Saigo Takamori","Iwakura Tomomi (Iwakura Mission / 岩倉使節団)","Okuma Shigenobu","Yamagata Aritomo"],1,"1871年（明治4年）から1873年にかけて欧米諸国を歴訪した明治政府の使節団は、右大臣・岩倉具視を特命全権大使とする「岩倉使節団（Iwakura Mission）」です。"],
+  [17,"Who was the youngest of the five female students (at age 6) sent to the U.S. with the 1871 Iwakura Mission, who later studied biology at Bryn Mawr College, founded Tsuda University, and appears on the new 5,000-yen note?",["Oyama Sutematsu","Tsuda Umeko (津田梅子)","Ueda Teiko","Higuchi Ichiyo"],1,"1871年に満6歳で岩倉使節団に同行してアメリカへ留学し、のちブリンマー大学で学び女子英学塾（現・津田塾大学）を創設したのは津田梅子（2024年発行の新5,000円札の肖像）です。"],
+  [17,"Which 18th U.S. President met the Iwakura Mission at the White House in 1872 and later visited Meiji Japan for two months in 1879 as a former President, meeting Emperor Meiji in Tokyo?",["Andrew Johnson","Ulysses S. Grant (ユリシーズ・グラント)","Rutherford B. Hayes","Theodore Roosevelt"],1,"第18代ユリシーズ・S・グラント大統領は1872年に岩倉使節団を歓迎し、退任後の1879年に世界一周の途上で来日して明治天皇と会見しました。"],
+  [17,"Which American educator from Massachusetts served as the first vice-principal of Sapporo Agricultural College (now Hokkaido University) in 1876–1877, leaving the famous parting words 'Boys, be ambitious!'?",["Edward S. Morse","William S. Clark (ウィリアム・スミス・クラーク)","David Murray","Lafcadio Hearn"],1,"マサチューセッツ農科大学学長から札幌農学校の初代教頭として招かれ、「少年よ、大志を抱け（Boys, be ambitious!）」の言葉を残したのはウィリアム・S・クラーク博士です。"],
+  [17,"Which American zoologist from Maine discovered and excavated the 'Omori Shell Mounds' (大森貝塚) in Tokyo in 1877 while riding a train from Yokohama, introducing modern archaeology to Japan?",["Ernest Fenollosa","Edward S. Morse (エドワード・モース)","Townsend Harris","Charles Whitman"],1,"1877年に横浜から新橋へ向かう汽車の窓から大森貝塚を発見・発掘し、東京大学初代動物学教授として近代考古学・動物学を伝えたアメリカ人学者はエドワード・S・モースです。"],
+  [17,"Which Harvard-educated American art historian came to Japan in 1878 and worked closely with his student Okakura Tenshin to preserve traditional Japanese art and establish the Tokyo Fine Arts School?",["Edward Morse","Ernest Fenollosa (アーネスト・フェノロサ)","Frank Lloyd Wright","William Sturgis Bigelow"],1,"ハーバード大学出身のアーネスト・フェノロサは、教え子の岡倉天心と共に廃仏毀釈の風潮のなかで日本美術の価値を再評価し、東京美術学校（現・東京藝術大学）設立に尽力しました。"],
+  [17,"Which American medical missionary arrived in Kanagawa in 1859, founded what became Meiji Gakuin University, compiled the first Japanese-English dictionary, and created the standard romanization system for Japanese?",["Guido Verbeck","James Curtis Hepburn (ジェームス・カーティス・ヘボン)","Samuel Robbins Brown","Williams Channing"],1,"アメリカ長老派の医療宣教師ジェームス・カーティス・ヘボンは、日本初の和英辞典『和英語林集成』を編纂して「ヘボン式ローマ字」を考案し、明治学院の創設者となりました。"],
+  [17,"Which American-educated Japanese scholar (a Johns Hopkins alumnus and Quaker married to an American from Philadelphia) wrote the bestselling 1900 book 'Bushido: The Soul of Japan' in English?",["Okakura Tenshin","Nitobe Inazo (新渡戸稲造)","Uchimura Kanzo","Takahashi Korekiyo"],1,"ジョンズ・ホプキンス大学に留学した新渡戸稲造は、1900年にカリフォルニアで英文著書『武士道（Bushido: The Soul of Japan）』を著し、セオドア・ルーズベルト大統領ら欧米知識人に広く読まれました。"],
+  [17,"Which September 1905 peace treaty, mediated by U.S. President Theodore Roosevelt, officially ended the Russo-Japanese War?",["Treaty of Ghent","Treaty of Portsmouth (ポーツマス条約)","Treaty of Paris","Treaty of Versailles"],1,"第26代セオドア・ルーズベルト大統領の仲介により1905年9月に締結され、日露戦争を終結させた講和条約は「ポーツマス条約」です（ルーズベルトはこの功績で1906年に米国人初のノーベル平和賞を受賞）。"],
+  [17,"In which New England state (and at the adjacent naval shipyard across the Piscataqua River in Kittery, Maine) was the 1905 Portsmouth Peace Conference held?",["Massachusetts","New Hampshire (Portsmouth)","Rhode Island","Connecticut"],1,"ポーツマス講和会議は、ニューハンプシャー州ポーツマス（および川向かいのメイン州キタリーにあるポーツマス海軍造船所）で開催されました。"],
+  [17,"Who served as Japan's Foreign Minister and Chief Plenipotentiary negotiator opposite Russia's Sergei Witte at the 1905 Portsmouth Peace Conference?",["Ito Hirobumi","Komura Jutaro (小村寿太郎)","Katsura Taro","Mutsu Munemitsu"],1,"ハーバード大学法科大学院（Harvard Law School）に学んだ外務大臣・小村寿太郎が、1905年のポーツマス講和会議で日本側全権代表を務めました。"],
+  [17,"Which Japanese bacteriologist moved to the U.S. in 1900 and became a world-renowned researcher on syphilis and yellow fever at the Rockefeller Institute for Medical Research in New York?",["Kitasato Shibasaburo","Hideyo Noguchi (野口英世)","Jokichi Takamine","Kikunae Ikeda"],1,"野口英世は1900年に渡米し、ペンシルベニア大学を経てニューヨークのロックフェラー医学研究所で梅毒スピロヘータや黄熱病の研究に生涯を捧げました。"],
+  [17,"At which 1921–1922 international conference hosted by U.S. President Warren G. Harding in Washington, D.C. did the U.S., Britain, Japan, France, and Italy agree to naval disarmament (a 5:5:3 ratio in capital ships)?",["Geneva Naval Conference","Washington Naval Conference (ワシントン会議)","London Naval Conference","Bretton Woods Conference"],1,"1921〜1922年にハーディング大統領の提唱でワシントンD.C.で開催された「ワシントン会議」により、主力艦保有比率を米5：英5：日3とするワシントン海軍軍縮条約や四カ国条約・九カ国条約が結ばれました。"],
+
+  // 19. 日米③：桜寄贈・日米協会・大会 (#426–#438)
+  [18,"In what year did Japan (Mayor Yukio Ozaki of Tokyo) gift approximately 3,000 cherry blossom trees to Washington, D.C. as a symbol of peace and friendship between Japan and the United States?",["1905","1912","1917","1927"],1,"日米の平和と親善の象徴として、東京市の尾崎行雄市長からワシントンD.C.へ約3,000本の桜の苗木が贈られたのは1912年（明治45年）です。"],
+  [18,"Around which famous reservoir along the Potomac River in Washington, D.C. were the 1912 Japanese cherry blossom trees planted?",["Reflecting Pool","Tidal Basin (タイダルベイスン)","Chesapeake Bay","Georgetown Reservoir"],1,"1912年に日本から寄贈された桜は、ワシントンD.C.のポトマック河畔にある「タイダルベイスン（Tidal Basin）」の周囲に植えられ、毎春の全米桜祭りの中心となっています。"],
+  [18,"Which U.S. First Lady (wife of the 27th President) and which Japanese Ambassador's wife planted the first two cherry trees together on the northern bank of the Tidal Basin on March 27, 1912?",["Edith Roosevelt and Sutematsu Oyama","Helen Herron Taft and Viscountess Iwa Chinda (タフト大統領夫人と珍田捨巳駐米大使夫人)","Ellen Wilson and Umeko Tsuda","Grace Coolidge and Haruko Hatoyama"],1,"1912年3月27日、第27代ウィリアム・ハワード・タフト大統領のヘレン・タフト夫人と珍田捨巳駐米大使の伊倭子（いわこ）夫人が、タイダルベイスン北岸に最初の2本のソメイヨシノを植樹しました。"],
+  [18,"Which prominent Japanese chemist living in New York (discoverer of adrenaline and Takadiastase) and which American writer/geographer (first female board member of National Geographic) initiated the 1912 cherry tree gift?",["Hideyo Noguchi and Rachel Carson","Jokichi Takamine and Eliza Ruhamah Scidmore (高峰譲吉とエリザ・シドモア)","Kitasato Shibasaburo and Clara Barton","Shinzo Takatsuji and Pearl S. Buck"],1,"ワシントンD.C.への桜寄贈は、紀行作家エリザ・シドモアの発案とニューヨーク在住の化学者・高峰譲吉博士の資金援助・奔走によって実現しました。"],
+  [18,"Which American native flowering tree did the United States gift to Tokyo in 1915 as a token of gratitude for Japan's 1912 gift of cherry blossom trees?",["Magnolia","Flowering Dogwood (ハナミズキ)","Red Maple","Jacaranda"],1,"1912年の桜寄贈への返礼として、1915年にアメリカから日本（東京市）へ贈られた花木は「ハナミズキ（Flowering Dogwood / アメリカヤマボウシ）」です。"],
+  [18,"In what year (Taisho 6) was the America-Japan Society (一般社団法人日米協会), Japan's oldest U.S.–Japan private exchange organization, founded?",["1905","1912","1917","1945"],2,"一般社団法人日米協会は、1917年（大正6年）に創立された日本で最も長い歴史と伝統を持つ日米民間交流団体です。"],
+  [18,"Who served as the first President (初代会長) of the America-Japan Society when it was founded in 1917?",["Shigeru Yoshida","Kentaro Kaneko (金子堅太郎)","Eiichi Shibusawa","Inazo Nitobe"],1,"1917年に創立された日米協会の初代会長には、ハーバード大学に学び大日本帝国憲法の起草や日露戦争時の対米外交に尽力した政治家・金子堅太郎が就任しました。"],
+  [18,"Which two prominent postwar Prime Ministers of Japan served among the past Presidents (歴代会長) of the America-Japan Society?",["Hayato Ikeda and Eisaku Sato","Shigeru Yoshida and Nobusuke Kishi (吉田茂・岸信介)","Kakuei Tanaka and Yasuhiro Nakasone","Takeo Fukuda and Masayoshi Ohira"],1,"日米協会の歴代会長には、戦後の講和を成し遂げた吉田茂（第4代会長）や日米安保改定を行った岸信介（第5代会長）など首相経験者や駐米大使経験者が就任しています。"],
+  [18,"Who currently serves as the 9th President (第9代会長) of the America-Japan Society, having previously served as Japan's Ambassador to the United States (2008–2012)?",["Ryozo Kato","Ichiro Fujisaki (藤崎一郎)","Kenichiro Sasae","Shinsuke Sugiyama"],1,"日米協会の現在の第9代会長は、元駐米大使の藤崎一郎氏です。"],
+  [18,"To commemorate which milestone in 2017 did the America-Japan Society plan the 'America Bowl' competition for Japanese high school students?",["The 50th anniversary of the return of Okinawa","The 100th anniversary of the founding of the America-Japan Society (日米協会創立100周年記念事業)","The 150th anniversary of the Meiji Restoration","The 200th anniversary of U.S. Independence"],1,"「アメリカボウル大会」は、2017年の一般社団法人日米協会創立100周年記念事業の一つとして企画され、第1回大会が2018年に開催されました。"],
+  [18,"According to the official America Bowl guide, what does the word 'Bowl' mean in the name 'America Bowl'?",["A round dining dish","A game or competition/tournament (ゲームや大会)","A concert amphitheater","A geographic basin"],1,"アメリカボウルにおける「ボウル（Bowl）」とは、スーパーボウルやローズボウルなどと同様に「ゲームや大会」を意味します。"],
+  [18,"In the preliminary round of the America Bowl, how many points is each of the 5 special 'Bonus Questions' worth, compared to 1 point for regular questions?",["2 points","3 points","5 points","10 points"],1,"アメリカボウル予選では通常問題は1問1点ですが、5問出題されるボーナス問題は1問につき「3点」が配点されます。"],
+  [18,"What is the name of the cultural exchange event held between the preliminary and final rounds of the America Bowl, where high school students from across Japan interact in English?",["AMERICA QUIZ RELAY","TOMODACHI BINGO","SAKURA DEBATE","KAKEHASHI TRIVIA"],1,"予選と決勝戦の間には、全国の参加高校生が英語を通して交流するカルチャーイベント「TOMODACHI BINGO」が開催されます。"],
+
+  // 20. 日米④：太平洋戦争と日系米国人 (#439–#450)
+  [19,"On what date (Hawaii local time) did the Attack on Pearl Harbor take place on the island of Oahu, bringing the United States into World War II?",["November 11, 1941","December 7, 1941","December 8, 1941","June 6, 1942"],1,"真珠湾攻撃（Attack on Pearl Harbor）はハワイ現地時間の1941年12月7日朝（日本時間12月8日未明）に発生し、アメリカの第二次世界大戦参戦の契機となりました。"],
+  [19,"Which U.S. President addressed Congress on December 8, 1941, declaring that December 7, 1941 was 'a date which will live in infamy' (屈辱の日)?",["Woodrow Wilson","Franklin D. Roosevelt","Harry S. Truman","Dwight D. Eisenhower"],1,"真珠湾攻撃の翌日である1941年12月8日、第32代フランクリン・D・ルーズベルト大統領が連邦議会で有名な「屈辱の日（Infamy Speech）」演説を行い、対日宣戦布告が可決されました。"],
+  [19,"Which U.S. Navy battleship sunk during the 1941 Attack on Pearl Harbor now lies beneath a white memorial bridge in Honolulu visited by millions of people?",["USS Missouri","USS Arizona (戦艦アリゾナ / アリゾナ記念館)","USS Lexington","USS Enterprise"],1,"真珠湾攻撃で沈没した「戦艦アリゾナ（USS Arizona）」の船体の上には白亜の「USSアリゾナ記念館」が建てられ、犠牲者の追悼と日米和解の象徴となっています。"],
+  [19,"Which Executive Order signed by President Franklin D. Roosevelt on February 19, 1942 led to the forced internment of approximately 120,000 Japanese Americans from the West Coast?",["Executive Order 8802","Executive Order 9066 (大統領令9066号)","Executive Order 9981","Executive Order 10925"],1,"1942年2月19日にフランクリン・D・ルーズベルト大統領が署名した「大統領令9066号（Executive Order 9066）」により、米国市民である二世を含む西海岸の日系人約12万人が内陸部の強制収容所へ送られました。"],
+  [19,"Which war relocation center (internment camp) at the foot of the Sierra Nevada in California is the best-known of the ten camps where Japanese Americans were incarcerated during WWII?",["Tule Lake","Manzanar (マンザナー強制収容所)","Heart Mountain","Topaz"],1,"カリフォルニア州東部オーエンズバレーに設けられた「マンザナー強制収容所（Manzanar）」は1万人以上の日系人が収容され、現在は国定史跡として保存されています。"],
+  [19,"Which U.S. Army unit composed of Nisei (second-generation Japanese American) soldiers became the most decorated unit for its size and length of service in U.S. military history, fighting under the motto 'Go for Broke!'?",["101st Airborne Division","442nd Regimental Combat Team (第442連隊戦闘団)","Tuskegee Airmen","1st Marine Division"],1,"日系二世の志願兵らで編成された「第442連隊戦闘団（および第100歩兵大隊）」は、ハワイのスローガン「Go for Broke!（当たって砕けろ）」を掲げて欧州戦線で戦い、米国軍事史上最多の勲章を受章しました。"],
+  [19,"Which Nisei veteran of the 442nd Regimental Combat Team lost his right arm in Italy, received the Medal of Honor, and represented Hawaii in the U.S. Senate for 50 years (becoming President pro tempore)?",["Spark Matsunaga","Daniel K. Inouye (ダニエル・イノウエ)","Norman Mineta","George Ariyoshi"],1,"ハワイ出身のダニエル・イノウエ上院議員は、第442連隊戦闘団で右腕を失いながらも活躍して名誉勲章を受章し、ハワイ州選出の連邦上院議員・上院仮議長（大統領継承順位第3位）として日米関係に大きく貢献しました。"],
+  [19,"Which June 1942 naval battle fought near an atoll northwest of Hawaii was the decisive turning point of the War in the Pacific?",["Battle of the Coral Sea","Battle of Midway (ミッドウェー海戦)","Battle of Leyte Gulf","Battle of Guadalcanal"],1,"真珠湾攻撃から半年後の1942年6月に行われた「ミッドウェー海戦」で米海軍が勝利し、太平洋戦争の主導権がアメリカ側へと移りました。"],
+  [19,"Which fierce February–March 1945 Pacific battle is commemorated by the U.S. Marine Corps War Memorial in Arlington, Virginia (visited on the America Bowl trip), depicting six Marines raising the U.S. flag on Mount Suribachi?",["Battle of Saipan","Battle of Iwo Jima (硫黄島の戦い / 硫黄島記念碑)","Battle of Okinawa","Battle of Peleliu"],1,"1945年2〜3月の硫黄島の戦いで摺鉢山に星条旗を掲げる米海兵隊員の姿（ジョー・ローゼンタール撮影）は、ワシントンD.C.対岸のバージニア州アーリントンにある「合衆国海兵隊戦争記念碑（通称：硫黄島記念碑）」のモデルとなりました。"],
+  [19,"What was the name of the B-29 Superfortress bomber that dropped the first atomic bomb ('Little Boy') on Hiroshima on August 6, 1945?",["Bockscar","Enola Gay (エノラ・ゲイ)","Spirit of St. Louis","Memphis Belle"],1,"1945年8月6日に広島へ原子爆弾（リトルボーイ）を投下したB-29爆撃機は「エノラ・ゲイ（Enola Gay）」（8月9日に長崎へファットマンを投下したのはボックスカー）です。"],
+  [19,"Aboard which U.S. Navy battleship anchored in Tokyo Bay was the Japanese Instrument of Surrender formally signed on September 2, 1945, ending World War II?",["USS Arizona","USS Missouri (戦艦ミズーリ)","USS Enterprise","USS Saratoga"],1,"1945年9月2日、東京湾に停泊した米戦艦「ミズーリ号（USS Missouri）」の甲板上にて降伏文書調印式が行われ、第二次世界大戦が正式に終結しました（現在ミズーリ号はハワイ真珠湾で記念艦として保存されています）。"],
+  [19,"Which U.S. President signed the Civil Liberties Act of 1988 (市民の自由法), issuing a formal apology and $20,000 in redress to each surviving Japanese American interned during World War II?",["Jimmy Carter","Ronald Reagan (ロナルド・レーガン)","George H. W. Bush","Bill Clinton"],1,"1988年8月、第40代ロナルド・レーガン大統領が「市民の自由法（Civil Liberties Act of 1988）」に署名し、大戦中の日系アメリカ人強制収容が人種的偏見と戦時ヒステリーによる誤りであったと公式に謝罪・補償しました。"],
+
+  // 21. 日米⑤：戦後占領と平和条約・返還 (#451–#463)
+  [20,"Which U.S. Army General served as the Supreme Commander for the Allied Powers (SCAP / GHQ) in Tokyo from 1945 to 1951, overseeing the postwar occupation and democratization of Japan?",["Dwight D. Eisenhower","Douglas MacArthur (ダグラス・マッカーサー)","Matthew Ridgway","Chester Nimitz"],1,"1945年8月に厚木飛行場へ降り立ち、連合国軍最高司令官（SCAP / GHQ）として1951年4月まで日本の占領統治・非軍事化・民主化改革を指揮したのはダグラス・マッカーサー元帥です。"],
+  [20,"Which 22-year-old American-born woman, raised in Japan and educated at Tsuda College and Mills College, drafted the women's rights articles (Articles 14 and 24) of the postwar Japanese Constitution at GHQ in February 1946?",["Eleanor Roosevelt","Beate Sirota Gordon (ベアテ・シロタ・ゴードン)","Ruth Benedict","Helen Mears"],1,"ピアニストの父レオ・シロタと共に日本で育ったベアテ・シロタ・ゴードンは、1946年2月にGHQ民政局の憲法草案作成メンバーとして日本国憲法第14条（法の下の平等）と第24条（両性の平等）を起草しました。"],
+  [20,"Which American cultural anthropologist wrote the famous 1946 study of Japanese culture, 'The Chrysanthemum and the Sword' (菊と刀), commissioned by the U.S. Office of War Information?",["Margaret Mead","Ruth Benedict (ルース・ベネディクト)","Pearl S. Buck","Helen Keller"],1,"アメリカの文化人類学者ルース・ベネディクトが戦時中の日本研究をもとに1946年に著した『菊と刀（The Chrysanthemum and the Sword）』は、欧米の日本理解と戦後占領政策に大きな影響を与えました。"],
+  [20,"Which Detroit bank president came to Japan in 1949 as financial advisor to GHQ to curb postwar hyperinflation ('___ Line') and set the fixed exchange rate of 1 U.S. dollar = 360 yen?",["Carl Shoup","Joseph Dodge (ジョセフ・ドッジ / ドッジ・ライン)","William Draper","George Kennan"],1,"1949年にGHQ経済顧問として来日したデトロイト銀行頭取ジョセフ・ドッジは、超均衡予算によるインフレ収束策「ドッジ・ライン」を実施し、1ドル＝360円の単一為替レートを設定しました（翌年にはコロンビア大学のカール・シャウプ博士が税制勧告を実施）。"],
+  [20,"In which American city and on what date was the Treaty of Peace with Japan signed by 49 nations, ending the Allied occupation and restoring Japan's sovereignty (effective April 28, 1952)?",["Washington, D.C. on August 15, 1950","San Francisco on September 8, 1951 (サンフランシスコ平和条約)","New York City on April 28, 1952","Seattle on October 19, 1951"],1,"1951年9月8日、カリフォルニア州サンフランシスコのオペラハウスにて49カ国が「サンフランシスコ平和条約」に調印し、翌1952年4月28日に発効して日本は主権を回復しました。"],
+  [20,"Which Japanese Prime Minister led the Japanese delegation to California and signed both the Treaty of San Francisco and the original U.S.–Japan Security Treaty on September 8, 1951?",["Shigeru Yoshida (吉田茂)","Ichiro Hatoyama","Tanzan Ishibashi","Hayato Ikeda"],0,"1951年9月にサンフランシスコ平和条約および旧日米安全保障条約に日本側首席全権として署名したのは、吉田茂首相（のちに日米協会第4代会長）です。"],
+  [20,"Which special envoy of President Truman (who later served as Secretary of State under President Eisenhower) was the chief American negotiator and architect of the 1951 Treaty of San Francisco?",["Dean Acheson","John Foster Dulles (ジョン・フォスター・ダレス)","George Marshall","Henry Kissinger"],1,"トルーマン大統領の特使として各国との交渉をまとめ、1951年のサンフランシスコ平和条約を起草・主導したのはジョン・フォスター・ダレス（のちアイゼンハワー政権の国務長官）です。"],
+  [20,"In what year did Japan join the United Nations (headquartered in New York City) with the support of the United States after restoring diplomatic ties with the Soviet Union?",["1951","1956","1960","1964"],1,"日本は1956年（昭和31年）12月、第11回国連総会において全会一致で80番目の加盟国として国際連合（本部ニューヨーク）への加盟を果たしました。"],
+  [20,"Which island group in the Pacific (south of Tokyo, including Chichijima and Iwo Jima) was returned to Japanese administration by the United States in June 1968?",["Amami Islands","Ogasawara Islands (Bonin Islands / 小笠原諸島)","Ryukyu Islands","Kuril Islands"],1,"奄美群島（1953年返還）に続き、1968年6月に佐藤栄作政権下でアメリカから日本へ返還されたのは父島・母島・硫黄島などを含む「小笠原諸島」です。"],
+  [20,"On what date in 1972 did the United States officially return administrative rights over Okinawa to Japan, ending 27 years of postwar U.S. administration?",["January 1, 1972","April 28, 1972","May 15, 1972","September 29, 1972"],2,"沖縄の本土復帰（沖縄返還）は1972年（昭和47年）5月15日に実現し、沖縄県が復活しました。"],
+  [20,"Which Japanese Prime Minister and which U.S. President agreed in their November 1969 joint communiqué to the return of Okinawa in 1972 under the 'nuclear-free, homeland-level' (核抜き・本土並み) formula?",["Hayato Ikeda and John F. Kennedy","Eisaku Sato and Richard Nixon (佐藤栄作とリチャード・ニクソン)","Kakuei Tanaka and Gerald Ford","Nobusuke Kishi and Dwight D. Eisenhower"],1,"1969年11月のワシントンでの日米首脳会談において、佐藤栄作首相とリチャード・ニクソン大統領が「1972年・核抜き・本土並み」での沖縄返還に合意しました（佐藤首相は1974年にノーベル平和賞を受賞）。"],
+  [20,"Which Tokyo-born Harvard University professor of Japanese history was appointed by President John F. Kennedy as U.S. Ambassador to Japan (1961–1966), healing bilateral tensions after the 1960 Anpo protests?",["Mike Mansfield","Edwin O. Reischauer (エドウィン・ライシャワー)","Joseph Grew","George Kennan"],1,"東京生まれでハーバード大学教授の日本学者エドウィン・ライシャワーは、1961年にケネディ大統領から駐日アメリカ大使に任命され、「対等なパートナーシップ」を掲げて日米の相互理解を深めました。"],
+  [20,"What is the name of the prestigious U.S. government educational exchange program, initiated in 1946 by a U.S. Senator from Arkansas and launched in Japan in 1952, which has supported over 9,000 Japanese and American scholars?",["Rhodes Scholarship","Fulbright Program (フルブライト・プログラム / 奨学金)","Marshall Scholarship","Peace Corps"],1,"アーカンソー州選出のJ・ウィリアム・フルブライト上院議員の提唱で創設され、1952年から日米間で始まった留学・研究交流制度は「フルブライト・プログラム（日米教育委員会）」です。"],
+
+  // 22. 日米⑥：日米安全保障と首脳外交 (#464–#475)
+  [21,"In what year was the current 'Treaty of Mutual Cooperation and Security between the United States and Japan' (現行の日米安全保障条約) signed in Washington, D.C.?",["1951","1955","1960","1970"],2,"1951年の旧安保条約を改定し、アメリカの日本防衛義務や事前協議制を明記した現行の「日米相互協力及び安全保障条約（新安保条約）」は1960年1月に署名・同年6月に発効しました。"],
+  [21,"Which Japanese Prime Minister and which U.S. President signed the revised U.S.–Japan Security Treaty at the White House on January 19, 1960?",["Shigeru Yoshida and Harry S. Truman","Nobusuke Kishi and Dwight D. Eisenhower (岸信介とドワイト・D・アイゼンハワー)","Hayato Ikeda and John F. Kennedy","Eisaku Sato and Lyndon B. Johnson"],1,"1960年1月にワシントンD.C.で改定日米安全保障条約に調印したのは、日本の岸信介首相（のち日米協会第5代会長）とアメリカの第34代ドワイト・D・アイゼンハワー大統領です。"],
+  [21,"Which two Articles of the 1960 U.S.–Japan Security Treaty are the core pillars—one obligating the U.S. to defend Japan against an armed attack, and the other granting the U.S. the use of bases in Japan for peace and security in the Far East?",["Article 1 and Article 2","Article 5 (defense of Japan) and Article 6 (Far East clause & bases)","Article 9 and Article 10","Article 3 and Article 8"],1,"現行の日米安保条約では、「第5条」で日本の施政下にある領域への武力攻撃に対する日米共同対処（米国の対日防衛義務）、「第6条」で極東の平和と安全のための在日米軍への施設・区域提供が定められています。"],
+  [21,"What is the name of the bilateral agreement concluded under Article 6 of the 1960 U.S.–Japan Security Treaty that governs the legal status and operations of U.S. military facilities and personnel in Japan?",["Host Nation Support","U.S.–Japan Status of Forces Agreement (SOFA / 日米地位協定)","ACSA","GSOMIA"],1,"日米安保条約第6条に基づき、在日米軍の施設・区域の利用条件や米軍人・軍属の法的地位（裁判権など）を定めた協定は「日米地位協定（SOFA）」です。"],
+  [21,"Which U.S. Navy numbered fleet has its forward-deployed headquarters and aircraft carrier home port in Yokosuka, Kanagawa Prefecture?",["U.S. Third Fleet","U.S. Fifth Fleet","U.S. Sixth Fleet","U.S. Seventh Fleet (アメリカ第7艦隊)"],3,"神奈川県横須賀市の米海軍横須賀基地を母港・司令部とし、西太平洋からインド洋を担当する世界最大規模の前方展開艦隊は「アメリカ第7艦隊（U.S. Seventh Fleet）」です。"],
+  [21,"Which U.S. President became the very first sitting (incumbent) American President in history to visit Japan when he traveled to Tokyo and Kyoto in November 1974?",["Dwight D. Eisenhower","Richard Nixon","Gerald Ford (ジェラルド・フォード)","Jimmy Carter"],2,"現職のアメリカ合衆国大統領として史上初めて来日したのは、1974年11月に東京と京都を公式訪問した第38代ジェラルド・フォード大統領です。"],
+  [21,"In what year did Emperor Showa and Empress Kojun make the historic first visit by a reigning Japanese Emperor to the United States, meeting President Ford at the White House and visiting Disneyland?",["1952","1964","1975","1989"],2,"フォード大統領訪日の翌年である1975年（昭和50年）9〜10月、昭和天皇と香淳皇后が歴代天皇として初めてアメリカを公式訪問し、ホワイトハウスやニューヨーク、アナハイムのディズニーランドなどを巡られました。"],
+  [21,"Which former U.S. Senate Majority Leader served as the longest-serving U.S. Ambassador to Japan (1977–1988) under both Presidents Carter and Reagan, famously calling the U.S.–Japan relationship 'the most important bilateral relationship in the world, bar none'?",["Edwin Reischauer","Mike Mansfield (マイク・マンスフィールド)","Howard Baker","Tom Foley"],1,"民主党の上院院内総務からカーター・レーガン両政権で11年間にわたり駐日米大使を務めたマイク・マンスフィールドは、「日米関係は世界で最も重要な二国間関係（bar none）である」という言葉を広めました。"],
+  [21,"Which Japanese Prime Minister and which U.S. President built a close personal bond in the 1980s to strengthen the Western alliance, famously calling each other 'Ron and Yasu'?",["Masayoshi Ohira and Jimmy Carter","Yasuhiro Nakasone and Ronald Reagan (中曽根康弘とロナルド・レーガン)","Noboru Takeshita and George H. W. Bush","Junichiro Koizumi and George W. Bush"],1,"1980年代に日米の安保・経済協力を推進し、ファーストネームで呼び合う親密な首脳関係を築いたのは中曽根康弘首相（Yasu）とロナルド・レーガン大統領（Ron）の「ロン・ヤス関係」です。"],
+  [21,"Which daughter of President John F. Kennedy served as the first female U.S. Ambassador to Japan from 2013 to 2017 under President Barack Obama?",["Maria Shriver","Caroline Kennedy (キャロライン・ケネディ)","Kerry Kennedy","Susan Rice"],1,"第35代ジョン・F・ケネディ大統領の長女キャロライン・ケネディは、2013年から2017年まで女性初の駐日アメリカ大使を務め、オバマ大統領の広島訪問と安倍首相の真珠湾訪問を実現させました。"],
+  [21,"Which U.S. President became the first sitting American President to visit the Hiroshima Peace Memorial Park in May 2016, followed by Prime Minister Shinzo Abe's visit to Pearl Harbor in December 2016?",["Bill Clinton","George W. Bush","Barack Obama (バラク・オバマ)","Joe Biden"],2,"2016年5月、伊勢志摩サミットの際に第44代バラク・オバマ大統領が現職の米大統領として初めて広島平和記念公園を訪問し、同年12月には安倍晋三首相がオバマ大統領と共にハワイの真珠湾（アリゾナ記念館）を訪問して和解のメッセージを発信しました。"],
+  [21,"What is the name of the four-nation strategic framework ('The Quad') comprising the United States, Japan, Australia, and India that cooperates to advance a 'Free and Open Indo-Pacific' (FOIP)?",["AUKUS","The Quad (Quadrilateral Security Dialogue / 日米豪印戦略対話)","Five Eyes","APEC"],1,"「自由で開かれたインド太平洋（FOIP）」の実現に向けて日本・アメリカ・オーストラリア・インドの4カ国が連携する枠組みは「クアッド（Quad / 日米豪印戦略対話）」と呼ばれます。"],
+
+  // 23. 日米⑦：経済摩擦と文化・スポーツ交流 (#476–#488)
+  [22,"In the postwar U.S.–Japan trade friction (日米貿易摩擦) from the 1960s to the 1980s, which industries became major sources of dispute as Japanese exports to the U.S. surged?",["Textiles, Steel, Color TVs, Automobiles, and Semiconductors","Coal, Timber, Wheat, and Fur","Airlines, Railroads, and Pharmaceuticals","Tourism, Movies, and Music"],0,"1960年代から1980年代にかけての日米貿易摩擦では、繊維（日米繊維交渉）に始まり、鉄鋼、カラーテレビ、自動車（対米輸出自主規制・米国現地生産化）、半導体・農産物（牛肉・オレンジ）が次々と交渉テーマとなりました。"],
+  [22,"At which New York City hotel on September 22, 1985 did the G5 nations (U.S., Japan, West Germany, U.K., and France) agree to intervene in currency markets to correct the overvalued U.S. dollar, causing a rapid appreciation of the yen (円高)?",["Waldorf Astoria","The Plaza Hotel (Plaza Accord / プラザ合意)","Ritz-Carlton","St. Regis"],1,"1985年9月22日にニューヨークのプラザホテルで開催されたG5（先進5カ国蔵相・中央銀行総裁会議）による「プラザ合意（Plaza Accord）」によってドル高是正の協調介入が行われ、1ドル＝約240円から急速な円高が進みました。"],
+  [22,"Which American statistician taught Statistical Quality Control (SQC) to Japanese engineers and managers in 1950, inspiring the establishment of Japan's highest industrial quality award ('The ___ Prize')?",["Peter Drucker","W. Edwards Deming (エドワーズ・デミング / デミング賞)","Frederick Taylor","Michael Porter"],1,"アメリカの統計学者W・エドワーズ・デミング博士は1950年に来日して統計的品質管理を指導し、戦後日本の製造業の品質向上に大きく貢献したことから「デミング賞」が創設されました。"],
+  [22,"Which two Japanese films made history at the 96th Academy Awards in Los Angeles in March 2024 by winning Best Animated Feature and Best Visual Effects, respectively?",["Spirited Away and Shin Godzilla","The Boy and the Heron (君たちはどう生きるか) and Godzilla Minus One (ゴジラ-1.0)","Your Name and Drive My Car","Demon Slayer and Seven Samurai"],1,"2024年3月の第96回アカデミー賞では、宮崎駿監督の『君たちはどう生きるか（The Boy and the Heron）』が長編アニメ映画賞、山崎貴監督の『ゴジラ-1.0（Godzilla Minus One）』が日本映画初の視覚効果賞を受賞しました。"],
+  [22,"Which American historical drama series set in 1600 Japan, produced by and starring Hiroyuki Sanada on FX/Hulu, won an all-time record 18 Emmy Awards in September 2024?",["The Last Samurai","Shōgun (将軍)","Tokyo Vice","Pachinko"],1,"ジェームズ・クラヴェルの小説を原作とし、真田広之がプロデュース・主演を務めたハリウッド制作のドラマシリーズ『SHOGUN 将軍』は、2024年9月の第76回エミー賞で作品賞・主演男優賞・主演女優賞（アンナ・サワイ）など史上最多18部門を受賞しました。"],
+  [22,"Which Japanese pitcher joined the Los Angeles Dodgers in 1995, becoming a pioneer for Japanese players in modern Major League Baseball (MLB) by winning the NL Rookie of the Year and throwing two no-hitters?",["Masashi Murakami","Hideo Nomo (野茂英雄)","Kazuhiro Sasaki","Daisuke Matsuzaka"],1,"1995年にロサンゼルス・ドジャースに入団した野茂英雄投手は、「トルネード投法」で奪三振王と新人王を獲得し、現代の日本人選手によるMLB挑戦の道を切り開きました（1964年にサンフランシスコ・ジャイアンツで日本人初昇格したのは村上雅則投手）。"],
+  [22,"Which Japanese baseball legend joined the Seattle Mariners in 2001, broke the MLB single-season hit record with 262 hits in 2004, amassed 3,089 MLB hits, and was inducted into the National Baseball Hall of Fame in Cooperstown in 2025?",["Hideki Matsui","Ichiro Suzuki (イチロー / 鈴木一朗)","Tadahito Iguchi","Koji Uehara"],1,"イチロー（鈴木一朗）選手は2001年にシアトル・マリナーズでMLB史上2人目の新人王・MVP同時受賞を果たし、2004年にシーズン最多262安打を達成、2025年にアジア人初の米国野球殿堂入りを果たしました。"],
+  [22,"Which Japanese baseball superstar won unanimous MLB MVP awards in both the American League (with the Angels) and the National League (with the Dodgers), achieving the first '50 home runs and 50 stolen bases' season in MLB history in 2024?",["Yu Darvish","Shohei Ohtani (大谷翔平)","Yoshinobu Yamamoto","Shota Imanaga"],1,"二刀流でMLBの歴史を塗り替えた大谷翔平選手は、エンゼルス（2021・2023）とドジャース（2024）の両リーグで満票MVPを受賞し、2024年に史上初の「50本塁打・50盗塁」とワールドシリーズ制覇を達成しました。"],
+  [22,"Which Japanese outfielder, nicknamed 'Godzilla,' won the 2009 World Series MVP Award while playing for the New York Yankees?",["Ichiro Suzuki","Hideki Matsui (松井秀喜)","So Taguchi","Kosuke Fukudome"],1,"ニューヨーク・ヤンキースに所属した松井秀喜選手は、2009年のワールドシリーズで打率.615・3本塁打・8打点の大活躍を見せ、日本人初のワールドシリーズMVPに輝きました。"],
+  [22,"Which Japanese golfer won the Masters Tournament at Augusta National Golf Club in Georgia in April 2021, becoming the first Japanese male player to win a men's major golf championship?",["Isao Aoki","Hideki Matsuyama (松山英樹)","Ryo Ishikawa","Tommy Nakajima"],1,"松山英樹選手は2021年4月、ジョージア州オーガスタで開催されたマスターズ・トーナメントで優勝し、日本人男子初のメジャー制覇（グリーンジャケット獲得）を成し遂げました。"],
+  [22,"Which Tokyo-born American physicist at the University of Chicago (who acquired U.S. citizenship in 1970) won the 2008 Nobel Prize in Physics for discovering the mechanism of spontaneous broken symmetry in subatomic physics?",["Hideki Yukawa","Yoichiro Nambu (南部陽一郎)","Makoto Kobayashi","Toshihide Maskawa"],1,"シカゴ大学名誉教授の南部陽一郎博士（1970年に米国籍取得）は、素粒子物理学における「自発的対称性の破れ」の発見により、小林誠・益川敏英両氏と共に2008年ノーベル物理学賞を受賞しました。"],
+  [22,"Which Ehime-born American meteorologist at Princeton University and NOAA won the 2021 Nobel Prize in Physics for developing the first physical models of Earth's climate and predicting the impact of CO₂ on global warming?",["Tetsuya Fujita","Syukuro Manabe (眞鍋淑郎)","Shuji Nakamura","Akira Yoshino"],1,"プリンストン大学上席研究員の眞鍋淑郎博士（米国籍）は、1960年代から地球の気候モデルと二酸化炭素濃度上昇による温暖化予測を確立し、2021年に気候科学として初のノーベル物理学賞を受賞しました（2014年にはカリフォルニア大学サンタバーバラ校の中村修二教授が青色LEDでノーベル物理学賞を受賞）。"],
+  [22,"In December 1955, which Japanese city and which Minnesota capital city established the very first sister-city affiliation (姉妹都市提携) between Japan and the United States?",["Tokyo and New York City","Nagasaki City and Saint Paul, Minnesota (長崎市とミネソタ州セントポール市)","Yokohama and San Diego","Kyoto and Boston"],1,"日米間の姉妹都市提携の第1号は、1955年（昭和30年）12月に結ばれた「長崎県長崎市とミネソタ州セントポール市」です（現在では日米間に450組以上の姉妹都市提携があります）。"],
+
+  // 24. 日米⑧：ワシントンD.C.訪問先 (#489–#500)
+  [23,"Which memorial near the U.S. Capitol in Washington, D.C., visited every year by America Bowl winners, honors the patriotism and sacrifices of Japanese Americans during World War II?",["World War II Memorial","National Japanese American Memorial (全米日系米国人記念碑)","Korean War Veterans Memorial","Vietnam Veterans Memorial"],1,"アメリカボウルの上位入賞校がワシントンD.C.訪問プログラムで毎年訪れる「全米日系米国人記念碑（National Japanese American Memorial to Patriotism During World War II）」は、大戦中の強制収容を耐え抜いた日系人と第442連隊戦闘団などの日系兵士の愛国心を称えています。"],
+  [23,"What bronze sculpture by artist Nina Akamu stands at the center of the National Japanese American Memorial in Washington, D.C.?",["A bald eagle holding an olive branch","Two Japanese cranes freeing themselves from barbed wire (鉄条網から解き放たれる2羽の鶴)","A statue of a Nisei soldier","A cherry blossom tree in bloom"],1,"ワシントンD.C.の全米日系米国人記念碑の中央には、日系三世の彫刻家ニナ・アカムが制作した、強制収容所の鉄条網から互いに支え合って解き放たれる2羽の黄金の鶴の像（Golden Cranes）が立っています。"],
+  [23,"Along which grand avenue in northwest Washington, D.C. (famous as 'Embassy Row') is the Embassy of Japan in the United States—a key stop on the America Bowl study tour—located?",["Pennsylvania Avenue","Massachusetts Avenue (マサチューセッツ通り)","Constitution Avenue","Independence Avenue"],1,"短期米国訪問プログラムで高校生が訪問し外交官と対話する「在アメリカ合衆国日本国大使館」は、ワシントンD.C.北西部の各国大使館が並ぶ「マサチューセッツ通り（Embassy Row）」にあります。"],
+  [23,"Which Washington, D.C. counterpart organization to the America-Japan Society (AJS Tokyo), founded in 1957, hosts the National Japan Bowl for American students and welcomes the America Bowl winners in D.C.?",["Brookings Institution","JASWDC (Japan-America Society of Washington, D.C. / ワシントン日米協会)","CSIS","Wilson Center"],1,"「ワシントン日米協会（JASWDC）」はアメリカボウル大会の後援団体の一つであり、米国で日本語・日本文化を学ぶ高校生向けの「全米ジャパンボウル」を主催するとともに、ワシントンD.C.を訪れる日本の高校生を受け入れています。"],
+  [23,"What is the name of the monumental fresco painted in 1865 by Constantino Brumidi on the canopy of the U.S. Capitol Rotunda, highlighted in the America Bowl trip reports?",["Washington Crossing the Delaware","The Apotheosis of Washington (ワシントンの神格化)","Signing of the Constitution","Birth of the Republic"],1,"短期米国訪問プログラムのレポートでも圧巻として紹介されている合衆国議会議事堂ロタンダ（大円蓋）の天井画は、初代大統領が13人の女神に囲まれ天上に昇る姿を描いた『ワシントンの神格化（Apotheosis of Washington）』です。"],
+  [23,"Which historic 1773 church in Old Town Alexandria, Virginia—where George Washington held a family pew and which America Bowl participants have visited for Sunday service—is preserved as a national landmark?",["Washington National Cathedral","Christ Church in Alexandria (クライストチャーチ)","St. John's Episcopal Church","Old North Church"],1,"ワシントンD.C.対岸のバージニア州アレクサンドリア旧市街にある1773年創建の「クライストチャーチ（Christ Church）」は、ジョージ・ワシントンやロバート・E・リーが通った由緒ある教会で、訪問プログラムでも見学・礼拝参加が行われました。"],
+  [23,"What is the name of George Washington's historic plantation estate on the banks of the Potomac River in Virginia, south of Alexandria, visited during the America Bowl program?",["Monticello","Mount Vernon (マウント・バーノン)","Montpelier","Arlington House"],1,"バージニア州のポトマック川沿いにある初代大統領ジョージ・ワシントンの邸宅・農園は「マウント・バーノン（Mount Vernon）」で、米国訪問プログラムの主要訪問先の一つです。"],
+  [23,"Which U.S. executive department headquarters in Washington, D.C. (abbreviated 'DOS' in the America Bowl trip report) do students visit to learn about U.S. diplomacy and the Japan Desk?",["Department of the Treasury","U.S. Department of State (DOS / 米国務省)","Department of Commerce","Department of the Interior"],1,"ワシントンD.C.のフォギー・ボトム地区にある「米国務省（DOS: Department of State）」は、アメリカの外交政策の中枢であり、訪問プログラムでも見学・ブリーフィングが行われています。"],
+  [23,"Which two major universities located in Washington, D.C. have been visited by America Bowl students on the study tour?",["Harvard University and MIT","Georgetown University and George Washington University (ジョージタウン大学とジョージ・ワシントン大学)","Johns Hopkins University and Duke University","Columbia University and NYU"],1,"ワシントンD.C.にある1789年創立の米国最古のカトリック系名門「ジョージタウン大学」と、ホワイトハウス近くにキャンパスを構える「ジョージ・ワシントン大学」は、訪問プログラムで高校生がキャンパス見学・交流を行う大学です。"],
+  [23,"Which Smithsonian museums along the National Mall in Washington, D.C. are most frequently visited on the America Bowl tour to see the original Star-Spangled Banner flag, the Wright Flyer, and the Hope Diamond?",["Hirshhorn Museum and Portrait Gallery","National Museum of American History, National Air and Space Museum, and National Museum of Natural History (国立アメリカ歴史博物館・国立航空宇宙博物館・国立自然史博物館)","Freer Gallery and Renwick Gallery","Postal Museum and Anacostia Museum"],1,"ナショナル・モールに並ぶスミソニアン博物館群のなかでも、「国立アメリカ歴史博物館」「国立航空宇宙博物館」「国立自然史博物館」は、短期米国訪問プログラムで毎年のように訪れる定番の博物館です。"],
+  [23,"What is the name of the Japanese Ministry of Foreign Affairs' youth exchange program ('___ Project') mentioned by America Bowl participants as supporting their homestays and school exchanges in the U.S.?",["JET Programme","KAKEHASHI Project (カケハシ・プロジェクト / 対日理解促進交流プログラム)","TOMODACHI Initiative","Tobitate! Study Abroad"],1,"外務省が推進する北米地域との対日理解促進交流プログラム「KAKEHASHI（カケハシ）プロジェクト」を通じて、現地高校での授業体験やホームステイなど日米の架け橋となる交流が行われています。"],
+  [23,"How long is the spring-break Washington, D.C. Short-Term U.S. Visit Program awarded to the top three high school teams of the America Bowl?",["3 days","About 1 week (scheduled for March 17–24, 2027)","1 month","1 semester"],1,"アメリカボウル大会で上位3校に入賞したチームのメンバー（3名×3校）は、春季休暇中（第6回大会は2027年3月17日〜3月24日予定）の約1週間のワシントンD.C.短期米国訪問プログラムへ招待されます。"]
+];
+
+const QUIZ_DATA = RAW_DATA.map((row, idx) => ({
+  id: idx + 1,
+  catIdx: row[0],
+  cat: CATS[row[0]],
+  q: row[1],
+  o: row[2],
+  a: row[3],
+  exp: row[4]
+}));
+
+let activePool = [];
+let currentIndex = 0;
+let userAnswers = {};
+let wrongIds = new Set();
+let isMockMode = false;
+let autoSpeak = false;
+let blindMode = false;
+
+function getEnglishVoice() {
+  if (!('speechSynthesis' in window)) return null;
+  const voices = window.speechSynthesis.getVoices();
+  return voices.find(v => v.lang === 'en-US' && v.name.includes('Natural'))
+      || voices.find(v => v.lang === 'en-US')
+      || voices.find(v => v.lang.startsWith('en'))
+      || null;
+}
+
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => getEnglishVoice();
+}
+
+function stopSpeech() {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+  }
+}
+
+function speakCurrentQuestion(includeOptions = false) {
+  if (!('speechSynthesis' in window) || !activePool[currentIndex]) return;
+  stopSpeech();
+  const q = activePool[currentIndex];
+  let text = `Question ${currentIndex + 1}. ${q.q}`;
+  if (includeOptions) {
+    const labels = ['A', 'B', 'C', 'D'];
+    const optsText = q.o.map((opt, i) => `Option ${labels[i]}: ${opt}.`).join(' ');
+    text += ` ... ${optsText}`;
+  }
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'en-US';
+  const voice = getEnglishVoice();
+  if (voice) utter.voice = voice;
+  utter.rate = parseFloat(document.getElementById('rateSelect').value) || 1.0;
+  window.speechSynthesis.speak(utter);
+}
+
+function toggleAutoSpeak() {
+  autoSpeak = !autoSpeak;
+  const btn = document.getElementById('autoSpeakBtn');
+  btn.textContent = `自動読み上げ: ${autoSpeak ? 'ON' : 'OFF'}`;
+  btn.classList.toggle('active-toggle', autoSpeak);
+  if (autoSpeak) speakCurrentQuestion(false);
+}
+
+function toggleBlindMode() {
+  blindMode = !blindMode;
+  const btn = document.getElementById('blindModeBtn');
+  btn.textContent = `🙈 リスニング専念: ${blindMode ? 'ON' : 'OFF'}`;
+  btn.classList.toggle('active-toggle', blindMode);
+  renderQuestion(false);
+}
+
+function initPool(list, mock = false) {
+  stopSpeech();
+  activePool = list.map((item, idx) => ({
+    ...item,
+    isBonus: mock && idx >= 40
+  }));
+  currentIndex = 0;
+  userAnswers = {};
+  isMockMode = mock;
+  document.getElementById('quizArea').style.display = 'block';
+  document.getElementById('resultArea').style.display = 'none';
+  renderQuestion(true);
+}
+
+function startCategoryMode() {
+  const val = document.getElementById('catSelect').value;
+  let filtered = [];
+  if (val === 'ALL') {
+    filtered = [...QUIZ_DATA];
+  } else if (val === 'GROUP_CULTURE') {
+    filtered = QUIZ_DATA.filter(q => q.catIdx >= 0 && q.catIdx <= 7);
+  } else if (val === 'GROUP_SCIENCE') {
+    filtered = QUIZ_DATA.filter(q => q.catIdx >= 8 && q.catIdx <= 15);
+  } else if (val === 'GROUP_USJP') {
+    filtered = QUIZ_DATA.filter(q => q.catIdx >= 16 && q.catIdx <= 23);
+  } else {
+    const cIdx = parseInt(val, 10);
+    filtered = QUIZ_DATA.filter(q => q.catIdx === cIdx);
+  }
+  initPool(filtered, false);
+}
+
+function startShuffleAll() {
+  const shuffled = [...QUIZ_DATA].sort(() => Math.random() - 0.5);
+  initPool(shuffled, false);
+}
+
+function startMockExam() {
+  const shuffled = [...QUIZ_DATA].sort(() => Math.random() - 0.5).slice(0, 45);
+  initPool(shuffled, true);
+}
+
+function startRetryWrong() {
+  if (wrongIds.size === 0) return;
+  const retryList = QUIZ_DATA.filter(q => wrongIds.has(q.id));
+  initPool(retryList, false);
+}
+
+function jumpToQuestion() {
+  const num = parseInt(document.getElementById('jumpInput').value, 10);
+  if (isNaN(num) || num < 1 || num > activePool.length) return;
+  currentIndex = num - 1;
+  renderQuestion(true);
+}
+
+function calcScore() {
+  let pts = 0, maxPts = 0;
+  activePool.forEach((q, idx) => {
+    const w = q.isBonus ? 3 : 1;
+    maxPts += w;
+    if (userAnswers[idx] === q.a) pts += w;
+  });
+  return { pts, maxPts };
+}
+
+function renderQuestion(triggerAudio = false) {
+  const q = activePool[currentIndex];
+  document.getElementById('qProgress').textContent = `Q ${currentIndex + 1} / ${activePool.length} (通し番号 #${q.id})`;
+  document.getElementById('qCat').textContent = q.cat;
+  document.getElementById('qBonus').style.display = q.isBonus ? 'inline-block' : 'none';
+  const sc = calcScore();
+  document.getElementById('scoreDisplay').textContent = `Score: ${sc.pts} / ${sc.maxPts}`;
+
+  const answered = userAnswers[currentIndex] !== undefined;
+  const qBox = document.getElementById('questionText');
+  if (blindMode && !answered) {
+    qBox.className = 'question-box blind';
+    qBox.textContent = '🎧 リスニング専念モード中（上の「🔊 問題文を読み上げ」を押して音声を聞き、回答すると問題文が表示されます）';
+  } else {
+    qBox.className = 'question-box';
+    qBox.textContent = q.q;
+  }
+
+  const container = document.getElementById('optionsContainer');
+  container.innerHTML = '';
+
+  ['A', 'B', 'C', 'D'].forEach((label, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.textContent = `(${label}) ${q.o[idx]}`;
+    if (answered) {
+      btn.disabled = true;
+      if (idx === q.a) btn.classList.add('correct');
+      else if (idx === userAnswers[currentIndex]) btn.classList.add('wrong');
+    } else {
+      btn.onclick = () => selectAnswer(idx);
+    }
+    container.appendChild(btn);
+  });
+
+  const fb = document.getElementById('feedbackBox');
+  if (answered) {
+    const isOk = userAnswers[currentIndex] === q.a;
+    fb.style.display = 'block';
+    fb.innerHTML = `<strong>${isOk ? '✅ Correct!' : '❌ Incorrect'}</strong> — 正解: (${['A','B','C','D'][q.a]}) ${q.o[q.a]}<br>${q.exp}`;
+  } else {
+    fb.style.display = 'none';
+  }
+
+  document.getElementById('prevBtn').disabled = currentIndex === 0;
+  document.getElementById('nextBtn').textContent = currentIndex === activePool.length - 1 ? '結果を見る →' : '次の問題 →';
+  document.getElementById('retryBtn').style.display = wrongIds.size > 0 ? 'inline-block' : 'none';
+
+  if (triggerAudio && autoSpeak) {
+    speakCurrentQuestion(false);
+  }
+}
+
+function selectAnswer(choiceIdx) {
+  const q = activePool[currentIndex];
+  userAnswers[currentIndex] = choiceIdx;
+  if (choiceIdx === q.a) wrongIds.delete(q.id);
+  else wrongIds.add(q.id);
+  renderQuestion(false);
+}
+
+function prevQuestion() {
+  if (currentIndex > 0) {
+    currentIndex--;
+    renderQuestion(true);
+  }
+}
+
+function nextQuestion() {
+  if (currentIndex < activePool.length - 1) {
+    currentIndex++;
+    renderQuestion(true);
+  } else {
+    stopSpeech();
+    showResult();
+  }
+}
+
+function showResult() {
+  document.getElementById('quizArea').style.display = 'none';
+  document.getElementById('resultArea').style.display = 'block';
+  const sc = calcScore();
+  const pct = Math.round((sc.pts / sc.maxPts) * 100);
+  document.getElementById('finalScore').textContent = `${sc.pts} / ${sc.maxPts} pts (${pct}%)`;
+  document.getElementById('finalComment').textContent = wrongIds.size > 0
+    ? `現在、復習リストに ${wrongIds.size} 問の要注意問題があります。`
+    : `素晴らしい成績です！すべての問題をクリアしました！`;
+  document.getElementById('retryBtnEnd').style.display = wrongIds.size > 0 ? 'inline-block' : 'none';
+}
+
+startCategoryMode();
+</script>
+</body>
+</html>

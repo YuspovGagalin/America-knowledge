@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>U.S. History, Geography/Economy & Politics/Society 500 Quiz & Listening Trainer</title>
+<style>
+  :root { --navy: #0a2540; --red: #d9381e; --blue: #1d4ed8; --bg: #f4f6f9; --correct: #16a34a; --wrong: #dc2626; }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: #1e293b; margin: 0; padding: 16px; }
+  .container { max-width: 880px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); padding: 24px; }
+  h1 { margin: 0 0 8px; color: var(--navy); font-size: 1.5rem; text-align: center; }
+  .subtitle { text-align: center; color: #64748b; font-size: 0.9rem; margin-bottom: 16px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0; }
+  .audio-bar { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; background: #eff6ff; padding: 10px 12px; border-radius: 8px; margin-bottom: 16px; border: 1px solid #bfdbfe; }
+  select, input[type="number"], .btn-ctrl { padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.88rem; cursor: pointer; background: #fff; font-weight: 600; }
+  .btn-ctrl.primary { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .btn-ctrl.accent { background: var(--red); color: #fff; border-color: var(--red); }
+  .btn-ctrl.audio { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .btn-ctrl.active-toggle { background: #0f766e; color: #fff; border-color: #0f766e; }
+  .status-bar { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; background: #f8fafc; padding: 10px 16px; border-radius: 8px; margin-bottom: 16px; font-weight: 600; font-size: 0.95rem; }
+  .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; background: #dbeafe; color: var(--blue); }
+  .badge.bonus { background: #fef3c7; color: #b45309; margin-left: 6px; }
+  .question-box { font-size: 1.15rem; font-weight: 600; line-height: 1.5; margin: 16px 0; color: #0f172a; min-height: 3.2rem; }
+  .question-box.blind { background: #f1f5f9; color: #475569; border: 2px dashed #94a3b8; border-radius: 8px; padding: 16px; text-align: center; font-weight: 500; }
+  .options { display: grid; gap: 10px; margin-bottom: 16px; }
+  .opt-btn { text-align: left; padding: 14px 16px; border-radius: 10px; border: 2px solid #e2e8f0; background: #fff; font-size: 1rem; cursor: pointer; transition: 0.15s; font-weight: 500; color: #1e293b; }
+  .opt-btn:hover:not(:disabled) { border-color: var(--blue); background: #eff6ff; }
+  .opt-btn.correct { border-color: var(--correct); background: #dcfce7; color: #14532d; font-weight: 700; }
+  .opt-btn.wrong { border-color: var(--wrong); background: #fee2e2; color: #7f1d1d; }
+  .feedback { display: none; padding: 14px 16px; border-radius: 10px; background: #f1f5f9; margin-bottom: 16px; line-height: 1.5; font-size: 0.95rem; border-left: 5px solid var(--navy); }
+  .nav-bar { display: flex; justify-content: space-between; gap: 10px; }
+  .nav-btn { flex: 1; padding: 12px; border-radius: 8px; border: none; font-size: 1rem; font-weight: 700; cursor: pointer; background: var(--blue); color: #fff; }
+  .nav-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+  .result-screen { display: none; text-align: center; padding: 20px 0; }
+  .score-big { font-size: 2.4rem; font-weight: 800; color: var(--navy); margin: 12px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🏛️ アメリカ歴史 / 地理・経済 / 政治・社会 500問統合トレーナー</h1>
+  <div class="subtitle">全500問（歴史100問＋地理・経済200問＋政治・社会200問）4択＆英語リスニング演習システム</div>
+
+  <div class="controls">
+    <select id="catSelect" onchange="startCategoryMode()">
+      <option value="ALL">全24分野 (500問すべて)</option>
+      <optgroup label="大分類でまとめて選択">
+        <option value="GROUP_HISTORY">【大分類①】アメリカの歴史 (全100問: #1–#100)</option>
+        <option value="GROUP_GEOECON">【大分類②】アメリカの地理・経済 (全200問: #101–#300)</option>
+        <option value="GROUP_POLSOC">【大分類③】アメリカの政治・社会 (全200問: #301–#500)</option>
+      </optgroup>
+      <optgroup label="① アメリカの歴史 (100問)">
+        <option value="0">1. 歴史①：植民地時代 (1492–1765) (12問)</option>
+        <option value="1">2. 歴史②：独立戦争と建国 (1770–1791) (13問)</option>
+        <option value="2">3. 歴史③：初期共和国・西部開拓 (1797–1849) (13問)</option>
+        <option value="3">4. 歴史④：南北戦争と再建期 (1848–1867) (12問)</option>
+        <option value="4">5. 歴史⑤：産業化・革新主義・WWI (1869–1919) (12問)</option>
+        <option value="5">6. 歴史⑥：1920年代・恐慌・WWII (1920–1945) (12問)</option>
+        <option value="6">7. 歴史⑦：冷戦・公民権・宇宙開発 (1946–1979) (14問)</option>
+        <option value="7">8. 歴史⑧：冷戦終結・現代アメリカ (1980–現在) (12問)</option>
+      </optgroup>
+      <optgroup label="② アメリカの地理・経済 (200問)">
+        <option value="8">9. 地理①：国土・山脈・河川・湖・気候 (25問)</option>
+        <option value="9">10. 地理②：国立公園・自然遺産・名所 (25問)</option>
+        <option value="10">11. 地理③：50州ランキング・位置・愛称 (25問)</option>
+        <option value="11">12. 地理④：主要都市・州都・地域区分 (25問)</option>
+        <option value="12">13. 経済①：紙幣・硬貨・FRB・税制 (25問)</option>
+        <option value="13">14. 経済②：ウォール街・株価指数・経済史 (25問)</option>
+        <option value="14">15. 経済③：主要産業・農業・資源・貿易 (25問)</option>
+        <option value="15">16. 経済④：代表的企業・創業者・労働政策 (25問)</option>
+      </optgroup>
+      <optgroup label="③ アメリカの政治・社会 (200問)">
+        <option value="16">17. 政治①：合衆国憲法と基本原理 (25問)</option>
+        <option value="17">18. 政治②：憲法修正条項（第1条〜第27条）(25問)</option>
+        <option value="18">19. 政治③：大統領職・行政府・内閣 (25問)</option>
+        <option value="19">20. 政治④：歴代大統領の業績と人物像 (25問)</option>
+        <option value="20">21. 政治⑤：大統領選挙・選挙人団・二大政党 (25問)</option>
+        <option value="21">22. 政治⑥：連邦議会（上院・下院）と立法過程 (25問)</option>
+        <option value="22">23. 政治⑦：連邦最高裁判所と歴史的判例 (25問)</option>
+        <option value="23">24. 政治⑧：現代アメリカを分断する社会問題 (25問)</option>
+      </optgroup>
+    </select>
+    <button class="btn-ctrl primary" onclick="startShuffleAll()">シャッフル全500問</button>
+    <button class="btn-ctrl accent" onclick="startMockExam()">模擬試験 (40問+ボーナス5問)</button>
+    <button class="btn-ctrl" id="retryBtn" onclick="startRetryWrong()" style="display:none;">間違えた問題だけ復習</button>
+    <span style="display:inline-flex; align-items:center; gap:4px;">
+      <input type="number" id="jumpInput" min="1" max="500" placeholder="番号(1-500)" style="width:95px;">
+      <button class="btn-ctrl" onclick="jumpToQuestion()">移動</button>
+    </span>
+  </div>
+
+  <div class="audio-bar">
+    <button class="btn-ctrl audio" onclick="speakCurrentQuestion(false)">🔊 問題文を読み上げ</button>
+    <button class="btn-ctrl audio" onclick="speakCurrentQuestion(true)">🔊 問題＋選択肢を読み上げ</button>
+    <button class="btn-ctrl" onclick="stopSpeech()">⏹ 停止</button>
+    <button class="btn-ctrl" id="autoSpeakBtn" onclick="toggleAutoSpeak()">自動読み上げ: OFF</button>
+    <button class="btn-ctrl" id="blindModeBtn" onclick="toggleBlindMode()">🙈 リスニング専念: OFF</button>
+    <select id="rateSelect" title="読み上げ速度">
+      <option value="0.85">速度 0.85x (ゆっくり)</option>
+      <option value="1.0" selected>速度 1.0x (標準)</option>
+      <option value="1.15">速度 1.15x (速め)</option>
+    </select>
+  </div>
+
+  <div id="quizArea">
+    <div class="status-bar">
+      <div>
+        <span id="qProgress">Q 1 / 500</span>
+        <span id="qCat" class="badge">1. 歴史①：植民地時代</span>
+        <span id="qBonus" class="badge bonus" style="display:none;">★BONUS 3pts</span>
+      </div>
+      <div id="scoreDisplay">Score: 0</div>
+    </div>
+    <div id="questionText" class="question-box"></div>
+    <div id="optionsContainer" class="options"></div>
+    <div id="feedbackBox" class="feedback"></div>
+    <div class="nav-bar">
+      <button class="nav-btn" id="prevBtn" onclick="prevQuestion()">← 前の問題</button>
+      <button class="nav-btn" id="nextBtn" onclick="nextQuestion()">次の問題 →</button>
+    </div>
+  </div>
+
+  <div id="resultArea" class="result-screen">
+    <h2>演習結果</h2>
+    <div id="finalScore" class="score-big"></div>
+    <p id="finalComment"></p>
+    <button class="btn-ctrl primary" onclick="startCategoryMode()">最初からやり直す</button>
+    <button class="btn-ctrl accent" id="retryBtnEnd" onclick="startRetryWrong()">間違えた問題を復習する</button>
+  </div>
+</div>
+
+<script>
+const CATS = [
+  "1. 歴史①：植民地時代", "2. 歴史②：独立戦争と建国", "3. 歴史③：初期共和国・西部開拓", "4. 歴史④：南北戦争と再建期",
+  "5. 歴史⑤：産業化・革新主義・WWI", "6. 歴史⑥：1920年代・恐慌・WWII", "7. 歴史⑦：冷戦・公民権・宇宙開発", "8. 歴史⑧：冷戦終結・現代アメリカ",
+  "9. 地理①：地形・山脈・河川", "10. 地理②：国立公園・自然遺産", "11. 地理③：50州ランキング・特徴", "12. 地理④：主要都市・州都・地域",
+  "13. 経済①：通貨・FRB・税制", "14. 経済②：金融市場・経済史", "15. 経済③：産業・農業・貿易", "16. 経済④：企業・創業者・労働",
+  "17. 政治①：憲法の基本原理", "18. 政治②：憲法修正条項", "19. 政治③：大統領職と行政府", "20. 政治④：歴代大統領の業績",
+  "21. 政治⑤：大統領選挙と政党", "22. 政治⑥：連邦議会と立法", "23. 政治⑦：最高裁と重要判例", "24. 政治⑧：現代社会の分断問題"
+];
+
+// [catIdx, question, [optA, optB, optC, optD], ansIdx, explanation]
+const RAW_DATA = [
+  // ==================== PART 1: アメリカの歴史 (100問: #1–#100) ====================
+  // 1. 植民地時代 (#1–#12)
+  [0,"In what year did Christopher Columbus reach the Americas with Spanish support?",["1492","1588","1607","1620"],0,"クリストファー・コロンブスはスペインの支援を受け、1492年に西インド諸島（アメリカ大陸海域）に到達しました。"],
+  [0,"Where was the first permanent English colony in North America established in 1607?",["Plymouth, Massachusetts","Jamestown, Virginia","Savannah, Georgia","Providence, Rhode Island"],1,"1607年にバージニアに設立されたジェームズタウンが、北米におけるイギリス最初の恒久的植民地です。"],
+  [0,"Who introduced commercial tobacco cultivation to the Jamestown colony and married Pocahontas?",["John Smith","John Rolfe","William Bradford","Walter Raleigh"],1,"ジョン・ロルフがバージニア植民地にタバコ栽培を導入して経済的基盤を築き、先住民のポカホンタスと結婚しました。"],
+  [0,"In what year was the House of Burgesses, the first representative assembly in America, established in Virginia?",["1607","1619","1636","1689"],1,"1619年にバージニア植民地でアメリカ最初の代議制議会（House of Burgesses）が設立されました。"],
+  [0,"Which ship carried the Pilgrim Fathers to Plymouth, Massachusetts in 1620?",["Santa Maria","Mayflower","Half Moon","Constitution"],1,"ピルグリム・ファーザーズは1620年にメイフラワー号（Mayflower）に乗ってプリマスに到着しました。"],
+  [0,"What self-governing agreement did the Pilgrims sign aboard their ship in November 1620?",["Fundamental Orders","Mayflower Compact","Albany Plan of Union","Olive Branch Petition"],1,"上陸前に船上で署名された自治誓約は「メイフラワー誓約（Mayflower Compact）」と呼ばれます。"],
+  [0,"Which Native American tribe helped the Plymouth colonists survive and shared the 1621 harvest feast that inspired Thanksgiving?",["Cherokee","Sioux","Wampanoag","Apache"],2,"ワンパノアグ族（Wampanoag）がプリマスの入植者に農耕などを教え、1621年の収穫祭（感謝祭の起源）を共に祝いました。"],
+  [0,"Who led the Puritans to found the Massachusetts Bay Colony in 1630 and described it as a 'City upon a Hill'?",["John Winthrop","Jonathan Edwards","Cotton Mather","Thomas Hooker"],0,"ジョン・ウィンスロップは1630年にマサチューセッツ湾植民地を指導し、「丘の上の町（City upon a Hill）」と表現しました。"],
+  [0,"Who founded the colony of Rhode Island in 1636 based on the principles of religious freedom and separation of church and state?",["Roger Williams","Lord Baltimore","James Oglethorpe","Peter Stuyvesant"],0,"ロジャー・ウィリアムズは政教分離と信教の自由を掲げ、1636年にロードアイランド植民地を創設しました。"],
+  [0,"In which city and colony was Harvard College, the oldest institution of higher learning in the U.S., founded in 1636?",["New Haven, Connecticut","Williamsburg, Virginia","Cambridge, Massachusetts","Princeton, New Jersey"],2,"アメリカ最古の大学であるハーバード大学は1636年にマサチューセッツ湾植民地のケンブリッジに設立されました。"],
+  [0,"Which Quaker leader founded the colony of Pennsylvania in 1681 as a haven for religious tolerance?",["William Penn","George Fox","Benjamin Franklin","William Bradford"],0,"クエーカー教徒のウィリアム・ペンが1681年にペンシルベニア植民地を建設し、フィラデルフィアを設計しました。"],
+  [0,"Which war from 1754 to 1763 was fought between Britain and France for control of North America?",["King Philip's War","French and Indian War","War of 1812","Pontiac's War"],1,"1754〜1763年のフレンチ・インディアン戦争（七年戦争の北米戦線）でイギリスがフランスを破り、北米の覇権を握りました。"],
+
+  // 2. 独立戦争と建国 (#13–#25)
+  [1,"Which slogan emerged among American colonists in opposition to Britain's Stamp Act of 1765?",["In God We Trust","No taxation without representation","Don't Tread on Me","Remember the Alamo"],1,"1765年の印紙法（Stamp Act）に対し、植民地側は「代表なくして課税なし」のスローガンで反発しました。"],
+  [1,"In which city did British soldiers fatally shoot five colonists during a March 1770 confrontation?",["New York City","Philadelphia","Boston","Charleston"],2,"1770年3月にボストンでイギリス兵が市民に発砲し5名が死亡した事件は「ボストン虐殺事件（Boston Massacre）」と呼ばれます。"],
+  [1,"In 1773, members of the Sons of Liberty protested the Tea Act by dumping tea into which harbor?",["Boston Harbor","New York Harbor","Baltimore Harbor","Savannah Harbor"],0,"1773年12月のボストン茶会事件（Boston Tea Party）では、ボストン港で東インド会社の茶箱が海に投棄されました。"],
+  [1,"In which city did the First Continental Congress convene in September 1774?",["Boston","Philadelphia","Richmond","Annapolis"],1,"1774年9月の第1回大陸会議はペンシルベニア植民地のフィラデルフィアで開催されました。"],
+  [1,"Where in Massachusetts did the first military battles of the American Revolutionary War take place in April 1775?",["Saratoga and Ticonderoga","Lexington and Concord","Trenton and Princeton","Yorktown and Jamestown"],1,"1775年4月19日のレキシントン・コンコードの戦いでアメリカ独立戦争の火蓋が切られました。"],
+  [1,"Who was appointed Commander-in-Chief of the Continental Army in 1775 and later became the first U.S. President?",["John Adams","Thomas Jefferson","George Washington","Alexander Hamilton"],2,"ジョージ・ワシントンは1775年に第2回大陸会議で大陸軍総司令官に任命され、後に初代大統領となりました。"],
+  [1,"Who published the bestselling pamphlet 'Common Sense' in January 1776 advocating immediate independence from Britain?",["Patrick Henry","Thomas Paine","Samuel Adams","John Jay"],1,"トマス・ペインが1776年1月に発表した『コモン・センス』は、植民地人の独立への世論を決定づけました。"],
+  [1,"Who was the primary author of the Declaration of Independence adopted on July 4, 1776?",["Benjamin Franklin","Thomas Jefferson","James Madison","John Hancock"],1,"1776年7月4日に採択されたアメリカ独立宣言は、主にトーマス・ジェファソンによって起草されました。"],
+  [1,"Which 1777 battle in New York was the major turning point of the Revolutionary War that led France to openly ally with the U.S.?",["Battle of Bunker Hill","Battle of Saratoga","Battle of Cowpens","Battle of Monmouth"],1,"1777年のサラトガの戦いでの勝利が独立戦争の転換点となり、フランスがアメリカ側として参戦しました。"],
+  [1,"Which 1781 battle in Virginia was the final decisive battle of the American Revolutionary War?",["Battle of Yorktown","Battle of Camden","Battle of Germantown","Battle of Long Island"],0,"1781年のヨークタウンの戦いで米仏連合軍がイギリス軍のコーンウォリス将軍を降伏させ、事実上戦争が終結しました。"],
+  [1,"Which 1783 treaty officially ended the American Revolutionary War and recognized the independence of the United States?",["Treaty of Ghent","Treaty of Paris","Treaty of Utrecht","Jay Treaty"],1,"1783年のパリ条約（Treaty of Paris）によってイギリスの13植民地の独立とミシシッピ川以東の領土が承認されました。"],
+  [1,"In what year was the United States Constitution drafted at the Constitutional Convention in Philadelphia?",["1776","1781","1787","1791"],2,"アメリカ合衆国憲法は1787年のフィラデルフィア憲法制定会議で起草されました。"],
+  [1,"What are the first ten amendments to the U.S. Constitution, ratified in 1791, collectively called?",["Articles of Confederation","Bill of Rights","Federalist Papers","Northwest Ordinance"],1,"1791年に批准された合衆国憲法の最初の10か条の修正条項は「権利章典（Bill of Rights）」と呼ばれます。"],
+
+  // 3. 初期共和国・西部開拓 (#26–#38)
+  [2,"Who served as the first Secretary of the Treasury under President George Washington and founded the national bank?",["Thomas Jefferson","Alexander Hamilton","Henry Knox","Edmund Randolph"],1,"初代財務長官はアレクサンダー・ハミルトンで、公債の引き受けや第一合衆国銀行の設立を推進しました。"],
+  [2,"Which 4th U.S. President is known as the 'Father of the Constitution' for his central role in drafting the Constitution and Bill of Rights?",["John Adams","James Madison","James Monroe","John Quincy Adams"],1,"第4代大統領ジェームズ・マディソンは、合衆国憲法と権利章典の起草における貢献から「憲法の父」と呼ばれます。"],
+  [2,"In what year did the United States double its territory through the Louisiana Purchase?",["1795","1803","1812","1819"],1,"1803年、ジェファソン政権下でルイジアナ買収が行われ、アメリカの領土はほぼ2倍に拡大しました。"],
+  [2,"From which country did the United States purchase the Louisiana Territory in 1803?",["Spain","United Kingdom","France","Russia"],2,"アメリカはナポレオン政権下のフランスから1,500万ドルでルイジアナ領土を買収しました。"],
+  [2,"Who led the 1804–1806 Corps of Discovery expedition commissioned by Thomas Jefferson to explore the Louisiana Territory to the Pacific?",["Lewis and Clark","Mason and Dixon","Fremont and Carson","Pike and Coronado"],0,"メリウェザー・ルイスとウィリアム・クラークの探検隊（Lewis and Clark）が先住民サカガウィアの案内を得て太平洋岸まで到達しました。"],
+  [2,"Which 1803 Supreme Court case led by Chief Justice John Marshall established the power of Judicial Review?",["McCulloch v. Maryland","Marbury v. Madison","Gibbons v. Ogden","Fletcher v. Peck"],1,"1803年のマーベリー対マディソン事件によって、連邦最高裁判所による違憲立法審査権（Judicial Review）が確立されました。"],
+  [2,"Which conflict between the United States and Britain inspired Francis Scott Key to write 'The Star-Spangled Banner'?",["Revolutionary War","Quasi-War","War of 1812","Mexican-American War"],2,"米英戦争（War of 1812）中の1814年、ボルティモアのマクヘンリー要塞防衛戦を見て国歌『星条旗』の歌詞が書かれました。"],
+  [2,"From which country did the United States acquire Florida under the Adams-Onís Treaty of 1819?",["France","Spain","Portugal","Mexico"],1,"1819年のアダムズ・オニス条約により、アメリカはスペインからフロリダを獲得しました。"],
+  [2,"Which 1820 legislative agreement maintained the balance of power in Congress by admitting Maine as a free state and Missouri as a slave state?",["Missouri Compromise","Compromise of 1850","Kansas-Nebraska Act","Wilmot Proviso"],0,"1820年のミズーリ妥協により、ミズーリ州を奴隷州、メイン州を自由州として同時に昇格させ、北緯36度30分線を境界としました。"],
+  [2,"Which 1823 foreign policy statement by President James Monroe warned European powers not to interfere in the Western Hemisphere?",["Truman Doctrine","Monroe Doctrine","Open Door Policy","Good Neighbor Policy"],1,"1823年に第5代モンロー大統領が発表したモンロー宣言（Monroe Doctrine）は、米州と欧州の相互不干渉を宣言しました。"],
+  [2,"Which 7th U.S. President, nicknamed 'Old Hickory,' signed the Indian Removal Act of 1830?",["John Quincy Adams","Andrew Jackson","Martin Van Buren","William Henry Harrison"],1,"「オールド・ヒッコリー」と呼ばれた第7代アンドリュー・ジャクソン大統領は、1830年にインディアン移住法に署名しました。"],
+  [2,"What 19th-century belief held that the United States was divinely ordained to expand westward across the North American continent?",["Manifest Destiny","Popular Sovereignty","Social Darwinism","Dollar Diplomacy"],0,"19世紀半ばに西部への領土拡大を正当化した理念は「明白なる天命（Manifest Destiny）」と呼ばれます。"],
+  [2,"Which 1848 treaty ended the Mexican-American War and ceded California and the Southwest to the United States?",["Treaty of Guadalupe Hidalgo","Gadsden Purchase","Treaty of Velasco","Webster-Ashburton Treaty"],0,"1848年のグアダルーペ・イダルゴ条約で米墨戦争が終結し、カリフォルニアやニューメキシコなどがアメリカへ割譲されました。"],
+
+  // 4. 南北戦争と再建期 (#39–#50)
+  [3,"In which state did the 1848–1849 Gold Rush take place, attracting hundreds of thousands of 'Forty-Niners'?",["Colorado","Alaska","California","Nevada"],2,"1848年にカリフォルニアのサッターズ・ミルで金が発見され、翌1849年に世界中から「フォーティナイナーズ」が殺到しました。"],
+  [3,"Where in New York was the first Women's Rights Convention held in 1848, organized by Elizabeth Cady Stanton and Lucretia Mott?",["Albany","Seneca Falls","Rochester","Syracuse"],1,"1848年にニューヨーク州セネカフォールズでアメリカ初の女性権利大会が開催され、「所感宣言」が採択されました。"],
+  [3,"Who wrote the influential 1852 anti-slavery novel 'Uncle Tom's Cabin'?",["Louisa May Alcott","Harriet Beecher Stowe","Emily Dickinson","Sojourner Truth"],1,"ハリエット・ビーチャー・ストウが1852年に発表した『アンクル・トムの小屋』は、北部の奴隷制廃止論を大きく高めました。"],
+  [3,"Which formerly enslaved abolitionist became the most famous 'conductor' on the Underground Railroad?",["Harriet Tubman","Frederick Douglass","William Lloyd Garrison","Nat Turner"],0,"ハリエット・タブマンは逃亡奴隷を自由州やカナダへ導く「地下鉄道（Underground Railroad）」の車掌として活躍しました。"],
+  [3,"Which 1857 Supreme Court case ruled that African Americans were not U.S. citizens and that Congress could not ban slavery in the territories?",["Prigg v. Pennsylvania","Dred Scott v. Sandford","Amistad Case","Ex parte Milligan"],1,"1857年のドレッド・スコット対サンフォード判決は、黒人の市民権を否定しミズーリ妥協を違憲としたことで南北対立を決定的にしました。"],
+  [3,"Who was elected the 16th President of the United States in 1860 as the first Republican President?",["Stephen Douglas","Abraham Lincoln","Ulysses S. Grant","Andrew Johnson"],1,"1860年に共和党のエイブラハム・リンカーンが第16代大統領に当選したことを機に、南部諸州が連邦を離脱しました。"],
+  [3,"Where in South Carolina did the first battle of the American Civil War take place in April 1861?",["Fort Sumter","Fort Moultrie","Bull Run","Antietam"],0,"1861年4月12日、サウスカロライナ州チャールストン港のサムター要塞への砲撃で南北戦争が始まりました。"],
+  [3,"Who served as the President of the Confederate States of America during the Civil War?",["Robert E. Lee","Jefferson Davis","Stonewall Jackson","Alexander Stephens"],1,"南部連合（アメリカ連合国）の大統領にはジェファソン・デイヴィスが就任しました。"],
+  [3,"In what year did President Abraham Lincoln issue the Emancipation Proclamation and deliver the Gettysburg Address?",["1861","1862","1863","1865"],2,"リンカーン大統領は1863年1月に奴隷解放宣言を発布し、同年11月にゲティスバーグ演説を行いました。"],
+  [3,"At which location in Virginia did Confederate General Robert E. Lee surrender to Union General Ulysses S. Grant in April 1865?",["Appomattox Court House","Fredericksburg","Chancellorsville","Petersburg"],0,"1865年4月9日、バージニア州アポマトックス・コートハウスでリー将軍がグラント将軍に降伏し、南北戦争が事実上終結しました。"],
+  [3,"Which constitutional amendment, ratified in December 1865, officially abolished slavery throughout the United States?",["13th Amendment","14th Amendment","15th Amendment","16th Amendment"],0,"1865年批准の合衆国憲法修正第13条により、全米で奴隷制が正式に廃止されました。"],
+  [3,"From which country did the United States purchase Alaska in 1867 in a treaty negotiated by Secretary of State William Seward?",["United Kingdom","Canada","Russia","Denmark"],2,"1867年、国務長官ウィリアム・スワードの主導により、アメリカはロシアから720万ドルでアラスカを購入しました。"],
+
+  // 5. 産業化・革新主義・WWI (#51–#62)
+  [4,"In which territory (now state) was the First Transcontinental Railroad completed at Promontory Summit in May 1869?",["Nevada","Utah","Wyoming","Nebraska"],1,"1869年5月10日、ユタ準州のプロモントリー・サミットで最初の大陸横断鉄道が開通しました。"],
+  [4,"Who patented the first practical telephone in 1876?",["Samuel Morse","Alexander Graham Bell","Nikola Tesla","Guglielmo Marconi"],1,"1876年にアレクサンダー・グラハム・ベルが実用的な電話機の特許を取得しました。"],
+  [4,"Who invented the practical incandescent light bulb in 1879 and built the first electric power station in New York?",["Thomas Edison","George Westinghouse","Eli Whitney","Robert Fulton"],0,"トーマス・エジソンは実用的な白熱電球を発明し、ニューヨークにアメリカ初の電力会社・発電所を設立しました。"],
+  [4,"Which industrialist founded the Standard Oil Company in 1870 and became the wealthiest American of the Gilded Age?",["Andrew Carnegie","John D. Rockefeller","J.P. Morgan","Cornelius Vanderbilt"],1,"ジョン・D・ロックフェラーは1870年にスタンダード・オイル社を創設し、石油業を独占して巨万の富を築きました。"],
+  [4,"Which island in New York Harbor opened in 1892 as the nation's busiest federal immigration inspection station?",["Liberty Island","Ellis Island","Staten Island","Governors Island"],1,"ニューヨーク港のエリス島（Ellis Island）は1892年から1954年まで、ヨーロッパからの移民を受け入れる最大の審査所でした。"],
+  [4,"Which 1896 Supreme Court ruling upheld racial segregation laws under the 'separate but equal' doctrine?",["Plessy v. Ferguson","Civil Rights Cases","Slaughter-House Cases","Lochner v. New York"],0,"1896年のプレッシー対ファーガソン判決は「分離すれども平等」の原則により南部の人種隔離（ジム・クロウ法）を合憲としました。"],
+  [4,"Which 1898 conflict resulted in the United States acquiring Puerto Rico, Guam, and the Philippines?",["Mexican-American War","Spanish-American War","Philippine-American War","Boxer Rebellion"],1,"1898年の米西戦争（Spanish-American War）に勝利したアメリカは、プエルトリコ・グアム・フィリピンを獲得しました。"],
+  [4,"Which 26th U.S. President promoted the 'Square Deal,' trust-busting, national parks, and the Panama Canal?",["William McKinley","Theodore Roosevelt","William Howard Taft","Calvin Coolidge"],1,"第26代セオドア・ルーズベルト大統領はスクエア・ディール（公正な取引）、独占規制、パナマ運河建設を推進しました。"],
+  [4,"At which site in North Carolina did Orville and Wilbur Wright achieve the world's first powered airplane flight in December 1903?",["Dayton","Kitty Hawk","Raleigh","Charleston"],1,"ライト兄弟は1903年12月17日、ノースカロライナ州キティホークで世界初の有人動力飛行に成功しました。"],
+  [4,"Who founded the Ford Motor Company in 1903 and popularized the moving assembly line with the Model T?",["Henry Ford","Walter Chrysler","William Durant","Ransom Olds"],0,"ヘンリー・フォードはT型フォードのベルトコンベア式大量生産方式を確立し、自動車の大衆化を実現しました。"],
+  [4,"In what year did the United States enter World War I on the side of the Allies?",["1914","1915","1917","1918"],2,"ドイツの無制限潜水艦作戦やツィンメルマン電報事件を受け、アメリカは1917年4月に第一次世界大戦へ参戦しました。"],
+  [4,"Which 28th U.S. President issued the 'Fourteen Points' peace plan and proposed the League of Nations after World War I?",["Theodore Roosevelt","Woodrow Wilson","Warren G. Harding","Herbert Hoover"],1,"第28代ウッドロウ・ウィルソン大統領は1918年に「十四か条の平和原則」を発表し、国際連盟の創設を提唱しました。"],
+
+  // 6. 1920年代・恐慌・WWII (#63–#74)
+  [5,"Which constitutional amendment, ratified in 1919 and repealed in 1933, instituted nationwide Prohibition of alcohol?",["16th Amendment","17th Amendment","18th Amendment","21st Amendment"],2,"1919年批准の修正第18条によって禁酒法（Prohibition）が導入され、1933年の修正第21条で廃止されました。"],
+  [5,"In what year was the 19th Amendment ratified, granting women the constitutional right to vote across the U.S.?",["1910","1915","1920","1928"],2,"1920年に合衆国憲法修正第19条が批准され、全米で女性参政権が保障されました。"],
+  [5,"Which New York City neighborhood became the center of a vibrant 1920s African American literary, artistic, and jazz movement?",["Greenwich Village","Harlem","Brooklyn","Queens"],1,"1920年代にニューヨークのハーレム地区で花開いた黒人文化・芸術運動は「ハーレム・ルネサンス」と呼ばれます。"],
+  [5,"Which American aviator completed the first solo nonstop transatlantic flight from New York to Paris in May 1927?",["Amelia Earhart","Charles Lindbergh","Chuck Yeager","Howard Hughes"],1,"チャールズ・リンドバーグは1927年5月、愛機「スピリット・オブ・セントルイス」号でニューヨーク〜パリ間の大西洋単独無着陸横断飛行に成功しました。"],
+  [5,"In what year did the Wall Street Stock Market Crash ('Black Tuesday') trigger the Great Depression?",["1925","1929","1931","1933"],1,"1929年10月のニューヨーク証券取引所の大暴落（「暗黒の木曜日」「悲劇の火曜日」）を機に世界恐慌が始まりました。"],
+  [5,"Which 32nd U.S. President was elected to four terms and implemented the 'New Deal' programs during the Great Depression?",["Herbert Hoover","Franklin D. Roosevelt","Harry S. Truman","Dwight D. Eisenhower"],1,"第32代フランクリン・D・ルーズベルト大統領はニューディール政策を推進し、アメリカ史上唯一4選を果たしました。"],
+  [5,"Which surprise military attack in Hawaii on December 7, 1941 brought the United States into World War II?",["Battle of Midway","Attack on Pearl Harbor","Battle of Wake Island","Battle of the Coral Sea"],1,"1941年12月7日（ハワイ時間）の真珠湾攻撃により、アメリカは第二次世界大戦に参戦しました。"],
+  [5,"Which June 1942 naval battle was the decisive turning point of the Pacific War in favor of the United States?",["Battle of Midway","Battle of Leyte Gulf","Battle of Iwo Jima","Battle of Okinawa"],0,"1942年6月のミッドウェー海戦での勝利が、太平洋戦争における米軍の重大な転換点となりました。"],
+  [5,"Where in France did Allied forces commanded by General Dwight D. Eisenhower land on D-Day, June 6, 1944?",["Dunkirk","Normandy","Marseille","Calais"],1,"1944年6月6日（D-Day）、アイゼンハワー最高司令官率いる連合国軍がフランス北部のノルマンディー海岸に上陸しました。"],
+  [5,"What was the code name of the top-secret U.S.-led research project that developed the atomic bomb during World War II?",["Project Apollo","Manhattan Project","Project Mercury","Operation Overlord"],1,"第二次世界大戦中にアメリカが極秘裏に進めた原子爆弾開発計画は「マンハッタン計画（Manhattan Project）」と呼ばれます。"],
+  [5,"At which laboratory in New Mexico was the first atomic bomb designed and assembled under J. Robert Oppenheimer?",["Oak Ridge","Los Alamos","Hanford","Sandia"],1,"ニューメキシコ州のロスアラモス国立研究所で、オッペンハイマー博士らの指導のもと原子爆弾が設計・製造されました。"],
+  [5,"In which American city did delegates from 50 nations sign the United Nations Charter in June 1945?",["New York City","Washington, D.C.","San Francisco","Chicago"],2,"1945年6月、カリフォルニア州サンフランシスコで開催された連合国国際機構会議にて国連憲章が署名されました。"],
+
+  // 7. 冷戦・公民権・宇宙開発 (#75–#88)
+  [6,"Which U.S. President succeeded Franklin D. Roosevelt in April 1945 and announced the Cold War policy of 'containment' (Truman Doctrine)?",["Harry S. Truman","Dwight D. Eisenhower","John F. Kennedy","Lyndon B. Johnson"],0,"第33代ハリー・S・トルーマン大統領は1947年にトルーマン・ドクトリンを発表し、共産主義の「封じ込め政策」を開始しました。"],
+  [6,"What was the 1948 U.S. economic recovery program proposed by Secretary of State George Marshall to rebuild Western Europe?",["Marshall Plan","Point Four Program","Alliance for Progress","Lend-Lease Act"],0,"ジョージ・マーシャル国務長官が提唱した欧州復興計画は「マーシャル・プラン（Marshall Plan）」と呼ばれます。"],
+  [6,"Which military alliance was founded in Washington, D.C. in April 1949 by the United States, Canada, and Western European nations?",["SEATO","Warsaw Pact","NATO","CENTO"],2,"1949年4月、ワシントンD.C.で北大西洋条約機構（NATO）が創設され、集団防衛体制が築かれました。"],
+  [6,"Which war from 1950 to 1953 did U.S.-led United Nations forces fight along the 38th parallel in East Asia?",["Korean War","Vietnam War","Gulf War","Cold War"],0,"1950〜1953年の朝鮮戦争（Korean War）では、アメリカ軍を中心とする国連軍が韓国を支援して戦いました。"],
+  [6,"Which 34th U.S. President authorized the Interstate Highway System in 1956 and warned against the 'military-industrial complex'?",["Harry S. Truman","Dwight D. Eisenhower","John F. Kennedy","Richard Nixon"],1,"第34代ドワイト・D・アイゼンハワー大統領は州間高速道路網を整備し、退任演説で「軍産複合体」への警鐘を鳴らしました。"],
+  [6,"Which landmark 1954 Supreme Court ruling declared racial segregation in public schools unconstitutional?",["Plessy v. Ferguson","Brown v. Board of Education","Loving v. Virginia","Sweatt v. Painter"],1,"1954年のブラウン対教育委員会裁判で、連邦最高裁は公立学校における人種隔離を全員一致で違憲と判決しました。"],
+  [6,"Who refused to give up her seat on a segregated bus in Montgomery, Alabama in December 1955, sparking the Montgomery Bus Boycott?",["Rosa Parks","Coretta Scott King","Fannie Lou Hamer","Ella Baker"],0,"1955年12月、アラバマ州モンゴメリーでローザ・パークスが白人への座席譲渡を拒否して逮捕され、バス・ボイコット運動が始まりました。"],
+  [6,"Which 35th U.S. President resolved the 1962 Cuban Missile Crisis and was assassinated in Dallas, Texas in November 1963?",["Dwight D. Eisenhower","John F. Kennedy","Lyndon B. Johnson","Robert F. Kennedy"],1,"第35代ジョン・F・ケネディ大統領は1962年のキューバ危機を回避し、1963年11月にテキサス州ダラスで暗殺されました。"],
+  [6,"Who delivered the famous 'I Have a Dream' speech at the Lincoln Memorial during the March on Washington in August 1963?",["Malcolm X","Martin Luther King Jr.","John Lewis","Thurgood Marshall"],1,"1963年8月のワシントン大行進で、マーティン・ルーサー・キング・ジュニア牧師が「I Have a Dream」演説を行いました。"],
+  [6,"Which 36th U.S. President promoted the 'Great Society' and signed the Civil Rights Act of 1964 and Voting Rights Act of 1965?",["John F. Kennedy","Lyndon B. Johnson","Richard Nixon","Gerald Ford"],1,"第36代リンドン・ジョンソン大統領は「偉大な社会」を掲げ、1964年公民権法と1965年投票権法に署名しました。"],
+  [6,"Which 1966 Supreme Court decision established that police must inform arrested suspects of their constitutional rights before questioning?",["Gideon v. Wainwright","Miranda v. Arizona","Mapp v. Ohio","Escobedo v. Illinois"],1,"1966年のミランダ対アリゾナ判決により、逮捕時に黙秘権や弁護士依頼権を告知する「ミランダ警告」が義務づけられました。"],
+  [6,"Who became the first human to step onto the Moon during NASA's Apollo 11 mission on July 20, 1969?",["Buzz Aldrin","Neil Armstrong","John Glenn","Alan Shepard"],1,"1969年7月20日、アポロ11号のニール・アームストロング船長が人類で初めて月面に降り立ちました。"],
+  [6,"Which 37th U.S. President visited China in 1972 and became the only U.S. President to resign from office in 1974 due to the Watergate scandal?",["Lyndon B. Johnson","Richard Nixon","Gerald Ford","Jimmy Carter"],1,"第37代リチャード・ニクソン大統領は1972年に電撃訪中を果たしましたが、ウォーターゲート事件により1974年に辞任しました。"],
+  [6,"Which 39th U.S. President brokered the 1978 Camp David Accords between Egypt and Israel?",["Gerald Ford","Jimmy Carter","Ronald Reagan","George H. W. Bush"],1,"第39代ジミー・カーター大統領は1978年にエジプトとイスラエル間のキャンプ・デービッド合意を仲介しました。"],
+
+  // 8. 冷戦終結・現代アメリカ (#89–#100)
+  [7,"Which 40th U.S. President implemented 'Reaganomics' and called on Soviet leader Mikhail Gorbachev to 'Tear down this wall!' in Berlin?",["Jimmy Carter","Ronald Reagan","George H. W. Bush","Bill Clinton"],1,"第40代ロナルド・レーガン大統領はレーガノミクスを推進し、1987年にベルリンの壁の前でゴルバチョフ書記長に壁の撤去を呼びかけました。"],
+  [7,"Who was appointed by President Ronald Reagan in 1981 as the first female Justice on the U.S. Supreme Court?",["Ruth Bader Ginsburg","Sandra Day O'Connor","Sonia Sotomayor","Elena Kagan"],1,"サンドラ・デイ・オコーナーは1981年にレーガン大統領に任命され、連邦最高裁史上初の女性判事となりました。"],
+  [7,"Which 41st U.S. President declared the end of the Cold War at the 1989 Malta Summit and led the coalition in the 1991 Persian Gulf War?",["Ronald Reagan","George H. W. Bush","Bill Clinton","George W. Bush"],1,"第41代ジョージ・H・W・ブッシュ大統領は1989年のマルタ会談で冷戦終結を宣言し、1991年の湾岸戦争で多国籍軍を率いました。"],
+  [7,"Which North American trade agreement among the U.S., Canada, and Mexico took effect in 1994 under President Bill Clinton?",["NAFTA","GATT","TPP","CAFTA"],0,"1994年にクリントン政権下で北米自由貿易協定（NAFTA）が発効しました（のちにUSMCAへ改定）。"],
+  [7,"On what date in 2001 did al-Qaeda terrorists hijack four commercial airliners and attack the World Trade Center and the Pentagon?",["July 4, 2001","September 11, 2001","October 7, 2001","December 7, 2001"],1,"2001年9月11日にアメリカ同時多発テロ事件（9/11）が発生し、世界貿易センタービルと国防総省（ペンタゴン）が攻撃されました。"],
+  [7,"Which federal cabinet department was created in 2002 by President George W. Bush in response to the September 11 attacks?",["Department of Defense","Department of Homeland Security","Department of Energy","Department of Veterans Affairs"],1,"同時多発テロを受け、2002年にジョージ・W・ブッシュ政権下で国土安全保障省（Department of Homeland Security）が創設されました。"],
+  [7,"Which 2008 financial collapse triggered the global Great Recession after a major U.S. investment bank filed for bankruptcy?",["Enron Scandal","Lehman Shock (Bankruptcy of Lehman Brothers)","Dot-com Bubble","Savings and Loan Crisis"],1,"2008年9月のリーマン・ブラザーズ破綻（リーマン・ショック）を契機に、世界的な金融危機が発生しました。"],
+  [7,"Who was elected the 44th President of the United States in 2008, becoming the first African American President?",["Colin Powell","Barack Obama","Joe Biden","Cory Booker"],1,"バラク・オバマは2008年の大統領選挙で勝利し、アフリカ系アメリカ人として初の第44代大統領に就任しました。"],
+  [7,"What is the formal name of the 2010 healthcare reform law signed by President Barack Obama, commonly called 'Obamacare'?",["Medicare Modernization Act","Affordable Care Act","Social Security Act","Health Equity Act"],1,"オバマケアの正式名称は「患者保護および医療費負担適正化法（Affordable Care Act: ACA）」です。"],
+  [7,"Which 2015 Supreme Court decision legalized same-sex marriage across all 50 U.S. states?",["Obergefell v. Hodges","United States v. Windsor","Lawrence v. Texas","Bostock v. Clayton County"],0,"2015年のオバーゲフェル対ホッジス判決により、連邦最高裁は全50州で同性婚を合憲・合法と認めました。"],
+  [7,"Which holiday on June 19 commemorating the end of slavery in Texas was established as a federal holiday in 2021?",["Emancipation Day","Juneteenth","Freedom Day","Loyalty Day"],1,"1865年6月19日のテキサス州での奴隷解放を記念する「ジューンティーンス（Juneteenth）」は、2021年に連邦祝日に制定されました。"],
+  [7,"Which 2022 Supreme Court case overturned 'Roe v. Wade' (1973) and ended the constitutional right to abortion?",["Planned Parenthood v. Casey","Dobbs v. Jackson Women's Health Organization","Whole Woman's Health v. Hellerstedt","Griswold v. Connecticut"],1,"2022年のドブス対ジャクソン女性健康組織判決により、1973年のロー対ウェイド判決が覆されました。"],
+
+  // ==================== PART 2: アメリカの地理・経済 (200問: #101–#300) ====================
+  // 9. 地理①：地形・山脈・河川 (#101–#125)
+  [8,"Which two countries share an international land border with the United States?",["Canada and Cuba","Canada and Mexico","Mexico and Russia","Canada and Bahamas"],1,"アメリカ合衆国と陸上の国境を接しているのは北のカナダと南のメキシコの2カ国です。"],
+  [8,"Which ocean borders the United States on the West Coast, and which ocean borders it on the East Coast?",["Atlantic (West) and Pacific (East)","Pacific (West) and Atlantic (East)","Indian (West) and Atlantic (East)","Arctic (West) and Pacific (East)"],1,"アメリカの西海岸は太平洋（Pacific Ocean）、東海岸は大西洋（Atlantic Ocean）に面しています。"],
+  [8,"What is the highest mountain peak in North America (elevation 6,190 m), located in Alaska?",["Mount Whitney","Denali","Mount Rainier","Mount Elbert"],1,"北米最高峰はアラスカ州にあるデナリ山（旧称マッキンリー、標高6,190m）です。"],
+  [8,"Which peak in California's Sierra Nevada (elevation 4,421 m) is the highest mountain in the contiguous 48 states?",["Mount Shasta","Mount Whitney","Pikes Peak","Half Dome"],1,"アラスカを除いた本土48州の最高峰は、カリフォルニア州シエラネバダ山脈にあるホイットニー山（4,421m）です。"],
+  [8,"Which major mountain range extends over 3,000 miles from New Mexico through Colorado and Montana into western Canada, forming the Continental Divide?",["Appalachian Mountains","Rocky Mountains","Cascade Range","Ozark Mountains"],1,"北米大陸の西部を南北に縦断し、太平洋水系と大西洋水系を分ける大陸分水嶺となっているのはロッキー山脈です。"],
+  [8,"Which ancient mountain system runs along the eastern United States from Alabama and Georgia up to Maine and Canada?",["Rocky Mountains","Sierra Nevada","Appalachian Mountains","Coast Ranges"],2,"北米東部を南北に連なるなだらかな古期造山帯の山脈はアパラチア山脈（ブルーリッジ山脈などを含む）です。"],
+  [8,"Which mountain range in eastern California is home to Lake Tahoe, Yosemite Valley, and giant sequoia trees?",["Cascade Range","Sierra Nevada","Catskill Mountains","Adirondack Mountains"],1,"カリフォルニア州東部に連なり、ヨセミテやタホ湖を擁する山脈はシエラネバダ山脈です。"],
+  [8,"Which volcanic mountain range in the Pacific Northwest (Washington, Oregon, and Northern California) includes Mount Rainier and Mount Hood?",["Cascade Range","Black Hills","Teton Range","Brooks Range"],0,"太平洋岸北西部のワシントン州・オレゴン州・カリフォルニア州北部に連なる火山脈はカスケード山脈です。"],
+  [8,"Which active volcano in Washington State erupted catastrophically in May 1980?",["Mauna Loa","Mount St. Helens","Mount Rainier","Mount Hood"],1,"1980年5月に大噴火を起こしたワシントン州カスケード山脈の火山はセント・ヘレンズ山（Mount St. Helens）です。"],
+  [8,"What is the longest river in the United States (approx. 3,767 km), which flows from Montana and joins the Mississippi River near St. Louis?",["Mississippi River","Missouri River","Colorado River","Rio Grande"],1,"アメリカ合衆国で最も長い川は、ミシシッピ川最大の支流であるミズーリ川（Missouri River）です。"],
+  [8,"Which iconic river begins at Lake Itasca in Minnesota and flows southward to empty into the Gulf of Mexico in Louisiana?",["Missouri River","Mississippi River","Ohio River","Hudson River"],1,"ミネソタ州のイタスカ湖を源流とし、ニューオーリンズを経てメキシコ湾に注ぐ北米最大の水系はミシシッピ川です。"],
+  [8,"Which river forms the natural international border between the state of Texas and Mexico?",["Colorado River","Rio Grande","Brazos River","Pecos River"],1,"テキサス州とメキシコの国境を流れてメキシコ湾に注ぐ河川はリオ・グランデ川（Rio Grande）です。"],
+  [8,"Which major river of the American Southwest carved the Grand Canyon and is impounded by the Hoover Dam?",["Snake River","Colorado River","Columbia River","Sacramento River"],1,"ロッキー山脈に端を発し、グランドキャニオンを削り出しフーバーダムを潤す南西部の大河はコロラド川です。"],
+  [8,"Which river flows south through eastern New York State past Manhattan into Upper New York Bay?",["Potomac River","Delaware River","Hudson River","Charles River"],2,"ニューヨーク州を南下し、マンハッタン島の西側を流れてニューヨーク湾に注ぐのはハドソン川です。"],
+  [8,"Which major river in the Pacific Northwest forms much of the border between Washington State and Oregon before emptying into the Pacific?",["Columbia River","Yukon River","Snake River","Willamette River"],0,"ワシントン州とオレゴン州の州境を流れて太平洋に注ぐ北西部最大の大河はコロンビア川です。"],
+  [8,"Which major river begins in Pittsburgh, Pennsylvania and flows southwest to join the Mississippi River at Cairo, Illinois?",["Tennessee River","Ohio River","Wabash River","Cumberland River"],1,"ピッツバーグで合流して始まり、イリノイ州南端でミシシッピ川に合流する東部の重要河川はオハイオ川です。"],
+  [8,"What are the five interconnected freshwater lakes on the U.S.–Canada border (Superior, Michigan, Huron, Erie, and Ontario) collectively called?",["Finger Lakes","The Great Lakes","Boundary Waters","Chain of Lakes"],1,"アメリカとカナダの国境付近に広がる5つの巨大淡水湖群は「五大湖（The Great Lakes）」と呼ばれます。"],
+  [8,"Which of the five Great Lakes has the largest surface area and greatest depth, making it the largest freshwater lake in the world by area?",["Lake Michigan","Lake Huron","Lake Superior","Lake Erie"],2,"五大湖のなかで最も面積が広く水深も深いのはスペリオル湖（Lake Superior）で、面積では世界最大の淡水湖です。"],
+  [8,"Which is the only one of the five Great Lakes located entirely within the borders of the United States (not shared with Canada)?",["Lake Erie","Lake Ontario","Lake Michigan","Lake Huron"],2,"五大湖のうち、カナダと接しておらず全域がアメリカ領内にある唯一の湖はミシガン湖（Lake Michigan）です。"],
+  [8,"Which large remnant lake in northern Utah is the largest saltwater lake in the Western Hemisphere?",["Lake Tahoe","Great Salt Lake","Salton Sea","Crater Lake"],1,"ユタ州北部にあるグレートソルト湖（Great Salt Lake）は、西半球最大の塩湖です。"],
+  [8,"Where in California's Mojave Desert is the lowest, hottest, and driest point in North America (Badwater Basin, 86 meters below sea level) located?",["Monument Valley","Death Valley","Imperial Valley","Napa Valley"],1,"カリフォルニア州東部のモハーヴェ砂漠にあるデスバレー（Death Valley）は海抜マイナス86mで、北米で最も標高が低く最も暑い地点です。"],
+  [8,"Which desert region covering most of Nevada and western Utah between the Sierra Nevada and the Wasatch Range is the largest U.S. desert by area?",["Sonoran Desert","Chihuahuan Desert","Great Basin Desert","Painted Desert"],2,"ネバダ州を中心に広がるグレートベースン砂漠（Great Basin Desert）は、アメリカ最大の面積を持つ内陸乾燥盆地です。"],
+  [8,"What is the name of the vast expanse of flat prairie and grassland located east of the Rocky Mountains across states like Kansas, Nebraska, and the Dakotas?",["The Great Plains","The Piedmont","The Coastal Plain","The Everglades"],0,"ロッキー山脈の東側から西経100度線付近にかけて南北に広がる大平原は「グレートプレーンズ（The Great Plains）」と呼ばれます。"],
+  [8,"Which climate type characterizes coastal California, featuring warm, dry summers and mild, wet winters ideal for wine grape cultivation?",["Humid Continental Climate","Mediterranean Climate","Subarctic Climate","Tropical Savanna Climate"],1,"カリフォルニア州沿岸部は夏に乾燥し冬に温暖湿潤となる「地中海性気候（Mediterranean Climate）」で、ブドウや柑橘類の栽培に適しています。"],
+  [8,"Which large body of water borders five Southern U.S. states (Florida, Alabama, Mississippi, Louisiana, and Texas)?",["Chesapeake Bay","Gulf of Mexico","Puget Sound","Hudson Bay"],1,"アメリカ南部のフロリダ州からテキサス州までの5州が面している内海はメキシコ湾（Gulf of Mexico）です。"],
+
+  // 10. 地理②：国立公園・自然遺産 (#126–#150)
+  [9,"Which national park, established in 1872 primarily in Wyoming (extending into Montana and Idaho), was the world's very first national park?",["Yosemite National Park","Grand Canyon National Park","Yellowstone National Park","Sequoia National Park"],2,"1872年にグラント大統領の署名により指定されたイエローストーン国立公園（主にワイオミング州）は、世界最初の国立公園です。"],
+  [9,"What is the name of the famous geyser in Yellowstone National Park known for its regular, predictable eruptions?",["Steamboat Geyser","Old Faithful","Morning Glory Pool","Grand Prismatic Spring"],1,"イエローストーン国立公園で一定の間隔で忠実に熱水を噴き上げる最も有名な間欠泉は「オールド・フェイスフル（Old Faithful）」です。"],
+  [9,"In which Southwestern U.S. state is Grand Canyon National Park located?",["Utah","Colorado","Arizona","New Mexico"],2,"コロラド川が削り出した大峡谷「グランドキャニオン国立公園」が位置するのはアリゾナ州です。"],
+  [9,"Which UNESCO World Heritage national park in California is famous for granite monoliths such as Half Dome and El Capitan?",["Joshua Tree National Park","Yosemite National Park","Redwood National Park","Death Valley National Park"],1,"氷河が削ったU字谷とハーフドーム、エル・キャピタンなどの巨大な花崗岩の絶壁で有名なのはカリフォルニア州のヨセミテ国立公園です。"],
+  [9,"Which subtropical wetlands national park at the southern tip of Florida is famous for sawgrass marshes, mangroves, and American alligators?",["Biscayne National Park","Everglades National Park","Congaree National Park","Dry Tortugas National Park"],1,"フロリダ半島南端に広がる亜熱帯の湿地帯は「エバーグレーズ国立公園（Everglades National Park）」で、世界自然遺産にも登録されています。"],
+  [9,"Which world-famous group of three waterfalls sits on the international border between New York State and Ontario, Canada?",["Yosemite Falls","Niagara Falls","Multnomah Falls","Shoshone Falls"],1,"エリー湖からオンタリオ湖へ流れるナイアガラ川にあり、ニューヨーク州とカナダの国境に位置するのは「ナイアガラの滝（Niagara Falls）」です。"],
+  [9,"Which national park straddling the border of North Carolina and Tennessee is the most visited national park in the United States?",["Shenandoah National Park","Great Smoky Mountains National Park","Blue Ridge Parkway","Acadia National Park"],1,"ノースカロライナ州とテネシー州にまたがる「グレート・スモーキー山脈国立公園」は、全米63の国立公園のなかで年間来訪者数が最多です。"],
+  [9,"Which national park in California is home to 'General Sherman,' the largest known living single-stem tree on Earth by volume?",["Olympic National Park","Sequoia National Park","Pinnacles National Park","Lassen Volcanic National Park"],1,"体積で世界最大の巨木「シャーマン将軍の木（General Sherman）」があるのはカリフォルニア州のセコイア国立公園です。"],
+  [9,"Which national park on Mount Desert Island in Maine is the oldest national park east of the Mississippi River?",["Acadia National Park","Cuyahoga Valley National Park","Isle Royale National Park","Voyageurs National Park"],0,"大西洋岸のメイン州にある「アーカディア国立公園（Acadia National Park）」は、ミシシッピ川以東で最も古い国立公園です。"],
+  [9,"Which national park in eastern Utah preserves over 2,000 natural sandstone arches, including the famous Delicate Arch?",["Bryce Canyon National Park","Arches National Park","Canyonlands National Park","Capitol Reef National Park"],1,"州のシンボル「デリケート・アーチ」をはじめ2,000以上の天然砂岩アーチが集まるユタ州の国立公園は「アーチーズ国立公園」です。"],
+  [9,"Which national park in southwestern Utah is famous for the towering reddish sandstone cliffs of Zion Canyon and the Narrows?",["Zion National Park","Badlands National Park","Petrified Forest National Park","Grand Teton National Park"],0,"ユタ州南西部にあり、ヴァージン川が刻んだ赤い砂岩の渓谷美で知られるのは「ザイオン国立公園（Zion National Park）」です。"],
+  [9,"Which national park in Montana borders Canada's Waterton Lakes National Park to form the world's first International Peace Park?",["Yellowstone National Park","Glacier National Park","Rocky Mountain National Park","North Cascades National Park"],1,"モンタナ州北部の「グレーシャー国立公園（Glacier National Park）」は、カナダ側の国立公園と共に世界初の国際平和公園を構成しています。"],
+  [9,"Which national park in Oregon surrounds the deepest lake in the United States (592 m deep), formed in a collapsed volcanic caldera?",["Mount Rainier National Park","Crater Lake National Park","Olympic National Park","Redwood National Park"],1,"オレゴン州の「クレーターレイク国立公園」にあるクレーターレイクは水深592mで、アメリカで最も深いカルデラ湖です。"],
+  [9,"Which national park in southern New Mexico is a UNESCO World Heritage Site famous for its massive underground limestone caves?",["White Sands National Park","Carlsbad Caverns National Park","Guadalupe Mountains National Park","Big Bend National Park"],1,"ニューメキシコ州南部の「カールズバッド洞窟群国立公園」は、巨大な鍾乳洞群で知られる世界自然遺産です。"],
+  [9,"Which national park in central Kentucky protects the world's longest known cave system (over 680 km explored)?",["Mammoth Cave National Park","Wind Cave National Park","Shenandoah National Park","Hot Springs National Park"],0,"ケンタッキー州にある「マンモス・ケーブ国立公園（Mammoth Cave National Park）」は、総延長680kmを超える世界最長の洞窟群です。"],
+  [9,"Which iconic red sandstone valley on the Arizona–Utah border within the Navajo Nation is famous for its towering buttes in Western films?",["Death Valley","Monument Valley","Antelope Canyon","Sedona"],1,"アリゾナ州とユタ州の州境（ナバホ族居留地内）にあり、メサやビュートがそびえるアメリカの原風景は「モニュメント・バレー」です。"],
+  [9,"In which state is 'Devils Tower,' designated by President Theodore Roosevelt in 1906 as the first United States National Monument, located?",["South Dakota","Wyoming","Montana","Idaho"],1,"1906年にセオドア・ルーズベルト大統領がアメリカ初の国定記念物（National Monument）に指定した岩山「デビルズ・タワー」はワイオミング州にあります。"],
+  [9,"In which Midwestern/Plains state are the Black Hills, Badlands National Park, and Mount Rushmore located?",["North Dakota","South Dakota","Nebraska","Kansas"],1,"4人の大統領の巨大な顔が彫られたマウント・ラシュモアやブラックヒルズ、バッドランズ国立公園があるのはサウスダコタ州です。"],
+  [9,"Which volcanic tuff cone on the island of Oahu in Hawaii is a famous landmark overlooking Waikiki Beach in Honolulu?",["Mauna Kea","Diamond Head","Haleakala","Kilauea"],1,"ハワイ・オアフ島のワイキキビーチ東側にそびえる象徴的な火山クレーターは「ダイヤモンド・ヘッド（Diamond Head）」です。"],
+  [9,"Which island is the largest in land area in the Hawaiian archipelago ('The Big Island') and home to Hawaii Volcanoes National Park?",["Oahu","Maui","Hawaii Island","Kauai"],2,"ハワイ諸島で最も面積が大きい島は「ハワイ島（ビッグ・アイランド）」で、マウナ・ロアやキラウエア火山があります（州都ホノルルがあるのはオアフ島）。"],
+  [9,"Which bay on the U.S. Atlantic coast, bordered by Maryland and Virginia, is the largest estuary in the United States?",["Delaware Bay","Chesapeake Bay","San Francisco Bay","Tampa Bay"],1,"メリーランド州とバージニア州に囲まれた「チェサピーク湾（Chesapeake Bay）」は、アメリカ最大の河口湾（エスチュアリー）です。"],
+  [9,"Which hook-shaped peninsula in southeastern Massachusetts, near the islands of Martha's Vineyard and Nantucket, is a famous summer resort area?",["Cape Canaveral","Cape Cod","Cape May","Key West"],1,"マサチューセッツ州南東部に突き出た釣り針状の半島は、有名な避暑地「ケープコッド（Cape Cod）」です。"],
+  [9,"Which 200-mile string of narrow barrier islands off the coast of North Carolina includes Kitty Hawk (site of the Wright Brothers' flight)?",["Florida Keys","Outer Banks","Sea Islands","Channel Islands"],1,"ノースカロライナ州沖に連なる砂州の島々は「アウター・バンクス（Outer Banks）」と呼ばれ、キティホークなどが位置しています。"],
+  [9,"Which four Southwestern U.S. states meet at right angles at the 'Four Corners Monument,' the only point in the U.S. shared by four states?",["Arizona, California, Nevada, and Utah","Arizona, Colorado, New Mexico, and Utah","Colorado, Kansas, New Mexico, and Texas","Idaho, Montana, Utah, and Wyoming"],1,"全米で唯一4つの州境が1点で十字に交わる「フォー・コーナーズ」を構成するのは、アリゾナ・コロラド・ニューメキシコ・ユタの4州です。"],
+  [9,"How many main National Parks (such as Yellowstone, Grand Canyon, and Yosemite) are currently designated in the United States?",["35","50","63","100"],2,"アメリカ合衆国には現在、国立公園局（NPS）が管理する主要国立公園（National Parks）が63カ所あります。"],
+
+  // 11. 地理③：50州ランキング・特徴 (#151–#175)
+  [10,"Which U.S. state is the largest in land area (1st), accounting for about 17% of total U.S. territory?",["Texas","California","Alaska","Montana"],2,"面積第1位はアラスカ州（約172万km²）で、アメリカ全体の約17%を占め、2位のテキサス州の約2.5倍の広さがあります。"],
+  [10,"Which U.S. state is the second largest in both land area and population, and is nicknamed the 'Lone Star State'?",["California","Texas","Florida","Montana"],1,"テキサス州は面積・人口ともに全米第2位であり、州旗の一つ星から「ローン・スター・ステート（一つ星の州）」と呼ばれます。"],
+  [10,"Which U.S. state in New England is the smallest in land area among all 50 states?",["Delaware","Rhode Island","Connecticut","New Jersey"],1,"全50州で最も面積が小さいのはニューイングランド地方のロードアイランド州（Rhode Island）です。"],
+  [10,"What are the top three most populous states in the United States in order from 1st to 3rd?",["California (1st), New York (2nd), Texas (3rd)","California (1st), Texas (2nd), Florida (3rd)","Texas (1st), California (2nd), Florida (3rd)","California (1st), Texas (2nd), New York (3rd)"],1,"アメリカの人口上位3州は、1位カリフォルニア州、2位テキサス州、3位フロリダ州（4位ニューヨーク州）の順です。"],
+  [10,"Which U.S. state has the smallest population among all 50 states (under 600,000 residents)?",["Vermont","Alaska","Wyoming","North Dakota"],2,"全50州で最も人口が少ないのは、イエローストーン国立公園を擁するワイオミング州（Wyoming、2位はバーモント州）です。"],
+  [10,"Which U.S. state, located between New York City and Philadelphia, has the highest population density among the 50 states?",["Massachusetts","Rhode Island","New Jersey","Maryland"],2,"全50州で最も人口密度が高いのは、ニューヨークとフィラデルフィアの2大都市圏に挟まれたニュージャージー州（New Jersey）です。"],
+  [10,"Which state is nicknamed the 'First State' because it was the first to ratify the U.S. Constitution on December 7, 1787?",["Virginia","Pennsylvania","Delaware","Massachusetts"],2,"1787年12月7日に合衆国憲法を最初に批准したデラウェア州（Delaware）は「ファースト・ステート（最初の州）」と呼ばれます。"],
+  [10,"Which two states were the 49th and 50th states admitted to the Union in January and August 1959, respectively?",["Arizona and New Mexico","Alaska (49th) and Hawaii (50th)","Hawaii (49th) and Alaska (50th)","Oklahoma and Utah"],1,"1959年1月にアラスカ州が49番目の州、同年8月にハワイ州が最後の50番目の州として連邦に昇格しました。"],
+  [10,"Which U.S. state is nicknamed the 'Golden State' and features a grizzly bear on its state flag?",["Nevada","Colorado","California","Oregon"],2,"ゴールドラッシュの歴史から「ゴールデン・ステート（黄金の州）」と呼ばれ、州旗にグリズリー（熊）が描かれているのはカリフォルニア州です。"],
+  [10,"Which U.S. state is officially nicknamed the 'Empire State'?",["New York","Pennsylvania","Virginia","Illinois"],0,"ニューヨーク州は「エンパイア・ステート（帝国の州）」の愛称を持ち、エンパイア・ステート・ビルディングの名前の由来にもなっています。"],
+  [10,"Which U.S. state is officially nicknamed the 'Sunshine State' and attracts top tourist numbers to cities like Orlando and Miami?",["California","Hawaii","Florida","Arizona"],2,"「サンシャイン・ステート（太陽の州）」の愛称を持ち、オーランドのテーマパーク群などで多くの観光客を集めるのはフロリダ州です。"],
+  [10,"Which U.S. state is nicknamed the 'Keystone State' because of its central geographic and political role among the original 13 colonies?",["Maryland","Pennsylvania","New Jersey","Connecticut"],1,"独立当初の13植民地の中央で要石（キーストーン）の役割を果たしたペンシルベニア州は「キーストーン・ステート」と呼ばれます。"],
+  [10,"Which state has the highest average elevation in the U.S. and is nicknamed the 'Centennial State' for joining the Union in 1876?",["Wyoming","Utah","Colorado","Montana"],2,"独立宣言から100年後の1876年に州に昇格したコロラド州は「センテニアル・ステート（100周年の州）」と呼ばれ、全米で平均標高が最も高い州です。"],
+  [10,"Which Southern state, the largest state east of the Mississippi River in land area, is nicknamed the 'Peach State'?",["South Carolina","Georgia","Alabama","North Carolina"],1,"モモの生産と南部文化で知られるジョージア州（Georgia）は「ピーチ・ステート（桃の州）」と呼ばれます。"],
+  [10,"Which U.S. state is the only island state and the only state with two official state languages (English and Hawaiian)?",["Alaska","Hawaii","Florida","Rhode Island"],1,"太平洋のハワイ州は全50州で唯一の島嶼州であり、英語とハワイ語の2つを公用語に定めています。"],
+  [10,"Which Midwestern state consists of two separate peninsulas (the Upper and Lower Peninsulas) connected by the Mackinac Bridge?",["Wisconsin","Michigan","Minnesota","Ohio"],1,"五大湖に囲まれたアッパー半島とロウアー半島の2つの半島から成る州はミシガン州（Michigan）です。"],
+  [10,"Which two U.S. states are tied for bordering the highest number of other U.S. states (8 neighboring states each)?",["Texas and Oklahoma","Tennessee and Missouri","Kentucky and Illinois","Ohio and Pennsylvania"],1,"テネシー州とミズーリ州は、それぞれ8つの州と州境を接しており全米最多です。"],
+  [10,"Which is the only U.S. state in the contiguous 48 states that borders just ONE other U.S. state?",["Florida","Maine","Washington","Michigan"],1,"本土48州のうち、ニューハンプシャー州の1州としか接していない唯一の州は北東端のメイン州（Maine）です（アラスカとハワイは0州）。"],
+  [10,"In the contiguous 48 states, which state is the easternmost and which state is the westernmost?",["Massachusetts (East) and California (West)","Maine (East) and Washington (West)","Maine (East) and Oregon (West)","New Hampshire (East) and California (West)"],1,"本土48州（Contiguous United States）のなかで最東端はメイン州、最西端はワシントン州です（全50州を含めると最北・最西・東経側の最東端はアラスカ州、最南端はハワイ州）。"],
+  [10,"In the contiguous 48 states, which state contains the northernmost point (the Northwest Angle) and is nicknamed the 'Land of 10,000 Lakes'?",["North Dakota","Montana","Minnesota","Wisconsin"],2,"本土48州の最北端（ノースウェスト・アングル）を有し、「1万の湖の地」と呼ばれるのはミネソタ州です。"],
+  [10,"Which U.S. state is the driest in the nation, recording the lowest average annual precipitation, and is nicknamed the 'Silver State'?",["Arizona","New Mexico","Nevada","Utah"],2,"シエラネバダ山脈の雨陰にあたるネバダ州（Nevada）は全米で最も降水量が少ない乾燥した州で、銀鉱山の歴史から「シルバー・ステート」と呼ばれます。"],
+  [10,"Which four U.S. states have the word 'New' in their names?",["New York, New Jersey, New Mexico, and New Hampshire","New York, New Jersey, New England, and New Orleans","New York, New Mexico, New Haven, and New Hampshire","New Jersey, New Mexico, New Dakota, and New Carolina"],0,"州名に「New」がつくのは、ニューヨーク、ニュージャージー、ニューメキシコ、ニューハンプシャーの4州です。"],
+  [10,"Which four U.S. states are officially designated as 'Commonwealths' rather than 'States' in their formal constitutional names?",["New York, New Jersey, Delaware, and Maryland","Massachusetts, Pennsylvania, Virginia, and Kentucky","Connecticut, Rhode Island, Vermont, and Maine","Ohio, Indiana, Illinois, and Michigan"],1,"正式名称に「State」ではなく「Commonwealth（コモンウェルス）」を用いるのは、マサチューセッツ、ペンシルベニア、バージニア、ケンタッキーの4州です。"],
+  [10,"Which two Western states have almost perfectly rectangular borders defined entirely by lines of latitude and longitude?",["Colorado and Wyoming","Utah and Nevada","Montana and Idaho","Arizona and New Mexico"],0,"地図上でほぼ完全な長方形（緯線と経線のみの州境）をしているのは、コロラド州とワイオミング州の2州です。"],
+  [10,"Which U.S. state is famous for its prominent western 'Panhandle' (a narrow strip of land north of Texas) and is nicknamed the 'Sooner State'?",["Kansas","Arkansas","Oklahoma","Missouri"],2,"テキサス州の北側にフライパンの柄のような細長い領域（パンハンドル）を持ち、「スーナー・ステート」と呼ばれるのはオクラホマ州です。"],
+
+  // 12. 地理④：主要都市・州都・地域 (#176–#200)
+  [11,"Between which two states is the federal capital, Washington, D.C., located along the Potomac River?",["New York and New Jersey","Pennsylvania and Delaware","Maryland and Virginia","Virginia and North Carolina"],2,"首都ワシントンD.C.（コロンビア特別区）は、ポトマック川を挟んで北東のメリーランド州と南西のバージニア州の間に位置しています。"],
+  [11,"What is the most populous city in the United States, composed of five boroughs (Manhattan, Brooklyn, Queens, The Bronx, and Staten Island)?",["Los Angeles","Chicago","New York City","Houston"],2,"アメリカ最大の人口（約830万人）を擁する都市は、5つの行政区（Boroughs）から成るニューヨーク市です。"],
+  [11,"What is the capital city of the state of New York?",["New York City","Buffalo","Albany","Syracuse"],2,"ニューヨーク州の州都はニューヨーク市ではなく、ハドソン川上流にあるオールバニ（Albany）です。"],
+  [11,"What are the top three most populous cities in the United States in order from 1st to 3rd?",["New York City (1st), Los Angeles (2nd), Chicago (3rd)","New York City (1st), Chicago (2nd), Los Angeles (3rd)","Los Angeles (1st), New York City (2nd), Houston (3rd)","New York City (1st), Los Angeles (2nd), Houston (3rd)"],0,"アメリカの都市人口トップ3は、1位ニューヨーク、2位ロサンゼルス、3位シカゴ（4位ヒューストン、5位フェニックス）の順です。"],
+  [11,"What is the capital city of the state of California?",["Los Angeles","San Francisco","Sacramento","San Diego"],2,"カリフォルニア州の州都は、ロサンゼルスやサンフランシスコではなく北部のサクラメント（Sacramento）です。"],
+  [11,"Which city on the southwestern shore of Lake Michigan is the largest city in the Midwest and is nicknamed the 'Windy City'?",["Detroit","Chicago","Milwaukee","Minneapolis"],1,"ミシガン湖南西岸に位置する中西部最大の都市シカゴは、「ウィンディ・シティ（風の街）」の愛称で知られます。"],
+  [11,"What is the capital city of the state of Illinois?",["Chicago","Springfield","Peoria","Rockford"],1,"イリノイ州の州都はシカゴではなく、リンカーンが青年期から大統領就任まで過ごした州中部のスプリングフィールド（Springfield）です。"],
+  [11,"What is the most populous city in Texas (4th in the U.S.), nicknamed 'Space City' as home to NASA's Lyndon B. Johnson Space Center?",["Dallas","San Antonio","Houston","Austin"],2,"テキサス州最大の都市（全米第4位）はヒューストンで、NASAのジョンソン宇宙センター（管制センター）があることから「スペース・シティ」と呼ばれます。"],
+  [11,"What is the capital city of the state of Texas?",["Houston","Dallas","Austin","San Antonio"],2,"テキサス州の州都は、ライブ音楽とハイテク産業（シリコン・ヒルズ）で知られるオースティン（Austin）です。"],
+  [11,"Which city in New Mexico, founded in 1610, is both the oldest state capital and the highest-elevation state capital in the United States?",["Albuquerque","Santa Fe","Taos","Phoenix"],1,"ニューメキシコ州の州都サンタフェ（Santa Fe）は1610年に建設された全米最古の州都であり、標高約2,194mで最も高い位置にある州都です。"],
+  [11,"What is the capital and largest city of Massachusetts, serving as the historical and cultural center of New England?",["Providence","Boston","Hartford","Cambridge"],1,"マサチューセッツ州の州都ボストンは、ニューイングランド地方の経済・歴史・学術の中心都市です。"],
+  [11,"Which six states make up the historic 'New England' region in the northeastern United States?",["New York, New Jersey, Pennsylvania, Delaware, Maryland, and Virginia","Maine, New Hampshire, Vermont, Massachusetts, Rhode Island, and Connecticut","Maine, New York, Vermont, New Hampshire, Massachusetts, and Connecticut","Massachusetts, Rhode Island, Connecticut, New York, New Jersey, and Delaware"],1,"ニューイングランド地方を構成するのは、メイン、ニューハンプシャー、バーモント、マサチューセッツ、ロードアイランド、コネチカットの北東部6州です（ニューヨーク州は含まれません）。"],
+  [11,"Which largest city in Pennsylvania (where Independence Hall and the Liberty Bell are located) means 'City of Brotherly Love' in Greek?",["Pittsburgh","Harrisburg","Philadelphia","Allentown"],2,"ペンシルベニア州最大の都市フィラデルフィアはギリシャ語で「兄弟愛の街」を意味し、独立記念館や自由の鐘があります（州都はハリスバーグ）。"],
+  [11,"What is the capital and largest city of Florida? (Note: the capital and largest city are different)",["Capital: Miami / Largest: Orlando","Capital: Tallahassee / Largest: Jacksonville","Capital: Orlando / Largest: Miami","Capital: Tampa / Largest: Tallahassee"],1,"フロリダ州の州都は北西部のタラハシー（Tallahassee）であり、市域人口が最大の都市は北東部のジャクソンビル（都市圏人口最大はマイアミ）です。"],
+  [11,"What is the capital and largest city of Colorado, nicknamed the 'Mile High City' because its elevation is exactly 1 mile (5,280 feet / 1,609 m)?",["Boulder","Colorado Springs","Denver","Aspen"],2,"コロラド州の州都デンバー（Denver）は、標高がちょうど1マイル（約1,609m）であることから「マイル・ハイ・シティ」と呼ばれます。"],
+  [11,"What is the capital and largest city of Arizona, which is also the most populous state capital in the United States?",["Tucson","Phoenix","Scottsdale","Flagstaff"],1,"アリゾナ州の州都フェニックス（Phoenix）は、全米50州の州都のなかで最も人口が多い大都市（全米第5位）です。"],
+  [11,"What is the largest city in Washington State, and what is the state's capital city?",["Largest: Seattle / Capital: Olympia","Largest: Portland / Capital: Seattle","Largest: Spokane / Capital: Tacoma","Largest: Olympia / Capital: Seattle"],0,"ワシントン州最大の都市はシアトル（Seattle）ですが、州都はピュージェット湾南端のオリンピア（Olympia）です。"],
+  [11,"What is the capital and largest city of Hawaii, located on the southeastern coast of the island of Oahu?",["Hilo","Honolulu","Lahaina","Kailua"],1,"ハワイ州の州都かつ最大都市は、オアフ島にあるホノルル（Honolulu）です。"],
+  [11,"What is the capital city of Alaska, and what is Alaska's most populous city?",["Capital: Anchorage / Largest: Fairbanks","Capital: Juneau / Largest: Anchorage","Capital: Fairbanks / Largest: Juneau","Capital: Sitka / Largest: Anchorage"],1,"アラスカ州の州都は南東部のジュノー（Juneau）であり、州最大の都市はアンカレッジ（Anchorage）です。"],
+  [11,"Which twin cities in Minnesota—one the state's largest city and the other the state capital—form the 'Twin Cities' metropolitan area?",["Duluth and Rochester","Minneapolis and St. Paul","Fargo and Bismarck","Milwaukee and Madison"],1,"ミシシッピ川を挟んで隣接する最大都市ミネアポリスと州都セントポールは「ツイン・シティーズ（双子都市）」と呼ばれます。"],
+  [11,"How many standard time zones cover the 50 U.S. states (Eastern, Central, Mountain, Pacific, Alaska, and Hawaii-Aleutian)?",["3 time zones","4 time zones","6 time zones","8 time zones"],2,"アメリカ合衆国50州は、本土4つの時間帯（東部・中部・山岳部・太平洋）にアラスカとハワイ・アリューシャンを加えた計6つの標準時帯に分かれています。"],
+  [11,"Which two U.S. states do NOT observe Daylight Saving Time (keeping standard time all year)?",["Alaska and Hawaii","Arizona and Hawaii","California and Florida","Texas and Nevada"],1,"アメリカで夏時間（Daylight Saving Time）を実施していないのは、アリゾナ州（ナバホ族居留地を除く）とハワイ州の2州です。"],
+  [11,"What is the name of the heavily urbanized megalopolis stretching along the U.S. East Coast from Boston through New York and Philadelphia to Washington, D.C.?",["Sun Belt","BosWash (Northeast Megalopolis)","Silicon Valley","Corn Belt"],1,"北東部のボストンからニューヨーク、フィラデルフィア、ボルティモアを経てワシントンD.C.に至る巨大都市群は「ボスウォッシュ（BosWash / 北東部メガロポリス）」と呼ばれます。"],
+  [11,"What term refers to the warm southern and southwestern region of the U.S. (roughly south of the 37th parallel) known for rapid population and industrial growth?",["Rust Belt","Sun Belt","Bible Belt","Frost Belt"],1,"北緯37度以南の温暖な南部〜南西部（フロリダ・テキサス・アリゾナ・カリフォルニア南部など）で先端産業や人口が増加している地域は「サンベルト（Sun Belt）」と呼ばれます。"],
+  [11,"What term describes the region from the Great Lakes to the Midwest (such as Michigan, Ohio, and Pennsylvania) where traditional steel and heavy industries declined?",["Sun Belt","Rust Belt","Cotton Belt","Grain Belt"],1,"五大湖周辺から中西部にかけて、かつて鉄鋼業や自動車産業で栄えたものの1970年代以降に工場の老朽化や衰退が進んだ地域は「ラストベルト（Rust Belt＝錆びついた工業地帯）」と呼ばれます。"],
+
+  // 13. 経済①：通貨・FRB・税制 (#201–#225)
+  [12,"Whose portrait is featured on the front of the U.S. $1 bill?",["Thomas Jefferson","George Washington","Abraham Lincoln","Alexander Hamilton"],1,"1ドル紙幣の表面に描かれている人物は、初代大統領ジョージ・ワシントンです。"],
+  [12,"Whose portrait is featured on the front of the U.S. $2 bill, with the signing of the Declaration of Independence on the reverse?",["John Adams","Thomas Jefferson","James Madison","Benjamin Franklin"],1,"流通量は少ないものの現在も発行されている2ドル紙幣の表面には、第3代大統領トーマス・ジェファソンが描かれています。"],
+  [12,"Whose portrait is featured on the front of the U.S. $5 bill, with the Lincoln Memorial on the reverse?",["Abraham Lincoln","Andrew Jackson","Ulysses S. Grant","Franklin D. Roosevelt"],0,"5ドル紙幣の表面には第16代大統領エイブラハム・リンカーン、裏面にはリンカーン記念堂が描かれています。"],
+  [12,"Whose portrait is featured on the front of the U.S. $10 bill, with the U.S. Treasury Building on the reverse?",["Thomas Jefferson","Alexander Hamilton","Andrew Jackson","John Marshall"],1,"10ドル紙幣の表面に描かれているのは、建国時の初代財務長官アレクサンダー・ハミルトンです。"],
+  [12,"Whose portrait is featured on the front of the U.S. $20 bill, with the White House on the reverse?",["James Monroe","Andrew Jackson","Grover Cleveland","Theodore Roosevelt"],1,"20ドル紙幣の表面には第7代大統領アンドリュー・ジャクソン、裏面にはホワイトハウスが描かれています。"],
+  [12,"Whose portrait is featured on the front of the U.S. $50 bill, with the U.S. Capitol on the reverse?",["William McKinley","Ulysses S. Grant","Woodrow Wilson","Dwight D. Eisenhower"],1,"50ドル紙幣の表面には南北戦争の北軍総司令官で第18代大統領のユリシーズ・S・グラント、裏面には連邦議会議事堂が描かれています。"],
+  [12,"Whose portrait is featured on the front of the U.S. $100 bill, the highest denomination currently in circulation?",["George Washington","Alexander Hamilton","Benjamin Franklin","Thomas Jefferson"],2,"現在流通している最高額紙幣である100ドル札の表面には、建国の父ベンジャミン・フランクリン（裏面は独立記念館）が描かれています。"],
+  [12,"Which two portraits on currently circulating U.S. paper bills are of Founding Fathers who were NEVER President of the United States?",["Alexander Hamilton ($10) and Benjamin Franklin ($100)","Thomas Jefferson ($2) and Alexander Hamilton ($10)","Benjamin Franklin ($100) and John Jay ($50)","Samuel Adams ($5) and Paul Revere ($20)"],0,"現行紙幣7種のうち、大統領経験者ではない人物は10ドル札のアレクサンダー・ハミルトンと100ドル札のベンジャミン・フランクリンの2名です。"],
+  [12,"What are the values in cents of a Penny, Nickel, Dime, and Quarter, respectively?",["1¢, 5¢, 10¢, 25¢","1¢, 10¢, 5¢, 25¢","5¢, 10¢, 25¢, 50¢","1¢, 5¢, 20¢, 50¢"],0,"アメリカの主要硬貨は、ペニー（Penny）＝1セント、ニッケル（Nickel）＝5セント、ダイム（Dime）＝10セント、クォーター（Quarter）＝25セントです。"],
+  [12,"Whose profile is depicted on the copper-plated U.S. 1-cent coin (Penny)?",["George Washington","Abraham Lincoln","Thomas Jefferson","Franklin D. Roosevelt"],1,"1セント硬貨（ペニー）には、生誕100周年の1909年以来エイブラハム・リンカーンの横顔が描かれています。"],
+  [12,"Whose profile is depicted on the U.S. 5-cent coin (Nickel), with his home Monticello on the reverse?",["John Adams","Thomas Jefferson","James Madison","Alexander Hamilton"],1,"5セント硬貨（ニッケル）の表面にはトーマス・ジェファソン、裏面には彼の邸宅モンティチェロが刻印されています。"],
+  [12,"Whose profile is depicted on the U.S. 10-cent coin (Dime), which is the smallest and thinnest U.S. coin in size?",["Theodore Roosevelt","Franklin D. Roosevelt","Dwight D. Eisenhower","Harry S. Truman"],1,"10セント硬貨（ダイム）には、小児麻痺基金「マーチ・オブ・ダイムズ」を設立した第32代フランクリン・D・ルーズベルト大統領が1946年から描かれています。"],
+  [12,"Whose profile is depicted on the obverse of the U.S. 25-cent coin (Quarter)?",["George Washington","Abraham Lincoln","John F. Kennedy","Benjamin Franklin"],0,"最もよく使われる25セント硬貨（クォーター）の表面には、1932年（生誕200周年）以来ジョージ・ワシントンが描かれています。"],
+  [12,"Whose profile is depicted on the U.S. 50-cent coin (Half Dollar), first minted in 1964?",["Dwight D. Eisenhower","John F. Kennedy","Lyndon B. Johnson","Ronald Reagan"],1,"50セント硬貨（ハーフダラー）には、1963年11月に暗殺された第35代ジョン・F・ケネディ大統領が翌1964年から描かれています。"],
+  [12,"What official national motto of the United States (adopted in 1956) is printed on all U.S. coins and paper currency?",["Out of Many, One","In God We Trust","Liberty and Justice for All","Don't Tread on Me"],1,"すべてのアメリカ紙幣・硬貨に刻印されている合衆国の公式モットー（標語）は「In God We Trust（我ら神を信ず）」です。"],
+  [12,"What is the central banking system of the United States, established in December 1913 under President Woodrow Wilson?",["Bank of the United States","The Federal Reserve System (The Fed)","Federal Deposit Corporation","National Treasury Bank"],1,"1913年の連邦準備法によって設立されたアメリカの中央銀行制度は「連邦準備制度（Federal Reserve System / 通称 The Fed）」です。"],
+  [12,"Where is the Board of Governors of the Federal Reserve System (FRB) headquartered, and how many regional Federal Reserve Banks exist?",["New York City / 10 banks","Washington, D.C. / 12 banks","Chicago / 12 banks","Washington, D.C. / 50 banks"],1,"連邦準備制度理事会（FRB）の本部はワシントンD.C.にあり、全米の主要都市に12の地区連邦準備銀行が置かれています。"],
+  [12,"What is the body within the Federal Reserve that meets eight times a year to determine U.S. monetary policy and the target federal funds rate?",["SEC","FOMC (Federal Open Market Committee)","FDIC","CFTC"],1,"アメリカの政策金利（FF金利）や金融政策を決定する会合は「連邦公開市場委員会（FOMC）」です。"],
+  [12,"What are the two statutory goals of the Federal Reserve's monetary policy, known as the 'Dual Mandate'?",["Maximum employment and stable prices","Balanced budget and trade surplus","Gold standard and low taxes","High exports and strong dollar"],0,"連邦準備制度（FRB）に法律で課せられている2つの使命（デュアル・マンデート）は「雇用の最大化」と「物価の安定」です。"],
+  [12,"Where in Kentucky is the fortified United States Bullion Depository, famous for storing a large portion of the U.S. official gold reserves?",["Fort Sumter","Fort Knox","Fort Bragg","Fort Hood"],1,"アメリカ財務省が保有する膨大な金塊（ゴールド）が厳重に保管されていることで有名な施設は、ケンタッキー州の「フォート・ノックス（Fort Knox）」です。"],
+  [12,"Which federal bureau within the Department of the Treasury is responsible for collecting federal taxes and enforcing tax laws?",["FBI","IRS (Internal Revenue Service)","ATF","OMB"],1,"アメリカ財務省の下で連邦税の徴収と税法の執行を担う機関は「内国歳入庁（IRS: Internal Revenue Service）」です。"],
+  [12,"On what date in April is the standard annual deadline ('Tax Day') for individuals in the United States to file their federal income tax returns?",["April 1","April 15","April 30","May 15"],1,"アメリカの個人確定申告の提出期限（Tax Day）は、原則として毎年4月15日です。"],
+  [12,"Which constitutional amendment, ratified in 1913, granted the U.S. Congress the authority to levy a federal income tax?",["14th Amendment","16th Amendment","18th Amendment","20th Amendment"],1,"1913年に批准された合衆国憲法修正第16条により、連邦議会に連邦所得税を課す権限が与えられました。"],
+  [12,"Which West Coast U.S. state is well known for having zero (0%) statewide sales tax?",["California","Washington","Oregon","Nevada"],2,"アメリカの消費税（Sales Tax）は州や自治体ごとに定められており、オレゴン州（ほかデラウェア・モンタナ・ニューハンプシャーなど）は州消費税が0%です。"],
+  [12,"Which Southern and Western states (such as Texas, Florida, Washington, and Nevada) are known for charging NO state personal income tax?",["New York and California","Texas and Florida","Massachusetts and Illinois","Oregon and Maryland"],1,"テキサス州、フロリダ州、ワシントン州、ネバダ州などでは個人の「州所得税（State Income Tax）」が課されません（連邦所得税は全州共通）。"],
+
+  // 14. 経済②：金融市場・経済史 (#226–#250)
+  [13,"Which street in Lower Manhattan, New York City is the global symbol and historic center of the American financial industry?",["Broadway","Wall Street","Fifth Avenue","Madison Avenue"],1,"ニューヨーク市マンハッタン南端の「ウォール街（Wall Street）」は、アメリカおよび世界の金融市場の中心地です（マディソン街は広告業界の代名詞）。"],
+  [13,"Which stock exchange, located at 11 Wall Street in New York City, is the largest stock exchange in the world by total market capitalization?",["NASDAQ","New York Stock Exchange (NYSE)","Chicago Board of Trade","American Stock Exchange"],1,"1792年のすずかけ協定を起源とし、ウォール街に本部を置く世界最大の証券取引所は「ニューヨーク証券取引所（NYSE）」です。"],
+  [13,"Which electronic stock market, founded in 1971 in New York, is famous as the primary listing market for high-tech giants like Apple, Microsoft, and Nvidia?",["NYSE","NASDAQ","CME","AMEX"],1,"1971年に世界初の電子株式市場として開設された「ナスダック（NASDAQ）」は、ハイテク・IT企業が多く上場する市場として知られます。"],
+  [13,"Which famous stock market index, created by Charles Dow in 1896, tracks 30 prominent blue-chip companies traded on the NYSE and NASDAQ?",["S&P 500","Dow Jones Industrial Average (DJIA)","Russell 2000","Wilshire 5000"],1,"アメリカを代表する優良30銘柄で構成される最も歴史ある株価指数は「ダウ工業株30種平均（NYダウ / DJIA）」です。"],
+  [13,"Which widely used benchmark stock market index tracks the capitalization-weighted performance of 500 large companies listed on U.S. stock exchanges?",["Dow Jones 30","S&P 500","NASDAQ-100","Fortune 500"],1,"アメリカの主要上場企業500社の時価総額加重平均指数であり、機関投資家の代表的ベンチマークとなっているのは「S&P 500」です。"],
+  [13,"Which two animals are used on Wall Street to symbolize a rising, optimistic market and a falling, pessimistic market, respectively?",["Eagle (rising) and Bear (falling)","Bull (rising) and Bear (falling)","Lion (rising) and Wolf (falling)","Horse (rising) and Donkey (falling)"],1,"角を下から上へ突き上げる雄牛から上昇相場を「ブル（Bull）マーケット」、爪を上から下へ振り下ろす熊から下落相場を「ベア（Bear）マーケット」と呼びます。"],
+  [13,"Which independent federal agency was established in 1934 after the Great Crash to regulate the stock market and prevent corporate fraud?",["FTC","SEC (Securities and Exchange Commission)","FDIC","FCC"],1,"1929年の大暴落の反省から1934年に設立された株式市場の監視・監督機関は「証券取引委員会（SEC）」です。"],
+  [13,"Which federal corporation was created in 1933 by the Glass-Steagall Act to insure commercial bank deposits and maintain confidence in the banking system?",["FDIC (Federal Deposit Insurance Corporation)","Fannie Mae","Sallie Mae","SIPC"],0,"1933年銀行法（グラス・スティーガル法）によって設立され、銀行破綻時に預金者を保護する機関は「連邦預金保険公社（FDIC）」です。"],
+  [13,"Who served as the first Secretary of the Treasury (1789–1795) and authored the 'Report on Manufactures' and established the First Bank of the United States?",["Thomas Jefferson","Alexander Hamilton","Albert Gallatin","Robert Morris"],1,"初代財務長官アレクサンダー・ハミルトンは、連邦政府による州債務の引き受け、第一合衆国銀行の創設、製造業保護を打ち出しアメリカ資本主義の礎を築きました。"],
+  [13,"What term, taken from an 1873 novel by Mark Twain, describes the late-19th-century era of rapid U.S. economic growth, monopolies, and ostentatious wealth?",["Progressive Era","The Gilded Age","Roaring Twenties","Era of Good Feelings"],1,"南北戦争後から19世紀末にかけて鉄道・鉄鋼・石油王たちが巨富を築いた時代は、マーク・トウェインの小説に由来し「金ぴか時代（Gilded Age）」と呼ばれます。"],
+  [13,"Which Scottish-American industrialist built the steel industry in Pittsburgh and wrote 'The Gospel of Wealth,' donating his fortune to build libraries and Carnegie Hall?",["John D. Rockefeller","Andrew Carnegie","Cornelius Vanderbilt","Henry Clay Frick"],1,"ピッツバーグで鉄鋼王となったアンドリュー・カーネギーは『富の福音』を著し、引退後にカーネギー・ホールや全米の公共図書館・大学の設立に私財を投じました。"],
+  [13,"Which legendary Wall Street banker financed the creation of U.S. Steel (the first billion-dollar corporation) in 1901 and personally intervened to stop the Panic of 1907?",["Andrew Mellon","J.P. Morgan","Jay Gould","Charles Schwab"],1,"金融王ジョン・ピアポント・モルガン（J.P. Morgan）はUSスチールやゼネラル・エレクトリック（GE）の設立を主導し、中央銀行がなかった1907年恐慌を鎮めました。"],
+  [13,"Which landmark 1890 federal law was the first measure passed by the U.S. Congress to outlaw monopolies and business cartels ('trusts')?",["Interstate Commerce Act","Sherman Antitrust Act","Clayton Act","Wagner Act"],1,"1890年に制定された「シャーマン反トラスト法（独占禁止法）」は、大企業による市場独占やカルテルを禁止したアメリカ最初の連邦独占禁止法です。"],
+  [13,"In what year did the Wall Street Stock Market Crash ('Black Thursday') occur, triggering the Great Depression of the 1930s?",["1920","1929","1933","1937"],1,"1929年10月24日（暗黒の木曜日）に始まったウォール街の株価大暴落を機に、世界恐慌（Great Depression）が発生しました。"],
+  [13,"What were the three goals ('3 Rs') of President Franklin D. Roosevelt's 'New Deal' policies in the 1930s, which included the TVA and WPA?",["Relief, Recovery, and Reform","Reduce, Reuse, and Recycle","Readiness, Resilience, and Renewal","Revenue, Regulation, and Reserves"],0,"フランクリン・D・ルーズベルト大統領のニューディール政策は、「救済（Relief）・復興（Recovery）・改革（Reform）」の3つのRを柱として展開されました。"],
+  [13,"Which landmark 1935 New Deal law established the federal system of old-age pensions (retirement benefits) and unemployment insurance in the U.S.?",["Fair Labor Standards Act","Social Security Act","Taft-Hartley Act","Glass-Steagall Act"],1,"1935年に制定された「社会保障法（Social Security Act）」により、現在のアメリカの公的年金制度や失業保険制度の基盤が確立されました。"],
+  [13,"At which 1944 conference in New Hampshire did 44 Allied nations establish the postwar international monetary system based on the U.S. dollar and gold?",["Dumbarton Oaks Conference","Bretton Woods Conference","Yalta Conference","San Francisco Conference"],1,"1944年7月にニューハンプシャー州で開催された「ブレトン・ウッズ会議」により、金1オンス＝35ドルの固定相場制（ブレトン・ウッズ体制）が築かれました。"],
+  [13,"Which two major international financial organizations, created at the 1944 Bretton Woods Conference, have their headquarters in Washington, D.C.?",["WTO and OECD","IMF (International Monetary Fund) and the World Bank","BIS and European Central Bank","ADB and GATT"],1,"ブレトン・ウッズ協定で設立された国際通貨基金（IMF）と世界銀行（World Bank）の本部は、ともにワシントンD.C.にあります。"],
+  [13,"Which U.S. President announced the suspension of the dollar's convertibility into gold in August 1971 ('Nixon Shock'), leading to floating exchange rates?",["Lyndon B. Johnson","Richard Nixon","Gerald Ford","Jimmy Carter"],1,"1971年8月15日、第37代リチャード・ニクソン大統領が金とドルの交換停止（ニクソン・ショック）を発表し、世界は変動相場制へと移行しました。"],
+  [13,"What was the popular name for President Ronald Reagan's 1980s supply-side economic policies of tax cuts, deregulation, and curbing inflation?",["New Frontier","Reaganomics","Fair Deal","Clintonomics"],1,"1980年代に第40代ロナルド・レーガン大統領が推進した減税・規制緩和・小さな政府による供給重視（サプライサイド）の経済政策は「レーガノミクス」と呼ばれます。"],
+  [13,"Which American economist of the 'Chicago School' won the 1976 Nobel Prize in Economics as a champion of free markets and 'Monetarism'?",["Paul Samuelson","Milton Friedman","Joseph Stiglitz","Paul Krugman"],1,"シカゴ学派の指導者ミルトン・フリードマンは、マネタリズムと自由市場経済を提唱し1976年にノーベル経済学賞を受賞しました。"],
+  [13,"Which American mathematician at Princeton University won the 1994 Nobel Prize in Economic Sciences for his work on non-cooperative 'Game Theory'?",["John von Neumann","John Nash","Kenneth Arrow","Gary Becker"],1,"ゲーム理論における「ナッシュ均衡」で1994年にノーベル経済学賞を受賞し、映画『ビューティフル・マインド』のモデルとなった数学者はジョン・ナッシュです。"],
+  [13,"Which major Wall Street investment bank filed for bankruptcy on September 15, 2008, triggering the global financial crisis ('Lehman Shock')?",["Bear Stearns","Lehman Brothers","Merrill Lynch","Goldman Sachs"],1,"2008年9月15日に負債総額約6,000億ドルで連邦破産法第11条を申請し、世界的金融危機を引き起こした投資銀行は「リーマン・ブラザーズ」です。"],
+  [13,"What type of high-risk U.S. housing loans to borrowers with lower credit ratings defaulted in large numbers in 2007–2008, causing the Great Recession?",["Student Loans","Subprime Mortgages","Municipal Bonds","Treasury Bills"],1,"2007〜2008年の世界金融危機の引き金となった信用度の低い借り手向けの住宅ローンは「サブプライム住宅ローン（Subprime Mortgages）」です。"],
+  [13,"Which billionaire investor and CEO of Berkshire Hathaway is nicknamed the 'Oracle of Omaha' for his long-term value investing success?",["George Soros","Warren Buffett","Ray Dalio","Carl Icahn"],1,"ネブラスカ州オマハを拠点に投資会社バークシャー・ハサウェイを率い、「オマハの賢人（Oracle of Omaha）」と呼ばれる投資家はウォーレン・バフェットです。"],
+
+  // 15. 経済③：産業・農業・貿易 (#251–#275)
+  [14,"Where does the United States rank globally in nominal Gross Domestic Product (GDP), with an economy exceeding $27 trillion?",["1st in the world","2nd in the world","3rd in the world","4th in the world"],0,"アメリカ合衆国の名目GDP（国内総生産）は27兆ドルを超えており、世界第1位の経済大国です。"],
+  [14,"Which region in Northern California, south of San Francisco around San Jose, Palo Alto, and Cupertino, is the world's premier hub for IT and venture capital?",["Death Valley","Silicon Valley","Napa Valley","Hudson Valley"],1,"サンフランシスコ・ベイエリア南部（サンノゼやパロアルト周辺）に広がる世界最大のIT・ハイテク産業集積地は「シリコンバレー（Silicon Valley）」です。"],
+  [14,"Which city in Michigan is famously nicknamed the 'Motor City' (and 'Motown') as the historic center of the U.S. automobile industry?",["Cleveland","Detroit","Chicago","Pittsburgh"],1,"ミシガン州デトロイトは、20世紀に自動車産業の中心地として発展したことから「モーターシティ（Motor City）」と呼ばれます。"],
+  [14,"Which three historic automakers headquartered in the Detroit area are traditionally called the 'Big Three'?",["Ford, Tesla, and Toyota","General Motors (GM), Ford, and Chrysler (Stellantis)","GM, Ford, and Volkswagen","Ford, Rivian, and Dodge"],1,"デトロイト周辺に拠点を置くアメリカの伝統的な3大自動車メーカー（ビッグ・スリー）は、ゼネラル・モーターズ（GM）、フォード、クライスラー（現ステランティス傘下）です。"],
+  [14,"Which steel-producing city in western Pennsylvania, at the confluence of the Allegheny and Monongahela rivers, is nicknamed the 'Steel City'?",["Philadelphia","Pittsburgh","Allentown","Erie"],1,"カーネギー鉄鋼会社などが設立され、アメリカの鉄鋼業の中心地として栄えたペンシルベニア州西部の都市はピッツバーグ（Steel City）です。"],
+  [14,"Which Midwestern agricultural region, centered on Iowa, Illinois, and Indiana, is the world's largest producer of corn (maize) and soybeans?",["Wheat Belt","Corn Belt","Cotton Belt","Sun Belt"],1,"五大湖の南側、アイオワ州やイリノイ州・インディアナ州を中心に広がる世界最大のトウモロコシ・大豆生産地帯は「コーンベルト（Corn Belt）」です。"],
+  [14,"Which state in the heart of the Corn Belt ranks #1 in the United States in the production of corn, pork, eggs, and ethanol?",["Kansas","Iowa","Wisconsin","Texas"],1,"コーンベルトの中心に位置するアイオワ州（Iowa）は、トウモロコシ・豚肉・鶏卵・バイオエタノールの生産量で全米第1位です。"],
+  [14,"Which state in the Great Plains is nicknamed the 'Wheat State' and the 'Breadbasket of the World' as a top producer of winter wheat?",["Iowa","Kansas","Nebraska","Missouri"],1,"グレートプレーンズの中央に位置するカンザス州（Kansas）は、冬小麦の大産地として「世界のパンかご」と呼ばれます。"],
+  [14,"Which Midwestern state is famous for its cheese production and prints 'America's Dairyland' on its license plates?",["Minnesota","Wisconsin","Michigan","Ohio"],1,"ウィスコンシン州（Wisconsin）はチーズをはじめとする酪農が盛んで、「アメリカの酪農の国（America's Dairyland）」の標語で知られます。"],
+  [14,"Which vast, irrigated valley running through the center of California produces more than half of the fruits, vegetables, and almonds grown in the U.S.?",["Death Valley","Central Valley","Monument Valley","Shenandoah Valley"],1,"カリフォルニア州の中央を南北に走る「セントラル・バレー（Central Valley）」は、全米の果物・野菜・ナッツ類の半分以上を産出する大農業地帯です。"],
+  [14,"Which U.S. state ranks #1 in the nation in the production of crude oil, natural gas, AND wind-generated electricity?",["Alaska","Texas","California","North Dakota"],1,"テキサス州は原油・天然ガスの生産量で全米1位であるだけでなく、風力発電の発電量でも全米1位のエネルギー大国州です。"],
+  [14,"What extraction revolution in the 2000s and 2010s (using hydraulic fracturing and horizontal drilling) turned the U.S. into the world's largest producer of oil and natural gas?",["Green Revolution","Shale Revolution","Coal Boom","Solar Transition"],1,"水圧破砕法（フラッキング）と水平掘削技術によってシェール層から石油・ガスを採掘可能にした「シェール革命（Shale Revolution）」により、米国は世界最大の産油・産ガス国となりました。"],
+  [14,"In which state did Edwin Drake drill the first commercial oil well in the United States (at Titusville in 1859), sparking the modern petroleum industry?",["Texas","Pennsylvania","Oklahoma","California"],1,"近代石油産業の幕開けとなったエドウィン・ドレークによる世界初の商業用機械掘り油井（1859年）は、ペンシルベニア州タイタスビルで掘削されました。"],
+  [14,"Which metropolitan area in Washington State is the birthplace of Boeing and a major center for aerospace, cloud computing (Amazon/Microsoft), and coffee?",["Portland","Seattle","Spokane","Boise"],1,"ワシントン州のシアトル都市圏は、ボーイング発祥の航空宇宙産業の拠点であり、アマゾン・マイクロソフト・スターバックス・コストコを生んだ経済拠点です。"],
+  [14,"Which metropolitan area in Massachusetts, home to Harvard and MIT, is one of the world's premier clusters for biotechnology, medicine, and robotics?",["Hartford","Boston / Cambridge","Providence","Albany"],1,"ハーバード大学やMIT（マサチューセッツ工科大学）を擁するボストン・ケンブリッジ圏は、バイオテクノロジーや医療・製薬、ロボティクスの世界的拠点です。"],
+  [14,"Which three-nation free trade agreement among the United States, Mexico, and Canada entered into force in July 2020 to replace the 1994 NAFTA?",["TPP","USMCA","CAFTA","MERCOSUR"],1,"1994年発効の北米自由貿易協定（NAFTA）に代わり、2020年7月に発効した3カ国間の新貿易協定は「USMCA（米国・メキシコ・カナダ協定）」です。"],
+  [14,"Which three countries are the top three merchandise trading partners (imports + exports combined) of the United States?",["Japan, United Kingdom, and Germany","Mexico, Canada, and China","China, India, and Brazil","Canada, Japan, and South Korea"],1,"アメリカのモノの貿易相手国トップ3（輸出入合計）は、USMCA加盟国である隣国のメキシコ、カナダ、および中国の3カ国です。"],
+  [14,"Which twin seaports in Southern California handle the largest volume of containerized cargo trade in the United States?",["Ports of Seattle and Tacoma","Ports of Los Angeles and Long Beach","Ports of San Francisco and Oakland","Ports of San Diego and Santa Barbara"],1,"カリフォルニア州南部のサンペドロ湾に隣接する「ロサンゼルス港」と「ロングビーチ港」は、アジア貿易の玄関口として全米最大のコンテナ取扱量を誇ります。"],
+  [14,"Which international airport in Georgia, serving as the main hub for Delta Air Lines, is the busiest airport in the world by annual passenger traffic?",["O'Hare International Airport (Chicago)","Hartsfield-Jackson Atlanta International Airport","Los Angeles International Airport (LAX)","John F. Kennedy International Airport (NYC)"],1,"ジョージア州アトランタにある「ハーツフィールド・ジャクソン・アトランタ国際空港」は、デルタ航空の最大ハブであり年間旅客数で世界第1位の空港です。"],
+  [14,"Which Midwestern city sits at the crossroads of the U.S. freight rail network and is home to the world's largest derivatives exchange (CME Group)?",["St. Louis","Chicago","Kansas City","Minneapolis"],1,"イリノイ州シカゴは全米の貨物鉄道網の結節点であり、農産物や金融先物を扱う世界最大のデリバティブ取引所「シカゴ・マーカンタイル取引所（CME）」があります。"],
+  [14,"What is the name of the national intercity passenger railroad corporation of the United States, founded in 1971, which operates the 'Acela' high-speed train?",["Union Pacific","Amtrak","BNSF","Conrail"],1,"1971年に設立されたアメリカの全米鉄道旅客公社は「アムトラック（Amtrak＝AmericaとTrackの造語）」で、北東部回廊で高速列車アセラを運行しています。"],
+  [14,"What does the abbreviation 'USPS' stand for in the United States?",["United States Parcel System","United States Postal Service","Universal States Post System","Union Standard Postal Service"],1,"アメリカの郵便公社「USPS」は「United States Postal Service（合衆国郵便公社）」の略称です。"],
+  [14,"Which economic sector accounts for the largest share (nearly 80%) of U.S. Gross Domestic Product (GDP) and employment?",["Primary Sector (Agriculture & Mining)","Secondary Sector (Manufacturing & Construction)","Tertiary / Service Sector (Finance, Tech, Healthcare, Retail)","Agricultural Exports"],2,"現代アメリカ経済では金融・IT・医療・小売・専門サービスなどの「第3次産業（サービス部門）」がGDPと雇用の約8割を占めています。"],
+  [14,"What is the name of the progressive policy proposal in the U.S. that combines clean renewable energy transition with economic and job guarantees?",["Square Deal","Green New Deal","Fair Deal","New Frontier"],1,"1930年代のニューディールにちなみ、脱炭素・再生可能エネルギーへの転換と雇用創出・格差是正を結びつけた環境経済政策構想は「グリーン・ニューディール」です。"],
+  [14,"Which landmark August 2022 federal law signed by President Joe Biden provided historic subsidies for domestic EV manufacturing, clean energy, and prescription drug pricing?",["TARP","Inflation Reduction Act (IRA)","Gramm-Leach-Bliley Act","Smoot-Hawley Act"],1,"2022年8月に成立した「インフレ抑制法（IRA）」は、米国史上最大規模の気候変動・クリーンエネルギー・EV投資を含む経済法案です。"],
+
+  // 16. 経済④：企業・創業者・労働 (#276–#300)
+  [15,"Who co-founded Apple Computer in 1976 with Steve Wozniak and led the creation of the Macintosh, iPod, iPhone, and iPad?",["Bill Gates","Steve Jobs","Larry Ellison","Michael Dell"],1,"1976年にスティーブ・ウォズニアックと共にアップル（Apple）を共同創業し、iPhoneなどで世界を変えた経営者はスティーブ・ジョブズです。"],
+  [15,"In which Silicon Valley city in California is Apple's circular 'Apple Park' headquarters located?",["Palo Alto","Cupertino","Menlo Park","Redmond"],1,"アップルの宇宙船型本社「Apple Park」があるのは、カリフォルニア州シリコンバレーのクパチーノ（Cupertino）です。"],
+  [15,"Who co-founded Microsoft in 1975 with Paul Allen and later co-founded one of the world's largest philanthropic foundations?",["Steve Jobs","Bill Gates","Jeff Bezos","Larry Page"],1,"1975年にポール・アレンと共にマイクロソフト（Microsoft）を創業し、WindowsでPC時代を築いたのはビル・ゲイツです。"],
+  [15,"In which city in Washington State (east of Seattle) is Microsoft's corporate headquarters located?",["Redmond","Cupertino","Mountain View","Austin"],0,"マイクロソフトの本社キャンパスがあるのは、ワシントン州シアトル郊外のレドモンド（Redmond）です。"],
+  [15,"Who founded Amazon in 1994 in the Seattle area, transforming e-commerce and cloud computing (AWS), and also founded Blue Origin?",["Elon Musk","Jeff Bezos","Reid Hastings","Pierre Omidyar"],1,"1994年にオンライン書店としてアマゾン（Amazon）を創業し、世界最大のEC・クラウド企業に育てるとともに宇宙企業ブルーオリジンを設立したのはジェフ・ベゾスです。"],
+  [15,"Which entrepreneur serves as CEO of the electric vehicle company Tesla and founder/CEO of the space launch company SpaceX?",["Jeff Bezos","Elon Musk","Peter Thiel","Sam Altman"],1,"電気自動車メーカーのテスラ（Tesla）および宇宙開発企業スペースX（SpaceX）を率いている実業家はイーロン・マスクです。"],
+  [15,"Which two Stanford University graduate students founded the search engine company Google in 1998?",["Steve Jobs and Steve Wozniak","Larry Page and Sergey Brin","Bill Gates and Paul Allen","Jerry Yang and David Filo"],1,"1998年にスタンフォード大学の大学院生だったラリー・ペイジとセルゲイ・ブリンの2人がGoogleを創業しました。"],
+  [15,"What is the name of the parent holding company of Google, created in 2015 and headquartered in Mountain View, California?",["Meta Platforms","Alphabet Inc.","Berkshire Hathaway","Oracle"],1,"2015年の組織再編により設立されたGoogleの親会社（持株会社）は「アルファベット（Alphabet Inc.）」です。"],
+  [15,"Who co-founded Facebook at Harvard University in 2004 and rebranded the parent company as 'Meta Platforms' in 2021?",["Jack Dorsey","Mark Zuckerberg","Evan Spiegel","Travis Kalanick"],1,"2004年にハーバード大学の寮でFacebookを立ち上げ、2021年に社名をメタ（Meta Platforms）へ変更した創業者はマーク・ザッカーバーグです。"],
+  [15,"Which semiconductor company based in Santa Clara, California, co-founded and led by CEO Jensen Huang, became one of the world's most valuable companies by designing GPUs for Artificial Intelligence?",["Intel","Nvidia","Qualcomm","Texas Instruments"],1,"ジェンスン・フアンCEOが共同創業したエヌビディア（Nvidia）は、生成AIブームを支える半導体（GPU）で世界トップクラスの時価総額企業となりました。"],
+  [15,"Which San Francisco-based AI research and deployment company, led by CEO Sam Altman, launched ChatGPT in November 2022?",["DeepMind","OpenAI","Palantir","Salesforce"],1,"2022年11月にChatGPTを公開し、世界的な生成AIブームを巻き起こしたサンフランシスコの企業はサム・アルトマン率いる「OpenAI」です。"],
+  [15,"Which retail giant, founded by Sam Walton in Arkansas in 1962 (headquartered in Bentonville), ranks #1 on the Fortune 500 by total revenue and is the largest private employer in the U.S.?",["Costco","Target","Walmart","Home Depot"],2,"サム・ウォルトンがアーカンソー州で創業した世界最大のスーパーマーケットチェーン「ウォルマート（Walmart）」は、売上高世界1位かつ全米最大の民間雇用主です。"],
+  [15,"Which five dominant U.S. technology companies were grouped together under the famous acronym 'GAFAM'?",["Google, Apple, Facebook, Amazon, and Microsoft","General Electric, Apple, Ford, Amazon, and Meta","Google, Adobe, Fox, AT&T, and Motorola","Goldman Sachs, Apple, FedEx, Amazon, and Microsoft"],0,"GAFAM（ガーファム）は、Google（Alphabet）、Apple、Facebook（Meta）、Amazon、Microsoftの米5大テック企業を指す総称です。"],
+  [15,"What is the name of the prestigious annual list published by Fortune magazine since 1955 that ranks the 500 largest U.S. corporations by total revenue?",["S&P 500","Fortune 500","Forbes 400","Dow 500"],1,"経済誌『フォーチュン』が毎年発表する、全米企業の総売上高（総収入）上位500社ランキングは「フォーチュン500（Fortune 500）」です。"],
+  [15,"Which century-old American technology corporation, headquartered in Armonk, New York, is famously nicknamed 'Big Blue'?",["HP (Hewlett-Packard)","IBM (International Business Machines)","Cisco Systems","Dell Technologies"],1,"メインフレームや企業向けITサービス、量子コンピュータで知られる老舗ハイテク企業IBMは「ビッグ・ブルー（Big Blue）」の愛称で呼ばれます。"],
+  [15,"Which businessman joined the McDonald brothers' burger business in 1954 and built McDonald's into a global fast-food franchise empire?",["Colonel Sanders","Ray Kroc","Howard Schultz","Walt Disney"],1,"カリフォルニアのマクドナルド兄弟から事業権を買い取り、マクドナルドを世界最大のフランチャイズ帝国に育て上げた実業家はレイ・クロック（Ray Kroc）です。"],
+  [15,"Which American pharmaceutical company, founded in New York in 1849, co-developed the widely used mRNA COVID-19 vaccine with Germany's BioNTech in 2020?",["Johnson & Johnson","Pfizer","Eli Lilly","Merck"],1,"ニューヨークに本社を置く製薬大手ファイザー（Pfizer）は、2020年に独ビオンテックと共同でmRNA新型コロナワクチンを開発しました。"],
+  [15,"What is the largest federation of labor unions in the United States, formed in 1955 by the merger of two historic labor organizations?",["Teamsters","AFL-CIO","UAW","SEIU"],1,"1955年に米国労働総同盟（AFL）と産業別組合会議（CIO）が合併して誕生したアメリカ最大のナショナルセンター（労働組合連合）は「AFL-CIO」です。"],
+  [15,"What is the name of the nationwide labor movement started in 2012 by fast-food and service workers campaigning to raise the minimum wage to $15 an hour?",["Occupy Wall Street","Fight for $15","Fair Pay Act","Living Wage Now"],1,"2012年にニューヨークのファストフード店員のストライキから全米に広がった最低賃金引き上げ運動は「15ドル運動（Fight for $15）」と呼ばれます。"],
+  [15,"While many states and cities set higher hourly rates ($15+), what has the federal baseline minimum wage remained at since 2009?",["$5.15 per hour","$7.25 per hour","$10.00 per hour","$12.50 per hour"],1,"州独自の最低賃金が15ドル以上に引き上げられる州が増える一方、連邦政府が定める連邦最低賃金は2009年以来「時給7.25ドル」に据え置かれています。"],
+  [15,"What is the name of the tax-advantaged, defined-contribution retirement savings plan sponsored by employers in the United States, named after a section of the Internal Revenue Code?",["Chapter 11","401(k) Plan","501(c)(3)","Title IX"],1,"内国歳入法の条項名に由来するアメリカの代表的な企業型確定拠出年金制度は「401(k)プラン」です（日本版のiDeCoや企業型DCのモデルとなりました）。"],
+  [15,"In U.S. business law, which chapter of the United States Bankruptcy Code allows a struggling corporation to reorganize its debts and continue operating?",["Chapter 7","Chapter 11","Chapter 13","Section 230"],1,"日本の民事再生法や会社更生法にあたり、破綻企業が事業を継続しながら再建を図る連邦破産法の条項は「チャプター11（Chapter 11 / 連邦破産法第11条）」です。"],
+  [15,"Which two public healthcare programs enacted in 1965 provide health coverage respectively for Americans aged 65+ and for low-income individuals?",["Medicare (65+) and Medicaid (low-income)","Medicaid (65+) and Medicare (low-income)","Social Security and Obamacare","FEMA and COBRA"],0,"1965年に創設されたアメリカの2大公的医療保険は、65歳以上の高齢者・障害者向けの「メディケア（Medicare）」と、低所得者向けの「メディケイド（Medicaid）」です。"],
+  [15,"What is the formal legislative name of the 2010 healthcare reform law enacted under President Barack Obama to reduce the number of uninsured Americans?",["Social Security Act","Affordable Care Act (ACA / Obamacare)","Health Maintenance Act","Medicare Modernization Act"],1,"医療保険未加入者（無保険者）を減らすために2010年にオバマ政権下で成立した医療保険制度改革法（オバマケア）の正式略称は「ACA（Affordable Care Act）」です。"],
+  [15,"Which 2011 protest movement against economic inequality began in Zuccotti Park in New York's Financial District under the slogan 'We are the 99%'?",["Tea Party Movement","Occupy Wall Street","Fight for $15","March for Science"],1,"上位1%の富裕層への富の集中と経済格差に抗議し、「我々は99%だ（We are the 99%）」を合言葉に2011年に広がった運動は「ウォール街を占拠せよ（Occupy Wall Street）」です。"],
+
+  // ==================== PART 3: アメリカの政治・社会 (200問: #301–#500) ====================
+  // 17. 政治①：憲法の基本原理 (#301–#325)
+  [16,"In what year was the Constitution of the United States drafted and adopted at the Constitutional Convention in Philadelphia?",["1776","1781","1787","1791"],2,"アメリカ合衆国憲法は1787年にフィラデルフィアの憲法制定会議で採択され、1789年に発効しました。"],
+  [16,"What distinction does the U.S. Constitution hold among the national constitutions currently in force around the world?",["The longest written constitution","The oldest written national constitution","The only unwritten constitution","The most frequently rewritten constitution"],1,"アメリカ合衆国憲法は、現存する世界最古の成文憲法として知られています。"],
+  [16,"What was the first governing document of the United States (in effect from 1781 to 1789) before the current U.S. Constitution was ratified?",["Mayflower Compact","Articles of Confederation","Declaration of Rights","Albany Plan of Union"],1,"現在の合衆国憲法が制定される前は、各州の主権が強い「連合規約（Articles of Confederation）」が基本法でした。"],
+  [16,"Who is known as the 'Father of the Constitution' for his pivotal role in drafting the U.S. Constitution and the Bill of Rights?",["George Washington","Thomas Jefferson","James Madison","Benjamin Franklin"],2,"第4代大統領ジェームズ・マディソンは、合衆国憲法と権利章典の起草における中心的な貢献から「憲法の父」と呼ばれます。"],
+  [16,"Who were the three authors of 'The Federalist Papers,' a collection of 85 essays written under the pen name 'Publius' to support ratification of the Constitution?",["Washington, Jefferson, and Adams","Hamilton, Madison, and Jay","Franklin, Paine, and Henry","Marshall, Monroe, and Hancock"],1,"憲法批准を訴えた『ザ・フェデラリスト』は、アレクサンダー・ハミルトン、ジェームズ・マディソン、ジョン・ジェイの3人によって執筆されました。"],
+  [16,"With which famous three words does the Preamble to the United States Constitution begin?",["In God We","We the People","Four Score and","When in the"],1,"合衆国憲法の前文（Preamble）は国民主権を象徴する「We the People（われら合衆国の人民は）」という3語で始まります。"],
+  [16,"Which compromise at the 1787 Constitutional Convention created a bicameral Congress with equal state representation in the Senate and proportional representation in the House?",["Missouri Compromise","Connecticut Compromise (Great Compromise)","Three-Fifths Compromise","Compromise of 1850"],1,"ロジャー・シャーマンらが提案した「コネチカット妥協（大妥協）」により、上院は各州平等、下院は人口比例とする二院制議会が成立しました。"],
+  [16,"What constitutional principle divides government authority among the Legislative, Executive, and Judicial branches?",["Popular Sovereignty","Separation of Powers","Judicial Activism","Unitary Government"],1,"立法・行政・司法の三権を分立させる原則は「権力分立（Separation of Powers）」と呼ばれます。"],
+  [16,"What constitutional system allows each of the three branches of government to limit and restrain the powers of the other branches?",["Spoils System","Checks and Balances","Winner-Take-All","Direct Democracy"],1,"三権が相互に暴走を防ぎ均衡を保つ仕組みは「抑制と均衡（Checks and Balances）」と呼ばれます。"],
+  [16,"What system of government divides sovereign power between a central national government and individual state governments?",["Parliamentary System","Federalism","Confederation","Monarchy"],1,"連邦政府と州政府がそれぞれ独自の権限を分有する統治形態は「連邦制（Federalism）」と呼ばれます。"],
+  [16,"Which branch of the U.S. government is established by Article I of the Constitution?",["The Executive Branch (President)","The Legislative Branch (Congress)","The Judicial Branch (Supreme Court)","The State Governments"],1,"合衆国憲法第1条（Article I）は立法府（連邦議会：Congress）について規定しています。"],
+  [16,"Which branch of the U.S. government is established by Article II of the Constitution?",["The Legislative Branch (Congress)","The Executive Branch (President)","The Judicial Branch (Supreme Court)","The Electoral Commission"],1,"合衆国憲法第2条（Article II）は行政府（大統領：President）について規定しています。"],
+  [16,"Which branch of the U.S. government is established by Article III of the Constitution?",["The Legislative Branch (Congress)","The Executive Branch (President)","The Judicial Branch (Supreme Court)","The Cabinet"],2,"合衆国憲法第3条（Article III）は司法府（連邦最高裁判所および下級連邦裁判所）について規定しています。"],
+  [16,"When a state law conflicts with a valid federal law or the U.S. Constitution, which law takes priority under the Supremacy Clause (Article VI)?",["State Law","Federal Law","Local Municipal Law","Whichever law was passed first"],1,"合衆国憲法第6条の最高法規条項（Supremacy Clause）により、州法が連邦法に反する場合は連邦法（Federal Law）が優先されます。"],
+  [16,"What fraction of vote in both houses of Congress is required to propose a constitutional amendment?",["Simple majority (over 1/2)","Three-fifths (3/5)","Two-thirds (2/3)","Three-fourths (3/4)"],2,"憲法改正の発議には、連邦議会の上下両院それぞれで「3分の2（2/3）」以上の賛成が必要です。"],
+  [16,"What fraction of the 50 state legislatures must ratify a proposed amendment for it to become part of the U.S. Constitution?",["Simple majority (26 states)","Two-thirds (34 states)","Three-fourths (38 states)","Unanimous (50 states)"],2,"発議された憲法修正条項が成立するためには、全州の「4分の3（3/4＝50州のうち38州）」の批准が必要です。"],
+  [16,"How many amendments have been ratified and added to the U.S. Constitution to date?",["10","19","27","50"],2,"合衆国憲法にはこれまでに計27の修正条項（Amendments）が追加されています。"],
+  [16,"What are the first ten amendments to the U.S. Constitution, ratified on December 15, 1791, collectively called?",["Articles of Confederation","Bill of Rights","Federalist Papers","Magna Carta"],1,"1791年に批准された合衆国憲法の最初の10の修正条項は「権利章典（Bill of Rights）」と呼ばれます。"],
+  [16,"In what year did the new federal government under the U.S. Constitution begin operating with George Washington's inauguration?",["1776","1783","1789","1800"],2,"1789年に合衆国憲法に基づく連邦政府が発足し、ジョージ・ワシントンが初代大統領に就任しました。"],
+  [16,"Which clause in Article I, Section 8 grants Congress the implied power to pass laws 'necessary and proper' to carry out its enumerated powers?",["Commerce Clause","Elastic Clause (Necessary and Proper Clause)","Establishment Clause","Due Process Clause"],1,"連邦議会に明示された権限を遂行するために「必要かつ適切」な法律を制定できる条項は、必要適切条項（弾力条項：Elastic Clause）と呼ばれます。"],
+  [16,"Which clause of the Constitution forbids the government from establishing a national religion?",["Free Exercise Clause","Establishment Clause","Supremacy Clause","Full Faith and Credit Clause"],1,"修正第1条で国教の樹立を禁止し政教分離を定めている条項は「国教樹立禁止条項（Establishment Clause）」です。"],
+  [16,"Under the U.S. Constitution, how often must an official national Census (population count) be conducted to apportion seats in the House of Representatives?",["Every 4 years","Every 5 years","Every 10 years","Every 20 years"],2,"下院議席や選挙人の各州への配分（Apportionment）を決めるため、合衆国憲法は10年ごとの国勢調査（Census）を義務づけています。"],
+  [16,"Which chamber of Congress has the sole constitutional power to impeach (bring formal charges against) a President or federal official?",["The Senate","The House of Representatives","The Supreme Court","The Department of Justice"],1,"大統領や連邦高官に対する弾劾の「訴追（Impeachment）」を行う専権は下院（House of Representatives）にあります。"],
+  [16,"Which chamber of Congress conducts the impeachment trial and can remove an impeached official by a two-thirds vote?",["The House of Representatives","The Senate","The Supreme Court","The Cabinet"],1,"下院に弾劾訴追された人物の「弾劾裁判」を行い、3分の2以上の賛成で罷免する権限を持つのは上院（Senate）です。"],
+  [16,"Who presides over the Senate when the President of the United States is tried for impeachment?",["The Vice President","The Speaker of the House","The Chief Justice of the United States","The Attorney General"],2,"合衆国大統領の弾劾裁判を上院で行う際は、副大統領ではなく連邦最高裁判所長官（Chief Justice）が裁判長を務めます。"],
+
+  // 18. 政治②：憲法修正条項 (#326–#350)
+  [17,"Which constitutional amendment protects the freedoms of religion, speech, the press, peaceable assembly, and petition?",["1st Amendment","2nd Amendment","4th Amendment","5th Amendment"],0,"合衆国憲法修正第1条は、信教・言論・報道（出版）・集会・請願の5つの自由を保障しています。"],
+  [17,"Which constitutional amendment guarantees the right of the people to keep and bear arms?",["1st Amendment","2nd Amendment","4th Amendment","8th Amendment"],1,"合衆国憲法修正第2条は、規律ある民兵の必要性と「人民が武器を保有し携帯する権利」を規定しています。"],
+  [17,"Which constitutional amendment prohibits the quartering of soldiers in private homes without the owner's consent in peacetime?",["2nd Amendment","3rd Amendment","4th Amendment","7th Amendment"],1,"修正第3条は、平時において住宅所有者の同意なしに兵士を民家に宿営させることを禁止しています。"],
+  [17,"Which constitutional amendment protects citizens against 'unreasonable searches and seizures' and requires probable cause for warrants?",["3rd Amendment","4th Amendment","5th Amendment","6th Amendment"],1,"修正第4条は、不合理な捜索および押収（逮捕）を禁止し、令状主義を定めています。"],
+  [17,"Which constitutional amendment protects against double jeopardy and self-incrimination (giving rise to the phrase 'I plead the Fifth')?",["4th Amendment","5th Amendment","6th Amendment","8th Amendment"],1,"修正第5条は、同一犯罪での二重処罰の禁止、自己負罪拒否特権（黙秘権）、適正手続（デュー・プロセス）を保障しています。"],
+  [17,"Which constitutional amendment guarantees a criminal defendant the right to a 'speedy and public trial,' an impartial jury, and assistance of counsel (a lawyer)?",["4th Amendment","5th Amendment","6th Amendment","7th Amendment"],2,"修正第6条は、刑事裁判において迅速で公開された裁判を受ける権利や弁護人依頼権を保障しています。"],
+  [17,"Which constitutional amendment preserves the right to a jury trial in federal civil lawsuits exceeding twenty dollars?",["5th Amendment","6th Amendment","7th Amendment","9th Amendment"],2,"修正第7条は、一定額を超えるコモン・ロー上の民事訴訟において陪審裁判を受ける権利を保障しています。"],
+  [17,"Which constitutional amendment prohibits excessive bail, excessive fines, and 'cruel and unusual punishments'?",["5th Amendment","6th Amendment","8th Amendment","10th Amendment"],2,"修正第8条は、過度な保釈金や罰金、および「残虐で異常な刑罰（Cruel and Unusual Punishments）」を禁止しています。"],
+  [17,"Which constitutional amendment states that powers not delegated to the federal government by the Constitution are reserved to the States or to the people?",["8th Amendment","9th Amendment","10th Amendment","11th Amendment"],2,"修正第10条は、憲法が連邦政府に委任していない権限を「各州または人民に留保する（留保権限）」と定めています。"],
+  [17,"Which three amendments (the 13th, 14th, and 15th), ratified between 1865 and 1870 after the Civil War, are collectively called the 'Reconstruction Amendments'?",["1st, 2nd, and 3rd Amendments","13th, 14th, and 15th Amendments","16th, 17th, and 18th Amendments","19th, 20th, and 21st Amendments"],1,"南北戦争後の再建期に批准された修正第13条（奴隷制廃止）・第14条（市民権と平等保護）・第15条（黒人男性の投票権）は「再建修正条項」と呼ばれます。"],
+  [17,"Which constitutional amendment, ratified in 1865, abolished slavery and involuntary servitude throughout the United States?",["12th Amendment","13th Amendment","14th Amendment","15th Amendment"],1,"1865年に批准された合衆国憲法修正第13条によって、全米で奴隷制度が廃止されました。"],
+  [17,"Which constitutional amendment, ratified in 1868, defines birthright citizenship and contains the 'Due Process' and 'Equal Protection' clauses?",["13th Amendment","14th Amendment","15th Amendment","16th Amendment"],1,"1868年批准の修正第14条は、出生地主義による市民権と、州による適正手続および「法の下の平等（Equal Protection）」を規定しています。"],
+  [17,"Which constitutional amendment, ratified in 1870, prohibits denying a citizen the right to vote based on 'race, color, or previous condition of servitude'?",["13th Amendment","14th Amendment","15th Amendment","19th Amendment"],2,"1870年批准の修正第15条は、人種や肌の色、過去の奴隷身分を理由とする投票権の制限を禁止しました。"],
+  [17,"Which constitutional amendment, ratified in 1913 during the Progressive Era, established the direct election of U.S. Senators by popular vote?",["15th Amendment","16th Amendment","17th Amendment","18th Amendment"],2,"1913年批准の修正第17条により、それまで州議会が選んでいた連邦上院議員を州民の直接選挙で選ぶ制度に改められました（修正第16条は連邦所得税）。"],
+  [17,"Which constitutional amendment instituted nationwide Prohibition of alcohol in 1919, and which amendment repealed it in 1933?",["16th and 20th Amendments","18th and 21st Amendments","17th and 22nd Amendments","19th and 24th Amendments"],1,"1919年の修正第18条で禁酒法が制定され、1933年の修正第21条によって廃止されました（憲法修正条項で唯一廃止された条項です）。"],
+  [17,"Which constitutional amendment, ratified in August 1920, guaranteed women the right to vote across the United States?",["15th Amendment","18th Amendment","19th Amendment","22nd Amendment"],2,"1920年に批准された合衆国憲法修正第19条により、性別による投票権の否定が禁止され、女性参政権が確立されました。"],
+  [17,"Which constitutional amendment, ratified in 1933 ('Lame Duck Amendment'), moved the presidential Inauguration Day from March 4 to January 20?",["19th Amendment","20th Amendment","22nd Amendment","25th Amendment"],1,"1933年批准の修正第20条（レームダック修正）により、大統領就任式の日程が3月4日から現在の1月20日に短縮・変更されました。"],
+  [17,"Which constitutional amendment, ratified in 1951 after Franklin D. Roosevelt's four terms, limits a President to being elected twice (two terms)?",["20th Amendment","21st Amendment","22nd Amendment","25th Amendment"],2,"フランクリン・D・ルーズベルトの4選を受け、1951年批准の修正第22条によって大統領の任期は最高2期までに制限されました。"],
+  [17,"Which constitutional amendment, ratified in 1961, granted residents of Washington, D.C. the right to vote in presidential elections (3 electoral votes)?",["22nd Amendment","23rd Amendment","24th Amendment","26th Amendment"],1,"1961年批准の修正第23条により、州ではない首都ワシントンD.C.に大統領選挙の選挙人3名が割り当てられました。"],
+  [17,"Which constitutional amendment, ratified in 1964 during the Civil Rights Movement, abolished the 'poll tax' (人頭税) in federal elections?",["22nd Amendment","23rd Amendment","24th Amendment","25th Amendment"],2,"1964年批准の修正第24条により、南部などで黒人や貧困層の投票を妨げていた人頭税（Poll Tax）の賦課が連邦選挙で禁止されました。"],
+  [17,"Which constitutional amendment, ratified in 1967 after JFK's assassination, clarifies presidential succession, filling a Vice Presidential vacancy, and presidential disability?",["22nd Amendment","24th Amendment","25th Amendment","27th Amendment"],2,"1967年批准の修正第25条は、大統領の欠員・職務不能時の継承手続や、副大統領が空席となった際の指名・議会承認手続を定めています。"],
+  [17,"Which constitutional amendment, ratified in 1971 during the Vietnam War ('Old enough to fight, old enough to vote'), lowered the national voting age from 21 to 18?",["23rd Amendment","24th Amendment","25th Amendment","26th Amendment"],3,"ベトナム戦争中の徴兵年齢との不均衡への批判から、1971年批准の修正第26条で選挙権年齢が21歳から18歳に引き下げられました。"],
+  [17,"Which constitutional amendment, originally proposed in 1789 by James Madison and finally ratified in 1992, is the most recent (27th) amendment, regulating congressional pay raises?",["25th Amendment","26th Amendment","27th Amendment","28th Amendment"],2,"1789年に提案され202年後の1992年に批准された修正第27条（議員報酬の変更は次の下院選挙後まで発効しない）が、直近の修正条項です。"],
+  [17,"Which constitutional amendment, ratified in 1804 after the tied election of 1800, required electors to cast separate ballots for President and Vice President?",["10th Amendment","11th Amendment","12th Amendment","13th Amendment"],2,"1800年大統領選でジェファソンとアーロン・バーが同票となった混乱を受け、1804年の修正第12条で大統領と副大統領を別々に投票する方式に改められました。"],
+  [17,"What was the name of the proposed constitutional amendment guaranteeing equal rights regardless of sex that passed Congress in 1972 but fell short of state ratification by its deadline?",["Title IX","Equal Rights Amendment (ERA)","Voting Rights Amendment","Balanced Budget Amendment"],1,"性別による権利平等を明記する「男女平等憲法修正条項（ERA）」は1972年に連邦議会を通過しましたが、期限内に38州（4分の3）の批准に達しませんでした。"],
+
+  // 19. 政治③：大統領職と行政府 (#351–#375)
+  [18,"What are the three constitutional qualifications required to become President of the United States under Article II?",["At least 30 years old, naturalized citizen, 10 years residency","At least 35 years old, natural-born U.S. citizen, 14 years U.S. residency","At least 40 years old, natural-born citizen, 20 years residency","At least 25 years old, U.S. citizen, 7 years residency"],1,"合衆国大統領の被選挙権要件は「35歳以上」「出生による合衆国市民（アメリカ生まれ）」「14年以上の米国居住」の3つです。"],
+  [18,"How many years is one presidential term in the United States?",["2 years","4 years","5 years","6 years"],1,"アメリカ合衆国大統領の任期は1期あたり4年間です。"],
+  [18,"On what date in January following a presidential election is the President inaugurated at the U.S. Capitol?",["January 1","January 15","January 20","February 4"],2,"大統領就任式（Inauguration Day）は、選挙翌年の1月20日正午に行われます。"],
+  [18,"What is the street address of the White House, the official residence and workplace of the U.S. President in Washington, D.C.?",["10 Downing Street","1600 Pennsylvania Avenue NW","11 Wall Street","350 Fifth Avenue"],1,"ホワイトハウスの所在地はワシントンD.C.の「ペンシルベニア通り1600番地（1600 Pennsylvania Avenue NW）」です。"],
+  [18,"What is the name of the President's formal oval-shaped office located in the West Wing of the White House?",["The Situation Room","The Oval Office","The Cabinet Room","The Blue Room"],1,"ホワイトハウス西棟（ウエストウイング）にある大統領執務室は、その形状から「オーバル・オフィス（Oval Office）」と呼ばれます。"],
+  [18,"What is the name of the President's country retreat located in the wooded hills of Frederick County, Maryland?",["Mount Vernon","Camp David","Mar-a-Lago","Monticello"],1,"メリーランド州の山中にあるアメリカ大統領専用の別荘（保養施設）は「キャンプ・デービッド（Camp David）」です。"],
+  [18,"What is the official air traffic control call sign of any United States Air Force aircraft carrying the President of the United States?",["Marine One","Air Force One","Executive One","Eagle One"],1,"合衆国大統領が搭乗する空軍機のコールサインは「エアフォース・ワン（Air Force One）」（海兵隊ヘリはマリーン・ワン）です。"],
+  [18,"What annual speech does the President deliver to a joint session of Congress (usually in January or February) to report on the nation's condition and legislative agenda?",["Inaugural Address","State of the Union Address","Farewell Address","Fireside Chat"],1,"大統領が連邦議会の上下両院合同会議で施政方針や国の状況を報告する年次演説は「一般教書演説（State of the Union Address）」です。"],
+  [18,"Under Article II of the Constitution, what supreme military title and authority does the President hold over the U.S. Armed Forces?",["Chairman of the Joint Chiefs","Commander-in-Chief","Secretary of Defense","Five-Star General"],1,"合衆国憲法第2条により、文民である大統領が陸海空軍等の最高司令官（Commander-in-Chief）を務めます（シビリアン・コントロール）。"],
+  [18,"When the President vetoes a bill passed by Congress, what vote is required in both the House and the Senate to override the presidential veto?",["Simple majority (over 1/2)","Three-fifths (3/5)","Two-thirds (2/3)","Three-fourths (3/4)"],2,"大統領が法案に拒否権（Veto）を行使した場合でも、上下両院それぞれで出席議員の「3分の2（2/3）」以上が再可決すれば拒否権を覆して法律が成立します。"],
+  [18,"What is the name of the directive issued directly by the President to manage operations of the federal government without requiring Congressional passage?",["Constitutional Amendment","Executive Order (大統領令)","Writ of Certiorari","Filibuster"],1,"大統領が行政府に対して直接発出する命令は「大統領令（Executive Order）」と呼ばれます。"],
+  [18,"Under the Presidential Succession Act of 1947, who are the first three officials in the line of succession if the President dies, resigns, or is removed?",["1. Vice President, 2. Secretary of State, 3. Attorney General","1. Vice President, 2. Speaker of the House, 3. President pro tempore of the Senate","1. Vice President, 2. Chief Justice, 3. Speaker of the House","1. Speaker of the House, 2. Vice President, 3. Secretary of Defense"],1,"大統領継承順位は、1位：副大統領、2位：下院議長（Speaker of the House）、3位：上院仮議長、4位：国務長官（以下、閣僚の省創設順）です。"],
+  [18,"What is the primary constitutional duty of the Vice President of the United States within the Legislative Branch?",["Speaker of the House","President of the Senate (casting tie-breaking votes)","Chairman of the Judiciary Committee","Majority Leader"],1,"副大統領は憲法上「上院議長（President of the Senate）」を兼任し、上院の採決が50対50の可否同数となった場合にのみ決定票（Tie-breaking vote）を投じます。"],
+  [18,"Which chamber of Congress has the constitutional power of 'Advice and Consent' to confirm the President's Cabinet nominees, ambassadors, and federal judges?",["The House of Representatives","The Senate","Both chambers jointly","Neither chamber"],1,"大統領が指名する閣僚（長官）、大使、連邦判事の人事を「助言と承認（Advice and Consent）」によって承認する権限は上院（Senate）にあります。"],
+  [18,"How many executive departments (such as State, Treasury, Defense, and Justice) currently make up the President's Cabinet?",["8","12","15","25"],2,"現在、アメリカ連邦政府の大統領内閣を構成する中央省庁（Executive Departments）は15省あります。"],
+  [18,"Which Cabinet official is the oldest Cabinet post (established in 1789), heads U.S. foreign affairs and diplomacy, and is 4th in the presidential line of succession?",["Secretary of Defense","Secretary of State (国務長官)","Attorney General","National Security Advisor"],1,"他国の外務大臣に相当する「国務長官（Secretary of State）」は1789年に最初に設置された筆頭閣僚（初代はジェファソン）で、継承順位第4位です。"],
+  [18,"What is the title of the head of the U.S. Department of Justice, who serves as the chief law enforcement officer of the federal government?",["Secretary of Justice","Attorney General (司法長官)","Solicitor General","Chief Justice"],1,"司法省（Department of Justice）のトップだけは「Secretary」ではなく「Attorney General（司法長官）」と呼ばれます。"],
+  [18,"What is the five-sided headquarters building of the United States Department of Defense, located in Arlington, Virginia across the Potomac River?",["The Capitol","The Pentagon","Fort Knox","Langley"],1,"バージニア州アーリントンにある国防総省（Department of Defense）の本庁舎は、五角形の巨大な建物であることから「ペンタゴン（The Pentagon）」と呼ばれます。"],
+  [18,"Which was the most recently created federal Cabinet department, established in 2002 in response to the September 11 terrorist attacks?",["Department of Veterans Affairs","Department of Homeland Security (国土安全保障省)","Department of Energy","Department of Education"],1,"2001年の9.11同時多発テロを受け、2002年にジョージ・W・ブッシュ政権下で15番目の省として「国土安全保障省（DHS）」が創設されました。"],
+  [18,"Who became the first female Vice President, as well as the first African American and South Asian American Vice President, in U.S. history in January 2021?",["Hillary Clinton","Nancy Pelosi","Kamala Harris","Condoleezza Rice"],2,"カマラ・ハリス（Kamala Harris）は2021年1月に就任し、アメリカ史上初の女性・アフリカ系・南アジア系の副大統領となりました。"],
+  [18,"Who was appointed by President Franklin D. Roosevelt in 1933 as Secretary of Labor, becoming the very first woman to serve in a U.S. presidential Cabinet?",["Eleanor Roosevelt","Frances Perkins","Madeleine Albright","Janet Yellen"],1,"フランシス・パーキンスは1933年にフランクリン・D・ルーズベルト政権の労働長官に任命され、米国史上初の女性閣僚となりました。"],
+  [18,"Who was appointed by President Bill Clinton in 1997 as the first female United States Secretary of State?",["Madeleine Albright","Condoleezza Rice","Hillary Clinton","Susan Rice"],0,"マドレーン・オルブライトは1997年にクリントン政権下でアメリカ史上初の女性国務長官に就任しました（コンドリーザ・ライスは黒人女性初の国務長官）。"],
+  [18,"Which federal intelligence agency, headquartered in Langley, Virginia and established in 1947, gathers foreign intelligence for national security?",["FBI (Federal Bureau of Investigation)","CIA (Central Intelligence Agency)","ATF","TSA"],1,"1947年の国家安全保障法で設立され、バージニア州ラングレーに本部を置く対外情報機関は「中央情報局（CIA）」（国内捜査は司法省傘下のFBI）です。"],
+  [18,"Which federal law enforcement agency is responsible for protecting the President, Vice President, their families, and visiting foreign heads of state?",["U.S. Marshals Service","United States Secret Service","National Guard","Border Patrol"],1,"大統領や副大統領、外国元首の身辺警護（および通貨偽造の捜査）を担う連邦法執行機関は「シークレット・サービス（United States Secret Service）」です。"],
+  [18,"What is the informal title given to the hostess of the White House, traditionally the wife of the President of the United States?",["Premier Lady","First Lady","Chancellor","State Matron"],1,"アメリカ大統領の配偶者（伝統的に夫人）でホワイトハウスのホステス役を務める人物は「ファーストレディ（First Lady）」と呼ばれます。"],
+
+  // 20. 政治④：歴代大統領の業績 (#376–#400)
+  [19,"Who served as the 1st President of the United States (1789–1797), was the only President unanimously elected by the Electoral College, and stepped down after two terms?",["John Adams","George Washington","Thomas Jefferson","James Madison"],1,"初代大統領ジョージ・ワシントンは特定の政党に属さず全会一致で選出され、2期8年で自ら退任して平和的な政権移譲の先例を作りました。"],
+  [19,"Which 2nd U.S. President became the first President to reside in the newly built White House in Washington, D.C. in November 1800?",["George Washington","John Adams","Thomas Jefferson","James Monroe"],1,"初代ワシントンはフィラデルフィアなどで執務したため、1800年に完成したワシントンD.C.のホワイトハウスに最初に入居したのは第2代ジョン・アダムズ大統領です。"],
+  [19,"Which 3rd U.S. President drafted the Declaration of Independence, founded the University of Virginia, and completed the Louisiana Purchase in 1803?",["John Adams","Thomas Jefferson","James Madison","John Quincy Adams"],1,"第3代トーマス・ジェファソン大統領は独立宣言の起草者であり、1803年にフランスからルイジアナ買収を行って国土を倍増させました。"],
+  [19,"Which two sets of fathers and sons have both served as President of the United States?",["John Adams & John Quincy Adams / George H. W. Bush & George W. Bush","Theodore Roosevelt & Franklin D. Roosevelt / Benjamin Harrison & William Henry Harrison","James Madison & James Monroe / Andrew Jackson & Andrew Johnson","Thomas Jefferson & John Adams / Bill Clinton & Hillary Clinton"],0,"親子でアメリカ大統領を務めたのは、第2代ジョン・アダムズと第6代ジョン・クインシー・アダムズ、および第41代ジョージ・H・W・ブッシュと第43代ジョージ・W・ブッシュの2組です。"],
+  [19,"Which 7th U.S. President, nicknamed 'Old Hickory,' championed the common man ('Jacksonian Democracy') and is depicted on the $20 bill?",["James Monroe","Andrew Jackson","Martin Van Buren","James K. Polk"],1,"第7代アンドリュー・ジャクソン大統領は「オールド・ヒッコリー」の愛称で親しまれ、大衆民主主義（ジャクソニアン・デモクラシー）を推進し、20ドル紙幣に描かれています。"],
+  [19,"Which 16th U.S. President led the Union through the Civil War, issued the Emancipation Proclamation (1863), and delivered the Gettysburg Address?",["Ulysses S. Grant","Abraham Lincoln","Andrew Johnson","James Buchanan"],1,"共和党初の第16代エイブラハム・リンカーン大統領は南北戦争で北軍を率い、1863年に奴隷解放宣言とゲティスバーグ演説を行いました。"],
+  [19,"Where was President Abraham Lincoln assassinated by actor John Wilkes Booth on April 14, 1865, just days after the Civil War ended?",["Independence Hall in Philadelphia","Ford's Theatre in Washington, D.C.","Dealey Plaza in Dallas","Federal Hall in New York"],1,"リンカーン大統領はリー将軍の降伏から5日後の1865年4月14日、ワシントンD.C.のフォード劇場（Ford's Theatre）で観劇中に暗殺されました。"],
+  [19,"Which four U.S. Presidents in history were assassinated while in office?",["Lincoln, Garfield, McKinley, and Kennedy","Lincoln, Jackson, Roosevelt, and Kennedy","Washington, Lincoln, Harding, and Nixon","Lincoln, Harrison, Taylor, and Kennedy"],0,"在任中に暗殺されたアメリカ大統領は、エイブラハム・リンカーン（1865）、ジェームズ・ガーフィールド（1881）、ウィリアム・マッキンリー（1901）、ジョン・F・ケネディ（1963）の4人です。"],
+  [19,"Who became the youngest person in U.S. history to assume the presidency (at age 42 in 1901 after McKinley's assassination) and promoted the 'Square Deal'?",["John F. Kennedy","Theodore Roosevelt","Bill Clinton","Barack Obama"],1,"第26代セオドア・ルーズベルトはマッキンリー大統領暗殺に伴い42歳で昇格し、米国史上最年少で大統領に就任しました（選挙で選ばれた最年少は43歳のケネディ）。"],
+  [19,"Which U.S. President won the 1906 Nobel Peace Prize—the first American ever to win a Nobel Prize—for mediating the Treaty of Portsmouth to end the Russo-Japanese War?",["William Howard Taft","Theodore Roosevelt","Woodrow Wilson","Jimmy Carter"],1,"セオドア・ルーズベルト大統領は1905年の日露戦争講和（ポーツマス条約）を仲介した功績で、1906年にアメリカ人初のノーベル賞（平和賞）を受賞しました。"],
+  [19,"Which 28th U.S. President led the nation during World War I, issued the 'Fourteen Points,' and won the 1919 Nobel Peace Prize for founding the League of Nations?",["Theodore Roosevelt","Woodrow Wilson","Warren G. Harding","Calvin Coolidge"],1,"第28代ウッドロウ・ウィルソン大統領は第一次世界大戦後に国際連盟の創設を提唱し、1919年にノーベル平和賞を受賞しました。"],
+  [19,"Which 32nd U.S. President was the only President elected to four terms (1933–1945), launched the 'New Deal,' and articulated the 'Four Freedoms'?",["Herbert Hoover","Franklin D. Roosevelt","Harry S. Truman","Dwight D. Eisenhower"],1,"第32代フランクリン・D・ルーズベルト（FDR）は史上唯一4選を果たし、ニューディール政策と「四つの自由（Four Freedoms）」を提唱して大恐慌と第二次世界大戦を指導しました。"],
+  [19,"Which 33rd U.S. President took office upon FDR's death in April 1945, authorized the use of atomic weapons, and launched the 'Truman Doctrine' and Marshall Plan?",["Harry S. Truman","Dwight D. Eisenhower","Adlai Stevenson","George Marshall"],0,"第33代ハリー・S・トルーマン大統領は1945年4月に昇格して第二次世界大戦を終結させ、冷戦初期のトルーマン・ドクトリン（封じ込め政策）を推進しました。"],
+  [19,"Which 34th U.S. President, formerly the Supreme Allied Commander in Europe on D-Day, authorized the Interstate Highway System and NASA?",["Harry S. Truman","Dwight D. Eisenhower","John F. Kennedy","Lyndon B. Johnson"],1,"ノルマンディー上陸作戦の連合国軍最高司令官だった第34代ドワイト・D・アイゼンハワー大統領は、1950年代に州間高速道路網（Interstate Highway System）を整備しました。"],
+  [19,"Which 35th U.S. President was the first Roman Catholic President, the youngest *elected* President (at age 43), and was assassinated in Dallas, Texas on November 22, 1963?",["Dwight D. Eisenhower","John F. Kennedy","Lyndon B. Johnson","Richard Nixon"],1,"第35代ジョン・F・ケネディ大統領は選挙で選ばれた最年少（43歳）かつ初のカトリック教徒の大統領で、1963年11月にテキサス州ダラスで暗殺されました。"],
+  [19,"Which 36th U.S. President championed the 'Great Society' domestic programs and signed the Civil Rights Act of 1964, Voting Rights Act of 1965, and Medicare?",["John F. Kennedy","Lyndon B. Johnson","Richard Nixon","Hubert Humphrey"],1,"ケネディ暗殺後に昇格した第36代リンドン・ジョンソン大統領は「偉大な社会（Great Society）」を掲げ、1964年公民権法やメディケア・メディケイドを実現しました。"],
+  [19,"Which 37th U.S. President resigned on August 9, 1974 as a result of the Watergate scandal—making him the only U.S. President in history to resign from office?",["Lyndon B. Johnson","Richard Nixon","Gerald Ford","Jimmy Carter"],1,"第37代リチャード・ニクソン大統領は、ウォーターゲート事件による弾劾訴追の直前に辞任した米国史上唯一の大統領です。"],
+  [19,"Which 38th U.S. President succeeded Richard Nixon under the 25th Amendment, becoming the only person to serve as President without being elected to either the presidency or vice presidency?",["Spiro Agnew","Gerald Ford","Nelson Rockefeller","Jimmy Carter"],1,"第38代ジェラルド・フォード大統領は修正第25条に基づき副大統領に指名された後に大統領へ昇格したため、正副大統領選挙を経ずに就任した唯一の大統領です。"],
+  [19,"Which 40th U.S. President, a former Hollywood actor and Governor of California, promoted 'Reaganomics' and helped bring an end to the Cold War?",["Jimmy Carter","Ronald Reagan","George H. W. Bush","Bill Clinton"],1,"映画俳優・カリフォルニア州知事出身の第40代ロナルド・レーガン大統領は、1981年からレーガノミクスと強いアメリカを推進しました。"],
+  [19,"Which 44th U.S. President (2009–2017) was the first African American President, signed the Affordable Care Act, and was awarded the 2009 Nobel Peace Prize?",["Bill Clinton","Barack Obama","Joe Biden","Colin Powell"],1,"第44代バラク・オバマ大統領はアメリカ初のアフリカ系大統領であり、2009年にノーベル平和賞を受賞し、2010年にオバマケア（ACA）を成立させました。"],
+  [19,"Which four U.S. Presidents have been awarded the Nobel Peace Prize (either while in office or after leaving office)?",["Theodore Roosevelt, Woodrow Wilson, Jimmy Carter, and Barack Obama","Abraham Lincoln, FDR, JFK, and Barack Obama","Woodrow Wilson, Dwight Eisenhower, Ronald Reagan, and Bill Clinton","Thomas Jefferson, Theodore Roosevelt, Harry Truman, and Jimmy Carter"],0,"ノーベル平和賞を受賞したアメリカ大統領は、セオドア・ルーズベルト（1906）、ウッドロウ・ウィルソン（1919）、ジミー・カーター（2002）、バラク・オバマ（2009）の4名です。"],
+  [19,"Which two U.S. Presidents are the only ones in history to serve two non-consecutive terms (elected as the 22nd & 24th President, and the 45th & 47th President)?",["John Adams and John Quincy Adams","Grover Cleveland (22nd & 24th) and Donald Trump (45th & 47th)","Theodore Roosevelt and Franklin D. Roosevelt","Andrew Jackson and Richard Nixon"],1,"連続しない2期の任期を務めた大統領は、第22代・第24代のグローバー・クリーブランドと、第45代・第47代のドナルド・トランプ（2025年1月再就任）の2人のみです。"],
+  [19,"Which three U.S. Presidents in history have been impeached by the House of Representatives (though all three were acquitted by the Senate)?",["Andrew Johnson, Bill Clinton, and Donald Trump (twice)","Abraham Lincoln, Richard Nixon, and Bill Clinton","Andrew Jackson, Richard Nixon, and Donald Trump","Andrew Johnson, Richard Nixon, and Ronald Reagan"],0,"下院によって弾劾訴追（Impeachment）された大統領は、アンドリュー・ジョンソン（1868）、ビル・クリントン（1998）、ドナルド・トランプ（2019・2021の2回）の3名です（全員上院で無罪、ニクソンは下院本会議採決前に辞任）。"],
+  [19,"Which four U.S. Presidents are sculpted onto Mount Rushmore National Memorial in South Dakota?",["Washington, Adams, Jefferson, and Lincoln","Washington, Jefferson, Theodore Roosevelt, and Lincoln","Washington, Jackson, Lincoln, and Franklin D. Roosevelt","Washington, Jefferson, Madison, and Wilson"],1,"サウスダコタ州のマウント・ラシュモアに彫られている4人の大統領は、ジョージ・ワシントン、トーマス・ジェファソン、セオドア・ルーズベルト、エイブラハム・リンカーンです。"],
+  [19,"What is the highest civilian award of the United States, established by President John F. Kennedy in 1963 and bestowed by the President?",["Medal of Honor","Presidential Medal of Freedom (大統領自由勲章)","Purple Heart","Pulitzer Prize"],1,"大統領から文民に授与されるアメリカ最高の勲章は「大統領自由勲章（Presidential Medal of Freedom）」（軍人の最高勲章は名誉勲章：Medal of Honor）です。"],
+
+  // 21. 政治⑤：大統領選挙と政党 (#401–#425)
+  [20,"When is the U.S. general presidential election held every four years?",["First Tuesday in November","Tuesday after the first Monday in November","Second Thursday in November","Last Monday in October"],1,"アメリカの大統領選挙（および中間選挙）の一般投票日は、1845年の連邦法により「11月の第1月曜日の翌日の火曜日（11月2日〜8日の間）」と定められています。"],
+  [20,"What is the constitutional body of electors that formally elects the President and Vice President of the United States?",["The Federal Election Commission","The Electoral College (選挙人団)","The National Convention","The Congressional Caucus"],1,"アメリカ大統領選挙は国民の直接投票ではなく、各州に割り当てられた選挙人による間接選挙「選挙人団（Electoral College）」方式で行われます。"],
+  [20,"How many total electoral votes are in the Electoral College, and what is the minimum majority needed to win the presidency?",["435 total / 218 to win","500 total / 251 to win","538 total / 270 to win","535 total / 268 to win"],2,"選挙人の総数は538人（下院435＋上院100＋ワシントンD.C.3）で、当選には過半数の270票以上の獲得が必要です。"],
+  [20,"How is the number of Electoral College votes allocated to each of the 50 states determined?",["Every state gets 10 electoral votes","Equal to the state's total representation in Congress (2 Senators + its number of House Representatives)","Based solely on the state's land area","Based on the state's tax contribution"],1,"各州の選挙人数は、その州の連邦議会議員の総数（上院議員2名＋人口比例で配分される下院議員数、最低3名）と同数になります。"],
+  [20,"Which two U.S. states currently have the largest number of electoral votes in the Electoral College (54 votes and 40 votes, respectively)?",["California (1st) and New York (2nd)","California (1st) and Texas (2nd)","Texas (1st) and Florida (2nd)","California (1st) and Florida (2nd)"],1,"人口に比例するため、選挙人数が最も多いのは1位カリフォルニア州（54人）、2位テキサス州（40人）、3位フロリダ州（30人）、4位ニューヨーク州（28人）です。"],
+  [20,"What method do 48 states and Washington, D.C. use to award their electoral votes, giving all of a state's electors to the statewide popular vote winner?",["Proportional Representation","Winner-Take-All System (勝者総取り方式)","Ranked-Choice Voting","Runoff System"],1,"全米50州のうち48州とワシントンD.C.では、州内で1票でも多く得票した候補がその州の選挙人をすべて獲得する「勝者総取り方式（Winner-Take-All）」を採用しています。"],
+  [20,"Which are the only two U.S. states that do NOT use the statewide winner-take-all rule, instead awarding electoral votes partly by congressional district?",["Alaska and Hawaii","Maine and Nebraska","Vermont and New Hampshire","Nevada and Arizona"],1,"勝者総取り方式をとらず、下院選挙区ごとの勝者にも選挙人を配分する方式（District System）を採っているのは、メイン州とネブラスカ州の2州のみです。"],
+  [20,"If no presidential candidate wins a majority of 270 electoral votes (such as a 269–269 tie), which body chooses the President (with each state delegation casting one vote)?",["The Supreme Court","The House of Representatives","The Senate","The State Governors"],1,"選挙人投票で誰も過半数の270票に達しなかった場合、合衆国憲法修正第12条により、下院（House of Representatives）が各州1票として大統領を選出し、上院が副大統領を選出します。"],
+  [20,"In which two 21st-century presidential elections did the winner of the Electoral College lose the nationwide Popular Vote?",["2000 (George W. Bush) and 2016 (Donald Trump)","2004 (George W. Bush) and 2012 (Barack Obama)","2008 (Barack Obama) and 2020 (Joe Biden)","2000 (Al Gore) and 2024 (Donald Trump)"],0,"勝者総取り方式のため、21世紀では2000年（ブッシュ対ゴア）と2016年（トランプ対クリントン）の2回、一般投票（Popular Vote）で下回った候補が選挙人票で勝利しました。"],
+  [20,"What are the two major political parties that dominate the contemporary two-party system in the United States?",["Federalist Party and Whig Party","Democratic Party and Republican Party","Labour Party and Conservative Party","Libertarian Party and Green Party"],1,"現代アメリカの二大政党は、民主党（Democratic Party）と共和党（Republican Party）です。"],
+  [20,"Which animals serve as the traditional symbols of the Democratic Party and the Republican Party, respectively, popularized by 19th-century cartoonist Thomas Nast?",["Donkey (Democratic) and Elephant (Republican)","Elephant (Democratic) and Donkey (Republican)","Eagle (Democratic) and Lion (Republican)","Bear (Democratic) and Bull (Republican)"],0,"19世紀の風刺画家トーマス・ナストの挿絵以来、民主党のシンボルは「ロバ（Donkey）」、共和党のシンボルは「象（Elephant）」として定着しています。"],
+  [20,"What is the common three-letter nickname for the Republican Party, which was founded in 1854 by anti-slavery activists?",["DNC","GOP (Grand Old Party)","NRA","AFL"],1,"1854年に奴隷制拡大反対派によって結成された共和党は、「GOP（Grand Old Party＝誇り高き伝統の党）」の通称で呼ばれます。"],
+  [20,"On U.S. election maps since the year 2000, which colors represent states won by the Republican Party and the Democratic Party, respectively?",["Red (Republican) and Blue (Democratic)","Blue (Republican) and Red (Democratic)","Green (Republican) and Yellow (Democratic)","White (Republican) and Blue (Democratic)"],0,"アメリカの選挙報道マップでは、共和党が優勢な州を「赤い州（Red States）」、民主党が優勢な州を「青い州（Blue States）」と呼びます。"],
+  [20,"What term describes tightly contested states (such as Pennsylvania, Michigan, Wisconsin, Georgia, and Arizona) where either major party has a realistic chance of winning?",["Safe States","Swing States (Battleground States)","Territory States","Primary States"],1,"選挙ごとに民主党と共和党の間で勝敗が揺れ動き、大統領選の勝敗を左右する激戦州は「スイング・ステート（Swing States / 接戦州）」と呼ばれます。"],
+  [20,"What are the state-level contests held from winter to spring of an election year to select party delegates for the presidential nomination?",["Midterm Elections","Primary Elections and Caucuses (予備選挙・党員集会)","Recall Elections","Referendums"],1,"大統領選挙の年の前半に各党の候補者（代議員）を選出する手続きは「予備選挙（Primary elections）」および「党員集会（Caucuses）」です。"],
+  [20,"Which Midwestern state and which New England state have traditionally held the nation's first caucus and first primary election, respectively?",["Ohio (Caucus) and Massachusetts (Primary)","Iowa (Caucus) and New Hampshire (Primary)","Illinois (Caucus) and Vermont (Primary)","Minnesota (Caucus) and Maine (Primary)"],1,"大統領候補指名争いの幕開けとして伝統的に注目されてきたのは、アイオワ州の党員集会（Iowa Caucus）とニューハンプシャー州の予備選挙（New Hampshire Primary）です。"],
+  [20,"What is the name of the crucial day in February or March of a presidential election year when the largest number of U.S. states hold primary elections simultaneously?",["Black Friday","Super Tuesday","Cyber Monday","Election Tuesday"],1,"予備選挙の天王山として、2月〜3月の火曜日に多くの州が一斉に予備選・党員集会を行う日は「スーパー・チューズデー（Super Tuesday）」と呼ばれます。"],
+  [20,"At which major party event held in the summer of a presidential election year do state delegates officially nominate their party's candidates for President and Vice President?",["State of the Union","National Party Convention (全国党大会)","Electoral College Meeting","Inauguration Ceremony"],1,"夏の7月〜8月に開催される各党の「全国党大会（Democratic / Republican National Convention）」で、正副大統領候補が正式に指名されます。"],
+  [20,"What are the congressional and state elections held in November two years into a President's four-year term called?",["By-elections","Midterm Elections (中間選挙)","Runoff Elections","General Primaries"],1,"大統領の4年の任期の折り返し地点（2年目の11月）に行われる連邦議会選挙（下院全議席・上院の3分の1）や州知事選挙は「中間選挙（Midterm Elections）」と呼ばれます。"],
+  [20,"What political term (coined in 1812 after Massachusetts Governor Elbridge Gerry) refers to manipulating electoral district boundaries to favor one party or class?",["Filibustering","Gerrymandering (ゲリマンダー)","Logrolling","Pork-barreling"],1,"特定の政党や候補者に有利になるよう選挙区の区割りを不自然に改変する行為は、1812年のマサチューセッツ州知事の名とサラマンダー（火トカゲ）を合わせた「ゲリマンダー（Gerrymandering）」と呼ばれます。"],
+  [20,"What does the acronym 'PAC' stand for in U.S. campaign finance—an organization that pools campaign contributions to support or oppose candidates?",["Presidential Advisory Council","Political Action Committee (政治活動委員会)","Public Affairs Commission","Party Alliance Caucus"],1,"候補者や政治課題への選挙資金集め・支援を行う団体「PAC（パック）」は「Political Action Committee（政治活動委員会）」の略称です。"],
+  [20,"Which independent regulatory agency was created in 1974 after the Watergate scandal to enforce campaign finance laws in federal elections?",["SEC","FEC (Federal Election Commission)","FCC","FTC"],1,"連邦選挙における政治資金規正法を執行・監視する独立行政機関は「連邦選挙委員会（FEC: Federal Election Commission）」です。"],
+  [20,"What is the name of the state-level procedure (used notably in California in 2003) that allows voters to remove an elected state official from office before their term ends?",["Impeachment","Recall Election (リコール投票)","Initiative","Caucus"],1,"州知事などの公選職を任期満了前に有権者の署名と住民投票によって解職する制度は「リコール（Recall）」（連邦レベルの大統領や連邦議員にはリコール制度はなく弾劾のみ）です。"],
+  [20,"What state-level direct democracy mechanism allows citizens to propose a new state law or state constitutional amendment by gathering petition signatures to put it on the ballot?",["Ballot Initiative (住民発議 / イニシアティブ)","Veto","Cloture","Censure"],0,"一定の有権者署名を集めて住民自身が法案や州憲法改正案を直接投票にかける制度は「イニシアティブ（Initiative / 住民発議）」と呼ばれます。"],
+  [20,"Unlike in Japan where local governments automatically mail voting tickets to registered residents, what must most U.S. citizens (except in North Dakota) do before they can vote?",["Pay a poll tax","Complete Voter Registration (有権者登録)","Pass a literacy test","Join a political party"],1,"アメリカでは投票するために、有権者自身が事前に選挙人名簿への「有権者登録（Voter Registration）」を行う必要があります。"],
+
+  // 22. 政治⑥：連邦議会と立法 (#426–#450)
+  [21,"What are the two chambers that make up the bicameral United States Congress?",["House of Lords and House of Commons","The Senate and the House of Representatives","The Cabinet and the National Assembly","The Diet and the Council"],1,"アメリカ連邦議会（Congress）は、上院（Senate）と下院（House of Representatives）の二院制で構成されています。"],
+  [21,"In which building on Capitol Hill in Washington, D.C. does the United States Congress meet?",["The White House","The United States Capitol (連邦議会議事堂)","Independence Hall","Federal Hall"],1,"連邦議会が開かれるのは、ワシントンD.C.のキャピトル・ヒルに立つ「合衆国議会議事堂（United States Capitol）」です。"],
+  [21,"How many total voting members serve in the United States Congress (combining the Senate and the House of Representatives)?",["435","500","535","538"],2,"連邦議会の議決権を持つ議員総数は、上院100名＋下院435名の計535名です（これにワシントンD.C.の3名を加えた538名が大統領選挙人の総数となります）。"],
+  [21,"How many Senators are elected from each state, and what is the total number of U.S. Senators?",["1 per state / 50 total","2 per state / 100 total","Based on population / 435 total","3 per state / 150 total"],1,"連邦上院（Senate）は人口の大小にかかわらず各州から2名ずつ選出され、全50州で計100名で構成されます。"],
+  [21,"How long is one term of office for a United States Senator, and what fraction of the Senate is up for election every two years?",["4 years / 1/2 every two years","6 years / 1/3 every two years","2 years / all seats every two years","6 years / all seats every six years"],1,"連邦上院議員の任期は6年で、2年ごとに全体の3分の1（約33〜34議席）ずつが改選されます。"],
+  [21,"What are the constitutional age and citizenship requirements to become a United States Senator?",["At least 25 years old and 7 years a U.S. citizen","At least 30 years old and 9 years a U.S. citizen","At least 35 years old and natural-born citizen","At least 21 years old and 5 years a U.S. citizen"],1,"連邦上院議員の被選挙権要件は「30歳以上」「9年以上の合衆国市民」「選出州の住民」です。"],
+  [21,"How many voting members serve in the U.S. House of Representatives, and how long is their term of office?",["100 members / 6-year term","435 members / 2-year term","435 members / 4-year term","538 members / 2-year term"],1,"連邦下院（House of Representatives）の定数は435名（各州の人口に比例して配分、最低1名）で、任期は2年（2年ごとに全議席改選）です。"],
+  [21,"What are the constitutional age and citizenship requirements to become a member of the U.S. House of Representatives?",["At least 21 years old and 5 years a U.S. citizen","At least 25 years old and 7 years a U.S. citizen","At least 30 years old and 9 years a U.S. citizen","At least 35 years old and 14 years a U.S. citizen"],1,"連邦下院議員の被選挙権要件は「25歳以上」「7年以上の合衆国市民」「選出州の住民」です。"],
+  [21,"Who is the presiding officer and political leader of the U.S. House of Representatives, elected by the full House at the start of each new Congress?",["House Majority Whip","Speaker of the House (下院議長)","President pro tempore","White House Chief of Staff"],1,"下院の本会議を主宰する最高指導者は「下院議長（Speaker of the House）」で、多数党のトップから選ばれ、大統領継承順位第2位にあります。"],
+  [21,"Who became the first woman in U.S. history to serve as Speaker of the House of Representatives (serving 2007–2011 and 2019–2023)?",["Hillary Clinton","Nancy Pelosi","Elizabeth Warren","Condoleezza Rice"],1,"カリフォルニア州選出の民主党議員ナンシー・ペロシ（Nancy Pelosi）は、2007年にアメリカ史上初の女性下院議長に就任しました。"],
+  [21,"Under the Origination Clause of the Constitution (Article I, Section 7), all bills for raising revenue (tax bills) must originate in which chamber?",["The Senate","The House of Representatives","Either chamber","The Treasury Department"],1,"「代表なくして課税なし」の精神から、歳入法案（課税法案）の先議権は国民に直接近い下院（House of Representatives）にのみ認められています。"],
+  [21,"Under the Constitution, which chamber of Congress has the exclusive power to ratify international treaties negotiated by the President (by a two-thirds vote)?",["The House of Representatives","The Senate","Both chambers by simple majority","The Supreme Court"],1,"大統領が外国と締結した条約（Treaties）を出席議員の3分の2以上の賛成で批准承認する権限は、上院（Senate）の専権事項です。"],
+  [21,"What is the name of the tactic unique to the U.S. Senate in which a Senator or minority group prolongs debate indefinitely to delay or block a vote on a bill?",["Gerrymandering","Filibuster (フィリバスター / 議事妨害)","Impeachment","Pocket Veto"],1,"上院において長時間の演説や動議によって討論を終わらせず、法案の採決を阻止する戦術は「フィリバスター（Filibuster）」と呼ばれます。"],
+  [21,"What is the Senate procedure called 'Cloture,' and how many votes out of 100 Senators are normally required to end a filibuster on legislation?",["51 votes","60 votes (three-fifths of the Senate)","67 votes (two-thirds)","75 votes (three-fourths)"],1,"上院でフィリバスター（議事妨害）を打ち切って採決へ進むための討論終結動議（Cloture）には、原則として100名中「60票（5分の3）」の賛成が必要です。"],
+  [21,"Who serves as the day-to-day floor leader and most powerful partisan figure in the U.S. Senate?",["The Vice President","The Senate Majority Leader (上院多数党院内総務)","The Speaker of the Senate","The Chief Clerk"],1,"上院議長である副大統領は通常議事進行を行わないため、上院の実質的な最高指導者は議事日程を握る「上院多数党院内総務（Senate Majority Leader）」です。"],
+  [21,"What is the title of the party official in the House and Senate (named after a fox-hunting term) who is responsible for counting votes and enforcing party discipline?",["Floor Marshal","Party Whip (院内幹事)","Sergeant at Arms","Parliamentarian"],1,"上下両院の各党で所属議員の票読みや党議拘束・説得を担う役職は、キツネ狩りで猟犬の列をまとめる鞭打ち役に由来し「ホイップ（Whip / 院内幹事）」と呼ばれます。"],
+  [21,"When the House and the Senate pass different versions of the same bill, what temporary joint committee is formed to reconcile the differences into a single bill?",["Select Committee","Conference Committee (両院協議会)","Ways and Means Committee","Rules Committee"],1,"同一法案について上院通過案と下院通過案の内容が異なる場合、両院の代表議員で構成される「両院協議会（Conference Committee）」で一本化案が作成されます。"],
+  [21,"What happens in the United States when Congress and the President fail to pass annual appropriations (funding) bills before the new fiscal year begins on October 1?",["Dissolution of Congress and snap elections","Government Shutdown (政府機関の一時閉鎖)","Automatic resignation of the Cabinet","Imposition of martial law"],1,"アメリカの会計年度が始まる10月1日までに歳出予算案（またはつなぎ予算）が成立しない場合、必須業務を除く連邦政府機関が閉鎖される「政府閉鎖（Government Shutdown）」が発生します。"],
+  [21,"What is the legislative limit set by Congress on the total amount of national debt that the U.S. Treasury is allowed to issue to pay for existing obligations?",["Fiscal Cliff","Debt Ceiling (債務上限)","Balanced Budget Cap","Tariff Quota"],1,"連邦政府が国債を発行して借り入れできる累積債務の法定限度額は「債務上限（Debt Ceiling）」と呼ばれ、引き上げをめぐって度々与野党の政治的対立が生じます。"],
+  [21,"Which 1973 federal law was enacted over President Nixon's veto after the Vietnam War to check the President's power to commit U.S. military forces abroad without Congressional approval?",["National Security Act","War Powers Resolution (戦争権限法)","Patriot Act","Espionage Act"],1,"ベトナム戦争の教訓から1973年に制定された「戦争権限法（War Powers Resolution）」は、大統領が議会の承認なしに米軍を海外派兵できる期間（原則60日）や議会への報告義務を定めています。"],
+  [21,"Which cultural and research institution on Capitol Hill, founded in 1800 and rebuilding its core collection with Thomas Jefferson's personal books, is the largest library in the world?",["New York Public Library","Library of Congress (米国議会図書館)","National Archives","Smithsonian Institution"],1,"連邦議会の調査機関として1800年に設立された「米国議会図書館（Library of Congress）」は、世界最大の蔵書数を誇る図書館であり、アメリカボウル訪問プログラムの主要訪問先でもあります。"],
+  [21,"Where in Washington, D.C. are the original signed manuscripts of the Declaration of Independence, the U.S. Constitution, and the Bill of Rights permanently displayed?",["The White House","The National Archives Museum (国立公文書館)","The Pentagon","The Lincoln Memorial"],1,"独立宣言、合衆国憲法、権利章典の原本（「自由の憲章」）が展示・保管されているのは、ワシントンD.C.の「国立公文書館（National Archives）」です。"],
+  [21,"Which major avenue in downtown Washington, D.C. is synonymous with the U.S. lobbying industry, think tanks, and advocacy groups?",["Pennsylvania Avenue","K Street","Wall Street","Madison Avenue"],1,"ワシントンD.C.の「Kストリート（K Street）」にはロビー活動を行う事務所やシンクタンクが集中しており、ロビー業界の代名詞となっています。"],
+  [21,"What American political slang term refers to government spending inserted into a bill by a member of Congress to fund local projects solely to benefit their home district?",["Gerrymandering","Pork-barrel legislation (ポーク・バレル / 利益誘導政治)","Filibuster","Lame Duck"],1,"議員が自身の選挙区への利益誘導のために予算案に盛り込む地元向け公共事業費などは、奴隷に塩漬け豚肉の樽を分け与えた慣習に由来し「ポーク・バレル（Pork-barrel）」と呼ばれます。"],
+  [21,"What status do residents of U.S. territories (such as Puerto Rico and Guam) and Washington, D.C. have in the U.S. House of Representatives?",["Two voting Senators and one voting Representative","One non-voting Delegate (or Resident Commissioner) who can serve on committees but cannot vote on final floor passage","No representation of any kind","Full voting representation equal to the 50 states"],1,"ワシントンD.C.やプエルトリコ・グアムなどの準州は上院議員を持たず、下院に本会議での最終表決権を持たない代表（Non-voting Delegate / Resident Commissioner）を1名ずつ送っています。"],
+
+  // 23. 政治⑦：最高裁と重要判例 (#451–#475)
+  [22,"How many Justices serve on the Supreme Court of the United States?",["7 Justices","9 Justices (1 Chief Justice and 8 Associate Justices)","11 Justices","12 Justices"],1,"連邦最高裁判所（Supreme Court）の判事は、長官（Chief Justice）1名と陪席判事（Associate Justices）8名の計9名で構成されています。"],
+  [22,"How are U.S. Supreme Court Justices selected, and what is their term of office under Article III of the Constitution?",["Elected by popular vote for a 10-year term","Nominated by the President, confirmed by the Senate, and serve for life ('during good Behaviour')","Appointed by the House of Representatives until age 70","Chosen by state governors for an 8-year term"],1,"連邦最高裁判事は大統領が指名し、上院の過半数の承認を経て任命され、司法の独立を守るため終身制（弾劾されない限り生涯在任）となっています。"],
+  [22,"What famous four-word motto is inscribed above the main entrance to the U.S. Supreme Court Building in Washington, D.C.?",["In God We Trust","Equal Justice Under Law","Liberty and Justice","We the People"],1,"連邦最高裁判所庁舎の正面玄関上部には「Equal Justice Under Law（法の下の平等な正義）」の4語が刻まれています。"],
+  [22,"Who was appointed by President Lyndon B. Johnson in 1967 as the first African American Justice on the U.S. Supreme Court (after winning 'Brown v. Board of Education' as a lawyer)?",["Clarence Thomas","Thurgood Marshall","Martin Luther King Jr.","John Marshall"],1,"ブラウン判決でNAACPの主任弁護士として勝訴を勝ち取ったサーグッド・マーシャル（Thurgood Marshall）は、1967年にアフリカ系初の連邦最高裁判事に就任しました。"],
+  [22,"Who was appointed in 1981 as the first female Supreme Court Justice, and who became the first Black female Supreme Court Justice in 2022?",["Ruth Bader Ginsburg (1981) / Sonia Sotomayor (2022)","Sandra Day O'Connor (1981) / Ketanji Brown Jackson (2022)","Elena Kagan (1981) / Amy Coney Barrett (2022)","Sandra Day O'Connor (1981) / Kamala Harris (2022)"],1,"1981年にレーガン大統領が任命したサンドラ・デイ・オコーナーが初の女性最高裁判事、2022年にバイデン大統領が任命したケタンジ・ブラウン・ジャクソンが初の黒人女性最高裁判事です。"],
+  [22,"Which 1803 landmark Supreme Court case, written by Chief Justice John Marshall, established the principle of Judicial Review (違憲審査権)?",["McCulloch v. Maryland","Marbury v. Madison","Gibbons v. Ogden","Dred Scott v. Sandford"],1,"1803年の「マーベリー対マディソン事件（Marbury v. Madison）」は、裁判所が法律や行政行為の合憲性を審査する違憲審査権（Judicial Review）を確立した最重要判例です。"],
+  [22,"Which 1819 Supreme Court case confirmed the implied powers of Congress to establish a national bank and ruled that a state cannot tax a federal institution ('the power to tax involves the power to destroy')?",["Marbury v. Madison","McCulloch v. Maryland","Plessy v. Ferguson","Schenck v. United States"],1,"1819年の「マカロック対メリーランド事件（McCulloch v. Maryland）」は、連邦政府の権限が州政府に優越することと議会の黙示的権限を認めた歴史的判例です。"],
+  [22,"Which notorious 1857 Supreme Court decision ruled that enslaved and formerly enslaved African Americans were not U.S. citizens and could not sue in federal court, fueling the Civil War?",["Plessy v. Ferguson","Dred Scott v. Sandford","Brown v. Board of Education","Korematsu v. United States"],1,"1857年の「ドレッド・スコット対サンドフォード事件（Dred Scott v. Sandford）」は、黒人の市民権を否定しミズーリ妥協を違憲としたことで南北戦争の引き金となりました。"],
+  [22,"Which 1896 Supreme Court ruling upheld Southern racial segregation ('Jim Crow') laws under the doctrine of 'Separate but equal' (分離すれども平等)?",["Dred Scott v. Sandford","Plessy v. Ferguson","Brown v. Board of Education","Loving v. Virginia"],1,"1896年の「プレッシー対ファーガソン事件（Plessy v. Ferguson）」は、「分離すれども平等」の原則によって公共施設での人種隔離を合憲と判断しました。"],
+  [22,"Which 1919 Supreme Court case upheld wartime restrictions on anti-draft leaflets and established Justice Oliver Wendell Holmes's 'Clear and Present Danger' (明白かつ現在の危険) test?",["Texas v. Johnson","Schenck v. United States","New York Times Co. v. United States","Tinker v. Des Moines"],1,"1919年の「シェンク対アメリカ合衆国事件（Schenck v. United States）」は、第一次世界大戦中の反戦ビラ規制を合憲とし、表現の自由の制約基準として「明白かつ現在の危険」の法理を確立しました。"],
+  [22,"Which 1944 Supreme Court case upheld the wartime forced internment of Japanese Americans on the West Coast during World War II (later formally repudiated by the Court)?",["Schenck v. United States","Korematsu v. United States","Hirabayashi v. United States","Miranda v. Arizona"],1,"1944年の「コレマツ対アメリカ合衆国事件」は、第二次世界大戦中の日系アメリカ人強制収容を軍事的必要性を理由に合憲とした判例です（1988年の市民の自由法で政府が公式謝罪・補償）。"],
+  [22,"Which landmark 1954 Supreme Court ruling unanimously overturned 'Plessy v. Ferguson' and declared racial segregation in public schools unconstitutional?",["Brown v. Board of Education","Roe v. Wade","Obergefell v. Hodges","Regents of UC v. Bakke"],0,"1954年の「ブラウン対教育委員会事件（Brown v. Board of Education）」は、「分離された教育施設は本質的に不平等である」として公立学校での人種隔離を違憲とし、公民権運動を大きく前進させました。"],
+  [22,"Which 1962 Supreme Court case ruled that state-sponsored official prayer in public schools violates the Establishment Clause of the First Amendment?",["Tinker v. Des Moines","Engel v. Vitale","Wisconsin v. Yoder","Brown v. Board of Education"],1,"1962年の「エンゲル対ヴィターレ事件」は、公立学校で州が定めた公式の祈りを唱えさせることは修正第1条の政教分離（国教樹立禁止条項）に違反すると判断しました。"],
+  [22,"Which 1963 Supreme Court case established that under the 6th and 14th Amendments, states must provide a free court-appointed attorney to criminal defendants who cannot afford one?",["Miranda v. Arizona","Gideon v. Wainwright","Mapp v. Ohio","Terry v. Ohio"],1,"1963年の「ギデオン対ウェインライト事件」は、貧困により弁護士を雇えない刑事被告人に対して州が国選弁護人を付ける義務があることを確立しました。"],
+  [22,"Which 1966 Supreme Court case ruled that police must inform arrested suspects of their right to remain silent and right to an attorney before interrogation?",["Gideon v. Wainwright","Miranda v. Arizona","Escobedo v. Illinois","Roe v. Wade"],1,"1966年の「ミランダ対アリゾナ事件（Miranda v. Arizona）」により、逮捕時の黙秘権や弁護士依頼権の告知（ミランダ警告）が義務づけられました。"],
+  [22,"Which 1967 Supreme Court case struck down all remaining state laws banning interracial marriage (marriage between people of different races)?",["Plessy v. Ferguson","Loving v. Virginia","Obergefell v. Hodges","Lawrence v. Texas"],1,"1967年の「ラヴィング対バージニア州事件（Loving v. Virginia）」は、白人と黒人の異人種間結婚を禁じていた州法を修正第14条違反として全員一致で違憲としました。"],
+  [22,"Which 1969 Supreme Court case protected students' free speech rights in public schools after students wore black armbands to protest the Vietnam War?",["Engel v. Vitale","Tinker v. Des Moines Independent Community School District","Bethel v. Fraser","Hazelwood v. Kuhlmeier"],1,"1969年の「ティンカー対デモイン独立コミュニティ学区事件」は、「生徒や教師は校門で表現の自由という憲法上の権利を脱ぎ捨てるわけではない」としてベトナム反戦の黒腕章着用を保護しました。"],
+  [22,"Which 1973 Supreme Court decision ruled that the constitutional right to privacy protected a woman's right to have an abortion?",["Griswold v. Connecticut","Roe v. Wade","Planned Parenthood v. Casey","Dobbs v. Jackson"],1,"1973年の「ロー対ウェイド事件（Roe v. Wade）」は、女性の妊娠中絶の権利が憲法上のプライバシー権として保護されると判断しました。"],
+  [22,"Which unanimous 1974 Supreme Court ruling ordered President Richard Nixon to hand over the Oval Office tape recordings, establishing that not even the President is above the law?",["Marbury v. Madison","United States v. Nixon","Clinton v. Jones","Bush v. Gore"],1,"1974年の「合衆国対ニクソン事件」は、大統領の行政特権は無制限ではないとして録音テープの提出を命じ、ニクソン大統領辞任の決定打となりました。"],
+  [22,"Which 1989 Supreme Court case ruled that burning the American flag in political protest is symbolic speech protected by the First Amendment?",["Schenck v. United States","Texas v. Johnson","Citizens United v. FEC","Tinker v. Des Moines"],1,"1989年の「テキサス対ジョンソン事件（Texas v. Johnson）」は、政治的抗議として星条旗を燃やす行為も修正第1条の表現の自由として保護されると判断しました。"],
+  [22,"Which 2008 Supreme Court decision ruled for the first time that the Second Amendment protects an individual's right to possess a firearm unconnected with service in a militia?",["United States v. Miller","District of Columbia v. Heller","McDonald v. Chicago","Bruen v. New York"],1,"2008年の「コロンビア特別区対ヘラー事件」は、修正第2条が民兵の任務とは無関係に「個人が自衛のために銃を保有する権利」を保障していると明確に認めた画期的判例です。"],
+  [22,"Which 2010 Supreme Court ruling struck down limits on independent political expenditures by corporations and unions as a form of free speech under the First Amendment?",["Buckley v. Valeo","Citizens United v. Federal Election Commission (FEC)","McCutcheon v. FEC","Bush v. Gore"],1,"2010年の「シチズンズ・ユナイテッド対連邦選挙委員会事件（Citizens United v. FEC）」は、企業や労働組合による政治広告支出の制限を撤廃し、スーパーPAC台頭の契機となりました。"],
+  [22,"Which 2015 Supreme Court ruling legalized same-sex marriage across all 50 states under the Fourteenth Amendment's Equal Protection and Due Process clauses?",["Lawrence v. Texas","United States v. Windsor","Obergefell v. Hodges","Bostock v. Clayton County"],2,"2015年の「オバーゲフェル対ホッジス事件（Obergefell v. Hodges）」は、修正第14条の平等保護条項などを根拠に全米50州で同性婚を合憲・合法と認めました。"],
+  [22,"Which June 2022 Supreme Court ruling overturned 'Roe v. Wade' (1973) and returned the authority to regulate or ban abortion to individual states?",["Planned Parenthood v. Casey","Dobbs v. Jackson Women's Health Organization","Whole Woman's Health v. Hellerstedt","Obergefell v. Hodges"],1,"2022年6月の「ドブス対ジャクソン女性健康組織事件」は、半世紀続いたロー対ウェイド判決を覆し、中絶規制の判断を各州に委ねました。"],
+  [22,"Which June 2023 Supreme Court ruling declared race-conscious Affirmative Action admission programs at colleges and universities unconstitutional under the 14th Amendment?",["Regents of UC v. Bakke","Grutter v. Bollinger","Students for Fair Admissions v. Harvard (and UNC)","Fisher v. University of Texas"],2,"2023年6月の「フェア・アドミッションズを求める学生たち対ハーバード大学（およびノースカロライナ大学）事件」は、大学入試における人種を考慮した優遇措置（アファーマティブ・アクション）を違憲と判断しました。"],
+
+  // 24. 政治⑧：現代社会の分断問題 (#476–#500)
+  [23,"Which powerful gun-rights lobbying organization in the United States, founded in 1871, opposes stricter gun control laws on the basis of the Second Amendment?",["ACLU","NRA (National Rifle Association / 全米ライフル協会)","NAACP","AARP"],1,"修正第2条の武器保有の権利を掲げ、銃規制に反対する強力なロビー活動を展開している団体は「全米ライフル協会（NRA）」です。"],
+  [23,"What is the name of the state laws that allow courts and police to temporarily confiscate firearms from individuals judged to pose a danger to themselves or others?",["Open Carry Laws","Red Flag Laws (レッドフラグ法)","Stand Your Ground Laws","Trigger Laws"],1,"自傷や他害の危険性があると裁判所が判断した人物から一時的に銃を取り上げる州法は「レッドフラグ法（Red Flag Laws）」と呼ばれます。"],
+  [23,"What are the state laws (widely permitted in states like Texas) that allow gun owners to visibly carry firearms in public places?",["Assault Weapons Bans","Open Carry Laws (銃の公然携行法)","Gun Buyback Programs","Brady Laws"],1,"公共の場で銃を外から見える状態で携帯することを認める州法は「銃の公然携行法（Open Carry Laws）」と呼ばれます。"],
+  [23,"What is the federal requirement (mandated under the 1993 Brady Law) that licensed gun dealers verify a buyer's criminal history and mental health records before selling a firearm?",["Gun Buyback Program","Background Checks (身元調査)","Affirmative Action","Racial Profiling"],1,"銃の購入時に犯罪歴や精神疾患の有無などを照会・審査する制度は「身元調査（Background Checks）」と呼ばれますが、個人間売買などの抜け穴（Gun Show Loophole）が議論となっています。"],
+  [23,"Which tragic December 2012 mass shooting in Newtown, Connecticut claimed the lives of 20 first-grade children and 6 educators, intensifying the national debate over gun control?",["Columbine High School shooting","Sandy Hook Elementary School shooting (サンディフック小学校銃乱射事件)","Parkland High School shooting","Las Vegas shooting"],1,"2012年12月にコネチカット州で発生した「サンディフック小学校銃乱射事件」は全米に大きな衝撃を与え、銃規制議論の重大な転機となりました。"],
+  [23,"In the American debate over abortion, what are the two opposing movements called—one opposing abortion based on the fetus's right to life, and the other supporting a woman's right to choose?",["Red Movement and Blue Movement","Pro-Life (中絶反対派) and Pro-Choice (中絶賛成派)","Hawks and Doves","Federalists and Anti-Federalists"],1,"中絶をめぐる対立では、胎児の生命の尊厳を重視する反対派を「プロライフ（Pro-Life）」、女性の自己決定権を擁護する賛成派を「プロチョイス（Pro-Choice）」と呼びます。"],
+  [23,"What term refers to state laws designed to automatically ban abortion immediately as soon as the Supreme Court overturned 'Roe v. Wade' in 2022?",["Red Flag Laws","Trigger Laws (トリガー法)","Sunset Laws","Jim Crow Laws"],1,"ロー対ウェイド判決が覆された瞬間に自動的に発効して州内での中絶を禁止するよう事前に設計されていた州法は「トリガー法（Trigger Laws）」と呼ばれます。"],
+  [23,"Which legislative provision, first enacted in 1976, prohibits the use of federal funds (such as Medicaid) to pay for abortions except in cases to save the woman's life or rape/incest?",["Title IX","Hyde Amendment (ハイド修正条項)","Equal Rights Amendment","Brady Amendment"],1,"連邦政府の公的資金（メディケイドなど）を人工妊娠中絶に使用することを原則禁止する歳出法案の条項は「ハイド修正条項（Hyde Amendment）」です。"],
+  [23,"Which prominent nonprofit organization provides reproductive healthcare and sex education in the U.S. and is a central focus of debates between Pro-Choice and Pro-Life groups?",["National Rifle Association","Planned Parenthood (全米家族計画連盟)","Sierra Club","Heritage Foundation"],1,"リプロダクティブ・ヘルスケア（性と生殖に関する医療）を提供し、中絶権擁護の中心的存在となっている非営利団体は「全米家族計画連盟（Planned Parenthood）」です。"],
+  [23,"What is the name of the controversial 2021 Texas law (Senate Bill 8) that banned most abortions after about six weeks of pregnancy (when fetal cardiac activity can be detected)?",["Texas Equal Rights Act","Texas Heartbeat Act (テキサス心拍法)","Texas Trigger Act","Lone Star Health Act"],1,"妊娠約6週目（胎児の心拍が確認される時期）以降の中絶を禁止し、一般市民に民事訴訟権を与える仕組みで全米の議論を呼んだ州法は「テキサス心拍法（Texas Heartbeat Act）」です。"],
+  [23,"What policy, introduced in the 1960s, aimed to promote equal opportunity for historically disadvantaged minorities and women in university admissions and employment?",["Gerrymandering","Affirmative Action (積極的差別是正措置)","Prohibition","Segregation"],1,"人種的少数派や女性に対して雇用や大学入学で配慮・優遇を行い実質的な機会均等を図る政策は「アファーマティブ・アクション（積極的差別是正措置）」と呼ばれます。"],
+  [23,"Which social movement against systemic racism and police brutality toward Black people gained global momentum in 2020 following the killing of George Floyd in Minneapolis?",["Occupy Wall Street","Black Lives Matter (BLM)","Tea Party Movement","Fight for $15"],1,"アフリカ系アメリカ人に対する警察の暴力や人種的不平等を訴え、2020年のジョージ・フロイド事件を機に全米・世界へ拡大した運動は「ブラック・ライヴズ・マター（Black Lives Matter）」です。"],
+  [23,"What term describes the controversial law enforcement practice of targeting or suspecting individuals of crime based on their race or ethnicity?",["Affirmative Action","Racial Profiling (人種プロファイリング)","Plea Bargaining","Judicial Review"],1,"警察などが特定の人種や民族的特徴を根拠に人物を職務質問や捜査の対象とする慣行は「人種プロファイリング（Racial Profiling）」と呼ばれ社会問題となっています。"],
+  [23,"What term criticizes the U.S. criminal justice system for having one of the highest imprisonment rates in the world, disproportionately affecting racial minorities?",["Capital Punishment","Mass Incarceration (大量収監 / マス・インカセレーション)","Double Jeopardy","Probation"],1,"厳罰化政策や「麻薬との戦争」の結果、アメリカが世界突出の収監率・受刑者数を抱えるようになった現象は「大量収監（Mass Incarceration）」として批判されています。"],
+  [23,"What slogan emerged during protests against police brutality calling to reallocate funds from police departments to community, mental health, and social services?",["Stand Your Ground","Defund the Police (デファンド・ザ・ポリス)","Law and Order","Zero Tolerance"],1,"警察予算を削減し、その財源を教育・医療・社会福祉・メンタルヘルス支援などへ再配分するよう求める運動は「デファンド・ザ・ポリス（Defund the Police）」と呼ばれます。"],
+  [23,"In U.S. media polarization, which major cable news network is widely known for its conservative leaning, in contrast to liberal-leaning networks like CNN and MSNBC?",["PBS","Fox News","NPR","C-SPAN"],1,"アメリカのケーブルニュース局では、リベラル（民主党）寄りとされるCNNやMSNBCに対し、保守（共和党）寄りの代表格として「FOXニュース（Fox News）」が知られています。"],
+  [23,"What term refers to neighborhoods where a specific immigrant or ethnic group concentrates and preserves its cultural identity, such as Chinatown or Little Italy?",["Swing Districts","Ethnic Enclaves (エスニック・エンクレーブ)","Gated Communities","Rust Belt"],1,"チャイナタウンやリトル・イタリー、リトル・ハバナのように特定の民族・移民コミュニティが集住して独自の文化圏を形成した地域は「エスニック・エンクレーブ」と呼ばれます。"],
+  [23,"Which language is by far the second most spoken language in the United States after English, spoken at home by over 40 million residents?",["French","Spanish","Chinese","Tagalog"],1,"ヒスパニック（ラテン系）人口の増加に伴い、アメリカで英語に次いで圧倒的に多く話されている第2の言語はスペイン語（Spanish）です。"],
+  [23,"In the ongoing U.S. political debate over illegal immigration and border security, which international border is the primary focus?",["The U.S.–Canada Border","The U.S.–Mexico Border","The Florida Straits","The Bering Strait"],1,"アメリカの移民政策や国境警備・壁建設をめぐる議論で最大の焦点となっているのは、南部国境である「アメリカとメキシコの国境（U.S.–Mexico Border）」です。"],
+  [23,"What is the name of the 2012 Obama-era immigration policy that protects undocumented immigrants who were brought to the U.S. as children ('Dreamers') from deportation?",["NAFTA","DACA (Deferred Action for Childhood Arrivals)","VISA Waiver","Title 42"],1,"幼少期に親に連れられて不法入国した若者（ドリーマーズ）の強制送還を猶予し就労許可を与える2012年導入の制度は「DACA（若年移民に対する国外強制退去の延期措置）」です。"],
+  [23,"Which June 1969 uprising by LGBTQ+ patrons against a police raid in Greenwich Village, New York City became the catalyst for the modern gay liberation movement and June 'Pride Month'?",["Haymarket Affair","Stonewall Uprising (ストーンウォールの反乱)","Seneca Falls Convention","Selma Marches"],1,"1969年6月にニューヨークのゲイバー「ストーンウォール・イン」への警察の踏み込み捜査に抗議して起きた「ストーンウォールの反乱」は、LGBTQ+権利運動の原点となり、毎年6月のプライド月間の由来となっています。"],
+  [23,"Which landmark 1972 federal civil rights law prohibits sex-based discrimination in any school or education program receiving federal money, transforming women's college sports?",["Equal Pay Act","Title IX (タイトル・ナイン / 教育改正法第9編)","Section 230","19th Amendment"],1,"1972年教育改正法第9編「タイトル・ナイン（Title IX）」は、連邦補助金を受ける教育機関での性差別を禁止し、女子大学スポーツや女性の高等教育進学を飛躍的に発展させました。"],
+  [23,"Why does public K–12 school funding vary so widely between wealthy suburban districts and low-income neighborhoods in the United States?",["Because schools are funded only by federal income tax","Because public schools rely heavily on local property taxes (地域の固定資産税), leading to unequal funding","Because private donations are banned","Because the Constitution forbids state education budgets"],1,"アメリカの公立学校（K-12）の財源は地域の固定資産税（Property Tax）に大きく依存しているため、富裕層が住む学区と低所得地域の学区の間で深刻な資金配分の不平等（教育格差）が生じています。"],
+  [23,"What controversial state laws require voters to present a government-issued photo identification card at the polling place, debated between preventing fraud and suppressing minority turnout?",["Red Flag Laws","Voter ID Laws (有権者ID法)","Open Carry Laws","Trigger Laws"],1,"投票所で政府発行の写真付き身分証明書の提示を義務づける「有権者ID法（Voter ID Laws）」は、不正投票防止を主張する共和党と、マイノリティや低所得層の投票機会を奪うと批判する民主党の間で大きな争点となっています。"],
+  [23,"Which 2015 international climate treaty on reducing greenhouse gas emissions has been a major point of political division in the U.S., with administrations repeatedly withdrawing and rejoining?",["Kyoto Protocol","Paris Agreement (パリ協定)","Montreal Protocol","Geneva Convention"],1,"2015年に採択された地球温暖化対策の国際枠組み「パリ協定（Paris Agreement）」は、トランプ政権による離脱とバイデン政権による復帰など、アメリカの環境・エネルギー政策の分断を象徴する争点となっています。"]
+];
+
+const QUIZ_DATA = RAW_DATA.map((row, idx) => ({
+  id: idx + 1,
+  catIdx: row[0],
+  cat: CATS[row[0]],
+  q: row[1],
+  o: row[2],
+  a: row[3],
+  exp: row[4]
+}));
+
+let activePool = [];
+let currentIndex = 0;
+let userAnswers = {};
+let wrongIds = new Set();
+let isMockMode = false;
+let autoSpeak = false;
+let blindMode = false;
+
+function getEnglishVoice() {
+  if (!('speechSynthesis' in window)) return null;
+  const voices = window.speechSynthesis.getVoices();
+  return voices.find(v => v.lang === 'en-US' && v.name.includes('Natural'))
+      || voices.find(v => v.lang === 'en-US')
+      || voices.find(v => v.lang.startsWith('en'))
+      || null;
+}
+
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => getEnglishVoice();
+}
+
+function stopSpeech() {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+  }
+}
+
+function speakCurrentQuestion(includeOptions = false) {
+  if (!('speechSynthesis' in window) || !activePool[currentIndex]) return;
+  stopSpeech();
+  const q = activePool[currentIndex];
+  let text = `Question ${currentIndex + 1}. ${q.q}`;
+  if (includeOptions) {
+    const labels = ['A', 'B', 'C', 'D'];
+    const optsText = q.o.map((opt, i) => `Option ${labels[i]}: ${opt}.`).join(' ');
+    text += ` ... ${optsText}`;
+  }
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'en-US';
+  const voice = getEnglishVoice();
+  if (voice) utter.voice = voice;
+  utter.rate = parseFloat(document.getElementById('rateSelect').value) || 1.0;
+  window.speechSynthesis.speak(utter);
+}
+
+function toggleAutoSpeak() {
+  autoSpeak = !autoSpeak;
+  const btn = document.getElementById('autoSpeakBtn');
+  btn.textContent = `自動読み上げ: ${autoSpeak ? 'ON' : 'OFF'}`;
+  btn.classList.toggle('active-toggle', autoSpeak);
+  if (autoSpeak) speakCurrentQuestion(false);
+}
+
+function toggleBlindMode() {
+  blindMode = !blindMode;
+  const btn = document.getElementById('blindModeBtn');
+  btn.textContent = `🙈 リスニング専念: ${blindMode ? 'ON' : 'OFF'}`;
+  btn.classList.toggle('active-toggle', blindMode);
+  renderQuestion(false);
+}
+
+function initPool(list, mock = false) {
+  stopSpeech();
+  activePool = list.map((item, idx) => ({
+    ...item,
+    isBonus: mock && idx >= 40
+  }));
+  currentIndex = 0;
+  userAnswers = {};
+  isMockMode = mock;
+  document.getElementById('quizArea').style.display = 'block';
+  document.getElementById('resultArea').style.display = 'none';
+  renderQuestion(true);
+}
+
+function startCategoryMode() {
+  const val = document.getElementById('catSelect').value;
+  let filtered = [];
+  if (val === 'ALL') {
+    filtered = [...QUIZ_DATA];
+  } else if (val === 'GROUP_HISTORY') {
+    filtered = QUIZ_DATA.filter(q => q.catIdx >= 0 && q.catIdx <= 7);
+  } else if (val === 'GROUP_GEOECON') {
+    filtered = QUIZ_DATA.filter(q => q.catIdx >= 8 && q.catIdx <= 15);
+  } else if (val === 'GROUP_POLSOC') {
+    filtered = QUIZ_DATA.filter(q => q.catIdx >= 16 && q.catIdx <= 23);
+  } else {
+    const cIdx = parseInt(val, 10);
+    filtered = QUIZ_DATA.filter(q => q.catIdx === cIdx);
+  }
+  initPool(filtered, false);
+}
+
+function startShuffleAll() {
+  const shuffled = [...QUIZ_DATA].sort(() => Math.random() - 0.5);
+  initPool(shuffled, false);
+}
+
+function startMockExam() {
+  const shuffled = [...QUIZ_DATA].sort(() => Math.random() - 0.5).slice(0, 45);
+  initPool(shuffled, true);
+}
+
+function startRetryWrong() {
+  if (wrongIds.size === 0) return;
+  const retryList = QUIZ_DATA.filter(q => wrongIds.has(q.id));
+  initPool(retryList, false);
+}
+
+function jumpToQuestion() {
+  const num = parseInt(document.getElementById('jumpInput').value, 10);
+  if (isNaN(num) || num < 1 || num > activePool.length) return;
+  currentIndex = num - 1;
+  renderQuestion(true);
+}
+
+function calcScore() {
+  let pts = 0, maxPts = 0;
+  activePool.forEach((q, idx) => {
+    const w = q.isBonus ? 3 : 1;
+    maxPts += w;
+    if (userAnswers[idx] === q.a) pts += w;
+  });
+  return { pts, maxPts };
+}
+
+function renderQuestion(triggerAudio = false) {
+  const q = activePool[currentIndex];
+  document.getElementById('qProgress').textContent = `Q ${currentIndex + 1} / ${activePool.length} (通し番号 #${q.id})`;
+  document.getElementById('qCat').textContent = q.cat;
+  document.getElementById('qBonus').style.display = q.isBonus ? 'inline-block' : 'none';
+  const sc = calcScore();
+  document.getElementById('scoreDisplay').textContent = `Score: ${sc.pts} / ${sc.maxPts}`;
+
+  const answered = userAnswers[currentIndex] !== undefined;
+  const qBox = document.getElementById('questionText');
+  if (blindMode && !answered) {
+    qBox.className = 'question-box blind';
+    qBox.textContent = '🎧 リスニング専念モード中（上の「🔊 問題文を読み上げ」を押して音声を聞き、回答すると問題文が表示されます）';
+  } else {
+    qBox.className = 'question-box';
+    qBox.textContent = q.q;
+  }
+
+  const container = document.getElementById('optionsContainer');
+  container.innerHTML = '';
+
+  ['A', 'B', 'C', 'D'].forEach((label, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.textContent = `(${label}) ${q.o[idx]}`;
+    if (answered) {
+      btn.disabled = true;
+      if (idx === q.a) btn.classList.add('correct');
+      else if (idx === userAnswers[currentIndex]) btn.classList.add('wrong');
+    } else {
+      btn.onclick = () => selectAnswer(idx);
+    }
+    container.appendChild(btn);
+  });
+
+  const fb = document.getElementById('feedbackBox');
+  if (answered) {
+    const isOk = userAnswers[currentIndex] === q.a;
+    fb.style.display = 'block';
+    fb.innerHTML = `<strong>${isOk ? '✅ Correct!' : '❌ Incorrect'}</strong> — 正解: (${['A','B','C','D'][q.a]}) ${q.o[q.a]}<br>${q.exp}`;
+  } else {
+    fb.style.display = 'none';
+  }
+
+  document.getElementById('prevBtn').disabled = currentIndex === 0;
+  document.getElementById('nextBtn').textContent = currentIndex === activePool.length - 1 ? '結果を見る →' : '次の問題 →';
+  document.getElementById('retryBtn').style.display = wrongIds.size > 0 ? 'inline-block' : 'none';
+
+  if (triggerAudio && autoSpeak) {
+    speakCurrentQuestion(false);
+  }
+}
+
+function selectAnswer(choiceIdx) {
+  const q = activePool[currentIndex];
+  userAnswers[currentIndex] = choiceIdx;
+  if (choiceIdx === q.a) wrongIds.delete(q.id);
+  else wrongIds.add(q.id);
+  renderQuestion(false);
+}
+
+function prevQuestion() {
+  if (currentIndex > 0) {
+    currentIndex--;
+    renderQuestion(true);
+  }
+}
+
+function nextQuestion() {
+  if (currentIndex < activePool.length - 1) {
+    currentIndex++;
+    renderQuestion(true);
+  } else {
+    stopSpeech();
+    showResult();
+  }
+}
+
+function showResult() {
+  document.getElementById('quizArea').style.display = 'none';
+  document.getElementById('resultArea').style.display = 'block';
+  const sc = calcScore();
+  const pct = Math.round((sc.pts / sc.maxPts) * 100);
+  document.getElementById('finalScore').textContent = `${sc.pts} / ${sc.maxPts} pts (${pct}%)`;
+  document.getElementById('finalComment').textContent = wrongIds.size > 0
+    ? `現在、復習リストに ${wrongIds.size} 問の要注意問題があります。`
+    : `素晴らしい成績です！すべての問題をクリアしました！`;
+  document.getElementById('retryBtnEnd').style.display = wrongIds.size > 0 ? 'inline-block' : 'none';
+}
+
+startCategoryMode();
+</script>
+</body>
+</html>
