@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>U.S. Currency, Portraits & Motifs Visual Quiz Trainer</title>
+<style>
+  :root {
+    --navy: #0a2540; --red: #d9381e; --blue: #1d4ed8; --green: #14532d;
+    --dollar-green: #2e5a36; --dollar-bg: #eef5ec; --gold: #b45309;
+    --bg: #f4f6f9; --correct: #16a34a; --wrong: #dc2626;
+  }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: #1e293b; margin: 0; padding: 16px; }
+  .container { max-width: 920px; margin: 0 auto; background: #fff; border-radius: 14px; box-shadow: 0 6px 20px rgba(0,0,0,0.08); padding: 24px; }
+  h1 { margin: 0 0 6px; color: var(--navy); font-size: 1.55rem; text-align: center; }
+  .subtitle { text-align: center; color: #64748b; font-size: 0.92rem; margin-bottom: 16px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0; }
+  .audio-bar { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; background: #eff6ff; padding: 10px 12px; border-radius: 8px; margin-bottom: 16px; border: 1px solid #bfdbfe; }
+  select, .btn-ctrl { padding: 8px 14px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.9rem; cursor: pointer; background: #fff; font-weight: 600; transition: 0.15s; }
+  .btn-ctrl.primary { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .btn-ctrl.accent { background: var(--red); color: #fff; border-color: var(--red); }
+  .btn-ctrl.audio { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .btn-ctrl.gallery-btn { background: var(--dollar-green); color: #fff; border-color: var(--dollar-green); }
+  .btn-ctrl.active-toggle { background: #0f766e; color: #fff; border-color: #0f766e; }
+
+  .status-bar { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 10px 16px; border-radius: 8px; margin-bottom: 16px; font-weight: 600; font-size: 0.95rem; }
+  .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; background: #dbeafe; color: var(--blue); }
+  .badge.bonus { background: #fef3c7; color: var(--gold); margin-left: 6px; }
+
+  /* Visual Showcase Card */
+  .visual-stage { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; align-items: center; background: var(--dollar-bg); border: 2px solid #b7d4bc; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  .photo-frame { position: relative; max-width: 380px; min-height: 170px; background: #fff; border-radius: 10px; padding: 8px; box-shadow: 0 3px 10px rgba(0,0,0,0.08); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .photo-frame img { max-width: 100%; max-height: 200px; object-fit: contain; border-radius: 6px; display: block; }
+  .photo-caption { font-size: 0.78rem; color: #475569; margin-top: 6px; text-align: center; font-weight: 600; }
+  .svg-card { width: 290px; height: 165px; border-radius: 10px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.08); background: #fff; display: flex; align-items: center; justify-content: center; }
+
+  .question-box { font-size: 1.15rem; font-weight: 600; line-height: 1.5; margin: 14px 0; color: #0f172a; }
+  .question-box.blind { background: #f1f5f9; color: #475569; border: 2px dashed #94a3b8; border-radius: 8px; padding: 16px; text-align: center; font-weight: 500; }
+  .options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  @media (max-width: 640px) { .options { grid-template-columns: 1fr; } }
+  .opt-btn { text-align: left; padding: 14px 16px; border-radius: 10px; border: 2px solid #e2e8f0; background: #fff; font-size: 1rem; cursor: pointer; transition: 0.15s; font-weight: 500; color: #1e293b; }
+  .opt-btn:hover:not(:disabled) { border-color: var(--blue); background: #eff6ff; }
+  .opt-btn.correct { border-color: var(--correct); background: #dcfce7; color: #14532d; font-weight: 700; }
+  .opt-btn.wrong { border-color: var(--wrong); background: #fee2e2; color: #7f1d1d; }
+  .feedback { display: none; padding: 14px 16px; border-radius: 10px; background: #f1f5f9; margin-bottom: 16px; line-height: 1.6; font-size: 0.95rem; border-left: 5px solid var(--dollar-green); }
+  .nav-bar { display: flex; justify-content: space-between; gap: 10px; }
+  .nav-btn { flex: 1; padding: 12px; border-radius: 8px; border: none; font-size: 1rem; font-weight: 700; cursor: pointer; background: var(--blue); color: #fff; }
+  .nav-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+
+  /* Visual Encyclopedia Gallery */
+  #galleryArea { display: none; margin-top: 16px; }
+  .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 12px; }
+  .gallery-item { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; align-items: center; }
+  .gallery-item img { max-width: 100%; height: 120px; object-fit: contain; border-radius: 6px; background: #fff; padding: 4px; border: 1px solid #e2e8f0; }
+  .gallery-item h4 { margin: 8px 0 4px; color: var(--navy); font-size: 1rem; text-align: center; }
+  .gallery-item p { margin: 0; font-size: 0.85rem; color: #334155; line-height: 1.45; text-align: left; width: 100%; }
+
+  .result-screen { display: none; text-align: center; padding: 20px 0; }
+  .score-big { font-size: 2.4rem; font-weight: 800; color: var(--navy); margin: 12px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>💵 アメリカの紙幣・硬貨・人物とモチーフの由来 画像クイズ60問</h1>
+  <div class="subtitle">肖像画・紙幣・コイン・国章のビジュアル問題＆英語リスニング演習システム（図鑑モード付き）</div>
+
+  <div class="controls">
+    <select id="catSelect" onchange="startCategoryMode()">
+      <option value="ALL">全4分野 (全60問)</option>
+      <option value="1. 紙幣の人物（表面）">1. 紙幣の肖像画と人物の由来（$1〜$100・15問）</option>
+      <option value="2. 紙幣の建築・歴史画（裏面）">2. 紙幣の裏面建築・歴史画の由来（15問）</option>
+      <option value="3. 硬貨の人物とデザイン">3. 硬貨（コイン）の人物・サイズ・由来（15問）</option>
+      <option value="4. 国章・標語・通貨の雑学">4. 国章モチーフ・ラテン語標語・通貨制度（15問）</option>
+    </select>
+    <button class="btn-ctrl primary" onclick="startShuffleAll()">シャッフル全60問</button>
+    <button class="btn-ctrl accent" onclick="startMockExam()">決勝模擬モード (25問+ボーナス5問)</button>
+    <button class="btn-ctrl gallery-btn" onclick="toggleGallery()">🖼️ 紙幣・硬貨ビジュアル図鑑を開く</button>
+    <button class="btn-ctrl" id="retryBtn" onclick="startRetryWrong()" style="display:none;">間違えた問題だけ復習</button>
+  </div>
+
+  <div class="audio-bar">
+    <button class="btn-ctrl audio" onclick="speakCurrentQuestion(false)">🔊 問題文を読み上げ</button>
+    <button class="btn-ctrl audio" onclick="speakCurrentQuestion(true)">🔊 問題＋選択肢を読み上げ</button>
+    <button class="btn-ctrl" onclick="stopSpeech()">⏹ 停止</button>
+    <button class="btn-ctrl" id="autoSpeakBtn" onclick="toggleAutoSpeak()">自動読み上げ: OFF</button>
+    <button class="btn-ctrl" id="blindModeBtn" onclick="toggleBlindMode()">🙈 リスニング専念: OFF</button>
+    <select id="rateSelect" title="読み上げ速度">
+      <option value="0.85">速度 0.85x (ゆっくり)</option>
+      <option value="1.0" selected>速度 1.0x (標準)</option>
+      <option value="1.15">速度 1.15x (速め)</option>
+    </select>
+  </div>
+
+  <!-- ビジュアル図鑑エリア -->
+  <div id="galleryArea">
+    <h2 style="text-align:center; color:var(--navy); margin:8px 0;">🖼️ アメリカの紙幣・硬貨・国章ビジュアル図鑑</h2>
+    <p style="text-align:center; font-size:0.9rem; color:#475569; margin-bottom:12px;">大会決勝で頻出する「額面・肖像画・裏面モチーフ・由来」の視覚データ一覧です。</p>
+    <div id="galleryGrid" class="gallery-grid"></div>
+    <div style="text-align:center; margin-top:16px;">
+      <button class="btn-ctrl primary" onclick="toggleGallery()">クイズ画面に戻る</button>
+    </div>
+  </div>
+
+  <!-- クイズ本編エリア -->
+  <div id="quizArea">
+    <div class="status-bar">
+      <div>
+        <span id="qProgress">Q 1 / 60</span>
+        <span id="qCat" class="badge">1. 紙幣の人物（表面）</span>
+        <span id="qBonus" class="badge bonus" style="display:none;">★BONUS 3pts</span>
+      </div>
+      <div id="scoreDisplay">Score: 0</div>
+    </div>
+
+    <div class="visual-stage">
+      <div class="photo-frame" id="photoFrame">
+        <img id="qImage" src="" alt="Currency Visual" onerror="this.style.display='none'; document.getElementById('imgFallbackNote').style.display='block';">
+        <div id="imgFallbackNote" style="display:none; font-size:0.82rem; color:#64748b; padding:12px; text-align:center;">（オフライン環境のため右側のビジュアル図解を表示中）</div>
+        <div class="photo-caption" id="qCaption"></div>
+      </div>
+      <div class="svg-card" id="svgContainer"></div>
+    </div>
+
+    <div id="questionText" class="question-box"></div>
+    <div id="optionsContainer" class="options"></div>
+    <div id="feedbackBox" class="feedback"></div>
+    <div class="nav-bar">
+      <button class="nav-btn" id="prevBtn" onclick="prevQuestion()">← 前の問題</button>
+      <button class="nav-btn" id="nextBtn" onclick="nextQuestion()">次の問題 →</button>
+    </div>
+  </div>
+
+  <div id="resultArea" class="result-screen">
+    <h2>演習結果</h2>
+    <div id="finalScore" class="score-big"></div>
+    <p id="finalComment"></p>
+    <button class="btn-ctrl primary" onclick="startCategoryMode()">最初からやり直す</button>
+    <button class="btn-ctrl accent" id="retryBtnEnd" onclick="startRetryWrong()">間違えた問題を復習する</button>
+  </div>
+</div>
+
+<script>
+// Wikimedia Commons Public Domain File Paths
+const IMG = {
+  b1_f: "https://commons.wikimedia.org/wiki/Special:FilePath/US_one_dollar_bill,_obverse,_series_2009.jpg?width=520",
+  b1_r: "https://commons.wikimedia.org/wiki/Special:FilePath/US_one_dollar_bill,_reverse,_series_2009.jpg?width=520",
+  b2_f: "https://commons.wikimedia.org/wiki/Special:FilePath/US_$2_bill_obverse_series_2003_A.jpg?width=520",
+  b2_r: "https://commons.wikimedia.org/wiki/Special:FilePath/US_$2_bill_reverse_series_2003_A.jpg?width=520",
+  b5_f: "https://commons.wikimedia.org/wiki/Special:FilePath/US_$5_Series_2006_obverse.jpg?width=520",
+  b5_r: "https://commons.wikimedia.org/wiki/Special:FilePath/US_$5_Series_2006_reverse.jpg?width=520",
+  b10_f: "https://commons.wikimedia.org/wiki/Special:FilePath/US_$10_Series_2004A_obverse.jpg?width=520",
+  b10_r: "https://commons.wikimedia.org/wiki/Special:FilePath/US_$10_Series_2004A_reverse.jpg?width=520",
+  b20_f: "https://commons.wikimedia.org/wiki/Special:FilePath/US_$20_Series_2006_Obverse.jpg?width=520",
+  b20_r: "https://commons.wikimedia.org/wiki/Special:FilePath/US_$20_Series_2006_Reverse.jpg?width=520",
+  b50_f: "https://commons.wikimedia.org/wiki/Special:FilePath/50_USD_Series_2004_Note_Front.jpg?width=520",
+  b50_r: "https://commons.wikimedia.org/wiki/Special:FilePath/50_USD_Series_2004_Note_Back.jpg?width=520",
+  b100_f: "https://commons.wikimedia.org/wiki/Special:FilePath/Obverse_of_the_series_2009_$100_Federal_Reserve_Note.jpg?width=520",
+  b100_r: "https://commons.wikimedia.org/wiki/Special:FilePath/New100back.jpg?width=520",
+  washington: "https://commons.wikimedia.org/wiki/Special:FilePath/Gilbert_Stuart_Williamstown_Portrait_of_George_Washington.jpg?width=360",
+  jefferson: "https://commons.wikimedia.org/wiki/Special:FilePath/Official_Presidential_portrait_of_Thomas_Jefferson_(by_Rembrandt_Peale,_1800)(cropped).jpg?width=360",
+  lincoln: "https://commons.wikimedia.org/wiki/Special:FilePath/Abraham_Lincoln_O-77_matte_collodion_print.jpg?width=360",
+  hamilton: "https://commons.wikimedia.org/wiki/Special:FilePath/Alexander_Hamilton_portrait_by_John_Trumbull_1806.jpg?width=360",
+  jackson: "https://commons.wikimedia.org/wiki/Special:FilePath/Andrew_Jackson_by_Thomas_Sully_(1845).jpg?width=360",
+  grant: "https://commons.wikimedia.org/wiki/Special:FilePath/Ulysses_S._Grant_1870-1880.jpg?width=360",
+  franklin: "https://commons.wikimedia.org/wiki/Special:FilePath/BenFranklinDuplessis.jpg?width=360",
+  tubman: "https://commons.wikimedia.org/wiki/Special:FilePath/Harriet_Tubman_c1868-69_(cropped).jpg?width=360",
+  penny: "https://commons.wikimedia.org/wiki/Special:FilePath/US_One_Cent_Obv.png?width=320",
+  nickel_r: "https://commons.wikimedia.org/wiki/Special:FilePath/US_Nickel_Reverse.jpg?width=320",
+  quarter: "https://commons.wikimedia.org/wiki/Special:FilePath/1994-P_Washington_quarter_obverse.jpg?width=320",
+  half: "https://commons.wikimedia.org/wiki/Special:FilePath/Obverse_of_the_2021_John_F._Kennedy_Half_Dollar.jpg?width=320",
+  seal_obv: "https://commons.wikimedia.org/wiki/Special:FilePath/Great_Seal_of_the_United_States_(obverse).svg?width=360",
+  seal_rev: "https://commons.wikimedia.org/wiki/Special:FilePath/Great_Seal_of_the_United_States_(reverse).svg?width=360"
+};
+
+// SVG Card Generator for crisp offline/online visual diagrams
+function buildSvgCard(type, labelTop, mainText, subText, accentColor = "#2e5a36") {
+  if (type === "bill") {
+    return `<svg viewBox="0 0 290 165" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <rect x="6" y="6" width="278" height="153" rx="8" fill="#e9f2e6" stroke="${accentColor}" stroke-width="4"/>
+      <rect x="14" y="14" width="262" height="137" rx="4" fill="none" stroke="${accentColor}" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <circle cx="145" cy="82" r="44" fill="#d5e6d0" stroke="${accentColor}" stroke-width="2"/>
+      <text x="26" y="38" font-size="18" font-weight="800" fill="${accentColor}" font-family="Georgia, serif">${labelTop}</text>
+      <text x="264" y="38" font-size="18" font-weight="800" fill="${accentColor}" font-family="Georgia, serif" text-anchor="end">${labelTop}</text>
+      <text x="145" y="28" font-size="10" font-weight="700" fill="#1e293b" text-anchor="middle" letter-spacing="1">THE UNITED STATES OF AMERICA</text>
+      <text x="145" y="84" font-size="15" font-weight="800" fill="#0f172a" text-anchor="middle">${mainText}</text>
+      <text x="145" y="103" font-size="10.5" font-weight="600" fill="#334155" text-anchor="middle">${subText}</text>
+      <text x="145" y="143" font-size="10" font-weight="700" fill="${accentColor}" text-anchor="middle" letter-spacing="1.2">IN GOD WE TRUST</text>
+    </svg>`;
+  } else if (type === "coin") {
+    const isCopper = accentColor === "#b45309";
+    const fillGrad = isCopper ? "#f5d0a9" : (accentColor === "#ca8a04" ? "#fef08a" : "#e2e8f0");
+    const strokeCol = isCopper ? "#9a3412" : (accentColor === "#ca8a04" ? "#a16207" : "#475569");
+    return `<svg viewBox="0 0 290 165" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <rect width="290" height="165" fill="#f8fafc"/>
+      <circle cx="145" cy="82" r="68" fill="${fillGrad}" stroke="${strokeCol}" stroke-width="4"/>
+      <circle cx="145" cy="82" r="61" fill="none" stroke="${strokeCol}" stroke-width="1.2" stroke-dasharray="3,3"/>
+      <text x="145" y="42" font-size="11" font-weight="800" fill="${strokeCol}" text-anchor="middle" letter-spacing="1.5">${labelTop}</text>
+      <text x="145" y="84" font-size="16" font-weight="800" fill="#0f172a" text-anchor="middle">${mainText}</text>
+      <text x="145" y="104" font-size="10.5" font-weight="600" fill="#334155" text-anchor="middle">${subText}</text>
+      <text x="145" y="132" font-size="9.5" font-weight="700" fill="${strokeCol}" text-anchor="middle">LIBERTY • E PLURIBUS UNUM</text>
+    </svg>`;
+  } else {
+    return `<svg viewBox="0 0 290 165" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <rect x="6" y="6" width="278" height="153" rx="10" fill="#eff6ff" stroke="#1d4ed8" stroke-width="3"/>
+      <polygon points="145,28 110,98 180,98" fill="#dbeafe" stroke="#1e40af" stroke-width="2"/>
+      <circle cx="145" cy="52" r="8" fill="#fef08a" stroke="#b45309" stroke-width="1.5"/>
+      <text x="145" y="22" font-size="11" font-weight="800" fill="#1e40af" text-anchor="middle">${labelTop}</text>
+      <text x="145" y="118" font-size="14.5" font-weight="800" fill="#0f172a" text-anchor="middle">${mainText}</text>
+      <text x="145" y="138" font-size="10.5" font-weight="600" fill="#334155" text-anchor="middle">${subText}</text>
+    </svg>`;
+  }
+}
+
+const GALLERY_ITEMS = [
+  { title: "$1 紙幣（表：ワシントン / 裏：合衆国国章）", img: IMG.b1_f, desc: "表面は初代大統領ジョージ・ワシントン（スチュアート画）。裏面は合衆国国章の表（ハクトウワシ）と裏（未完成の13段ピラミッドとプロビデンスの目）。" },
+  { title: "$2 紙幣（表：ジェファソン / 裏：独立宣言）", img: IMG.b2_r, desc: "表面は第3代大統領トーマス・ジェファソン。裏面はジョン・トランブルが描いた1776年の『独立宣言』提出の場面。" },
+  { title: "$5 紙幣（表：リンカーン / 裏：リンカーン記念堂）", img: IMG.b5_f, desc: "表面は第16代大統領エイブラハム・リンカーン。裏面はワシントンD.C.のリンカーン記念堂。" },
+  { title: "$10 紙幣（表：ハミルトン / 裏：財務省本庁舎）", img: IMG.b10_f, desc: "表面は初代財務長官アレクサンダー・ハミルトン（大統領経験なし）。裏面は米財務省本庁舎。" },
+  { title: "$20 紙幣（表：ジャクソン / 裏：ホワイトハウス）", img: IMG.b20_f, desc: "表面は第7代大統領アンドリュー・ジャクソン（将来ハリエット・タブマンへ変更予定）。裏面はホワイトハウス。" },
+  { title: "$50 紙幣（表：グラント / 裏：連邦議会議事堂）", img: IMG.b50_f, desc: "表面は南北戦争の北軍総司令官で第18代大統領のユリシーズ・S・グラント。裏面は連邦議会議事堂（U.S. Capitol）。" },
+  { title: "$100 紙幣（表：フランクリン / 裏：独立記念館）", img: IMG.b100_f, desc: "流通最高額紙幣。表面は建国の父ベンジャミン・フランクリン（大統領経験なし）。裏面はフィラデルフィアの独立記念館。" },
+  { title: "1¢ ペニー & 5¢ ニッケル", img: IMG.penny, desc: "1¢（Penny）はリンカーン（銅メッキ・生誕100年の1909年〜）。5¢（Nickel）は表がジェファソン、裏が世界遺産モンティチェロ。" },
+  { title: "10¢ ダイム & 25¢ クォーター", img: IMG.quarter, desc: "10¢（Dime）は最小サイズでF.D.ルーズベルト（ポリオ募金運動に由来）。25¢（Quarter）はワシントン（生誕200年の1932年〜）。" },
+  { title: "50¢ ハーフダラー & $1 硬貨", img: IMG.half, desc: "50¢はJ.F.ケネディ（1963年暗殺の翌1964年〜）。$1硬貨は先住民女性サカガウィアや女性参政権運動家スーザン・B・アンソニー。" },
+  { title: "合衆国国章（表面：ハクトウワシ）", img: IMG.seal_obv, desc: "右足に平和の象徴「オリーブの枝（葉と実が13個）」、左足に防衛の象徴「13本の矢」を掴み、顔は平和（オリーブ側）を向く。" },
+  { title: "合衆国国章（裏面：13段ピラミッド）", img: IMG.seal_rev, desc: "独立13州を表す13段の未完成ピラミッドの底辺に「MDCCLXXVI（1776年）」、頂点に「プロビデンスの目」が輝く。" }
+];
+
+const QUIZ_DATA = [
+  // 1. 紙幣の肖像画と人物の由来（$1〜$100・15問）
+  {id:1, cat:"1. 紙幣の人物（表面）", img:IMG.b1_f, cap:"U.S. $1 Bill (Obverse)", svg:["bill","$1","Who is on the $1 Bill?","1st U.S. President"], q:"Whose portrait is featured on the front (obverse) of the U.S. $1 bill?", o:["Thomas Jefferson","George Washington","Abraham Lincoln","Benjamin Franklin"], a:1, exp:"1ドル紙幣の表面には、アメリカ合衆国初代大統領ジョージ・ワシントンが描かれています。"},
+  {id:2, cat:"1. 紙幣の人物（表面）", img:IMG.washington, cap:"Gilbert Stuart's Unfinished 1796 Portrait", svg:["bill","$1","Portrait Artist","The Athenaeum Portrait (1796)"], q:"Which American artist painted the famous unfinished 1796 'Athenaeum Portrait' of George Washington used as the model for the $1 bill?", o:["John Trumbull","Gilbert Stuart","Grant Wood","Edward Hopper"], a:1, exp:"1ドル札のワシントン像の原画は、画家ギルバート・スチュアートが1796年に描いた未完の肖像画『アテネウム・ポートレート』です（紙幣では左右反転して使われています）。"},
+  {id:3, cat:"1. 紙幣の人物（表面）", img:IMG.b2_f, cap:"U.S. $2 Bill (Obverse)", svg:["bill","$2","Who is on the $2 Bill?","Author of Declaration of Independence"], q:"Whose portrait appears on the front of the U.S. $2 bill?", o:["John Adams","Thomas Jefferson","James Madison","Andrew Jackson"], a:1, exp:"2ドル紙幣の表面には、独立宣言の起草者であり第3代大統領のトーマス・ジェファソンが描かれています。"},
+  {id:4, cat:"1. 紙幣の人物（表面）", img:IMG.b5_f, cap:"U.S. $5 Bill (Obverse)", svg:["bill","$5","Who is on the $5 Bill?","16th U.S. President"], q:"Whose portrait is featured on the front of the U.S. $5 bill?", o:["Abraham Lincoln","Alexander Hamilton","Ulysses S. Grant","Franklin D. Roosevelt"], a:0, exp:"5ドル紙幣の表面には、南北戦争を指導し奴隷解放宣言を発布した第16代大統領エイブラハム・リンカーンが描かれています。"},
+  {id:5, cat:"1. 紙幣の人物（表面）", img:IMG.b10_f, cap:"U.S. $10 Bill (Obverse)", svg:["bill","$10","Who is on the $10 Bill?","1st Secretary of the Treasury"], q:"Whose portrait appears on the front of the U.S. $10 bill?", o:["Thomas Jefferson","Alexander Hamilton","James Monroe","John Marshall"], a:1, exp:"10ドル紙幣の表面には、ワシントン政権で初代財務長官を務め合衆国銀行を創設したアレクサンダー・ハミルトンが描かれています。"},
+  {id:6, cat:"1. 紙幣の人物（表面）", img:IMG.hamilton, cap:"Portrait by John Trumbull (1806)", svg:["bill","$10","Unique Feature on $10","Facing Direction of Portrait"], q:"What is visually unique about Alexander Hamilton's portrait on the $10 bill compared to all other portraits on U.S. bills?", o:["He is wearing glasses","He is the only person facing to the left","He is wearing a military hat","He is smiling with teeth showing"], a:1, exp:"現行のアメリカ紙幣7種の肖像のうち、10ドル札のアレクサンダー・ハミルトンだけが唯一「左向き（向かって左）」を向いており、他の6人は全員右向きです。"},
+  {id:7, cat:"1. 紙幣の人物（表面）", img:IMG.b20_f, cap:"U.S. $20 Bill (Obverse)", svg:["bill","$20","Who is on the $20 Bill?","7th President ('Old Hickory')"], q:"Which 7th U.S. President, nicknamed 'Old Hickory,' is featured on the front of the U.S. $20 bill?", o:["James Madison","Andrew Jackson","Ulysses S. Grant","Theodore Roosevelt"], a:1, exp:"20ドル紙幣の表面には、「ジャクソニアン・デモクラシー」を推進した第7代大統領アンドリュー・ジャクソンが描かれています。"},
+  {id:8, cat:"1. 紙幣の人物（表面）", img:IMG.jackson, cap:"Andrew Jackson (1767–1845)", svg:["bill","$20","Historical Irony","Jackson vs. Paper Money"], q:"Why do historians consider it ironic that Andrew Jackson's portrait appears on the $20 Federal Reserve Note?", o:["He never lived in the United States","He fiercely opposed paper money and the national bank during his presidency","He wanted his face on the $100 bill instead","He was a British citizen"], a:1, exp:"ジャクソン大統領は在任中、中央銀行（第二合衆国銀行）や紙幣の発行に強く反対し金貨・銀貨（正貨）のみを信奉していたため、彼の肖像が連邦準備銀行券（紙幣）に載っていることは歴史的皮肉として有名です。"},
+  {id:9, cat:"1. 紙幣の人物（表面）", img:IMG.tubman, cap:"Abolitionist & Underground Railroad Conductor", svg:["bill","$20","Future $20 Redesign Plan","Underground Railroad Heroine"], q:"Which African American abolitionist and 'Underground Railroad' conductor was selected by the U.S. Treasury to replace Andrew Jackson on a future redesign of the $20 bill?", o:["Rosa Parks","Harriet Tubman","Sojourner Truth","Harriet Beecher Stowe"], a:1, exp:"逃亡奴隷を救出する「地下鉄道（Underground Railroad）」の車掌として活躍したハリエット・タブマンが、将来の新20ドル紙幣の表面肖像に採用される計画が進められています。"},
+  {id:10, cat:"1. 紙幣の人物（表面）", img:IMG.b50_f, cap:"U.S. $50 Bill (Obverse)", svg:["bill","$50","Who is on the $50 Bill?","18th President & Union General"], q:"Which Union Commanding General in the Civil War and 18th U.S. President is featured on the front of the U.S. $50 bill?", o:["Robert E. Lee","Ulysses S. Grant","William Tecumseh Sherman","Rutherford B. Hayes"], a:1, exp:"50ドル紙幣の表面には、南北戦争で北軍を勝利に導き第18代大統領を務めたユリシーズ・S・グラントが描かれています。"},
+  {id:11, cat:"1. 紙幣の人物（表面）", img:IMG.b100_f, cap:"U.S. $100 Bill (Obverse)", svg:["bill","$100","Who is on the $100 Bill?","Highest Circulating Bill"], q:"Whose portrait appears on the front of the U.S. $100 bill, the highest denomination currently in circulation?", o:["George Washington","Thomas Jefferson","Alexander Hamilton","Benjamin Franklin"], a:3, exp:"現在流通している最高額紙幣の100ドル札には、科学者・外交官として独立に貢献した建国の父ベンジャミン・フランクリンが描かれています（そのため100ドル札は俗に「Benjamins」とも呼ばれます）。"},
+  {id:12, cat:"1. 紙幣の人物（表面）", img:IMG.franklin, cap:"Non-Presidential Founding Fathers", svg:["bill","$10 & $100","Non-Presidents on U.S. Bills","2 Founding Fathers"], q:"Among the seven portraits on currently circulating U.S. paper bills ($1 to $100), which two men were NEVER President of the United States?", o:["Alexander Hamilton ($10) and Benjamin Franklin ($100)","Thomas Jefferson ($2) and Ulysses S. Grant ($50)","Andrew Jackson ($20) and Benjamin Franklin ($100)","Alexander Hamilton ($10) and John Marshall ($50)"], a:0, exp:"現行紙幣7種のうち、大統領経験者ではないのは10ドル札のアレクサンダー・ハミルトン（初代財務長官）と100ドル札のベンジャミン・フランクリンの2名です。"},
+  {id:13, cat:"1. 紙幣の人物（表面）", img:IMG.lincoln, cap:"U.S. Federal Law on Currency Portraits (1866)", svg:["bill","LAW","1866 Federal Statute","Who Can Appear on U.S. Money?"], q:"Under an 1866 federal law passed by Congress, what is a mandatory requirement for any person's portrait to appear on U.S. currency or securities?", o:["The person must have served in the military","The person must be deceased (no living person may be depicted)","The person must have been born in Virginia","The person must be a Nobel Prize winner"], a:1, exp:"南北戦争直後の1866年に制定された連邦法により、アメリカの紙幣や硬貨には「存命中の人物」の肖像を描くことが法律で禁止されており、故人のみが対象となります。"},
+  {id:14, cat:"1. 紙幣の人物（表面）", img:IMG.b100_f, cap:"Historical High-Denomination Bills", svg:["bill","$100,000","Highest Bill Ever Printed (1934)","For Federal Reserve Bank Transfers"], q:"What was the highest-denomination U.S. currency note ever printed (in 1934 for official transactions between Federal Reserve Banks), featuring President Woodrow Wilson?", o:["$500 bill","$1,000 bill","$10,000 bill","$100,000 Gold Certificate"], a:3, exp:"アメリカ史上最高額の紙幣は、1934年に連邦準備銀行間の決済用に印刷された「10万ドル金証券（$100,000 bill）」で、第28代ウッドロウ・ウィルソン大統領が描かれていました（一般流通の最高額は1万ドル札）。"},
+  {id:15, cat:"1. 紙幣の人物（表面）", img:IMG.b10_r, cap:"1920 Women's Suffrage Centennial Plan", svg:["bill","$10","Suffrage Movement Leaders","19th Amendment Commemoration"], q:"Which five leaders of the Women's Suffrage and Civil Rights movements were announced to be honored on a future redesign of the $10 bill alongside the Treasury Building?", o:["Sojourner Truth, Lucretia Mott, Elizabeth Cady Stanton, Susan B. Anthony, and Alice Paul","Martha Washington, Dolley Madison, Eleanor Roosevelt, Jackie Kennedy, and Michelle Obama","Clara Barton, Helen Keller, Amelia Earhart, Sally Ride, and Rachel Carson","Emily Dickinson, Louisa May Alcott, Harper Lee, Toni Morrison, and Maya Angelou"], a:0, exp:"財務省の改刷計画では、10ドル札の裏面に女性参政権運動（修正第19条）を牽引したソジャーナ・トゥルース、ルクレシア・モット、エリザベス・キャディ・スタントン、スーザン・B・アンソニー、アリス・ポールの5人を描くデザインが発表されました。"},
+
+  // 2. 紙幣の裏面建築・歴史画の由来（15問）
+  {id:16, cat:"2. 紙幣の建築・歴史画（裏面）", img:IMG.b1_r, cap:"U.S. $1 Bill (Reverse)", svg:["seal","$1 REVERSE","Two Circles on $1 Back","Adopted in 1782 / Added to $1 in 1935"], q:"What is depicted inside the two circles on the reverse side of the U.S. $1 bill?", o:["The White House and the Capitol","The Obverse and Reverse of the Great Seal of the United States (合衆国国章の表と裏)","The Liberty Bell and Independence Hall","The Lincoln Memorial and Washington Monument"], a:1, exp:"1ドル紙幣の裏面左右の円には、1782年に制定された「アメリカ合衆国国章（Great Seal of the United States）」の表面（右：ハクトウワシ）と裏面（左：ピラミッド）が1935年（F.D.ルーズベルト政権）から描かれています。"},
+  {id:17, cat:"2. 紙幣の建築・歴史画（裏面）", img:IMG.b2_r, cap:"U.S. $2 Bill (Reverse)", svg:["bill","$2 BACK","Historical Painting on $2","John Trumbull's Masterpiece"], q:"Which famous historical painting by John Trumbull (hanging in the U.S. Capitol Rotunda) is engraved on the reverse of the U.S. $2 bill?", o:["Washington Crossing the Delaware","Declaration of Independence (独立宣言の提出)","Surrender of Lord Cornwallis","Signing of the U.S. Constitution"], a:1, exp:"2ドル紙幣の裏面には、表面のジェファソンにちなみ、ジョン・トランブルが描いた絵画『独立宣言（Declaration of Independence）』（5人委員会が大陸会議に草案を提出する場面）が刻印されています。"},
+  {id:18, cat:"2. 紙幣の建築・歴史画（裏面）", img:IMG.b5_r, cap:"U.S. $5 Bill (Reverse)", svg:["bill","$5 BACK","Monument on $5 Reverse","National Mall, Washington, D.C."], q:"Which monument in Washington, D.C. is depicted on the reverse of the U.S. $5 bill?", o:["Washington Monument","Jefferson Memorial","Lincoln Memorial (リンカーン記念堂)","Mount Rushmore"], a:2, exp:"5ドル紙幣の裏面には、ワシントンD.C.のナショナル・モール西端に立つ「リンカーン記念堂（Lincoln Memorial）」が描かれています。"},
+  {id:19, cat:"2. 紙幣の建築・歴史画（裏面）", img:IMG.b5_r, cap:"1963 Historic Event at the $5 Bill Monument", svg:["bill","$5 BACK","August 28, 1963 Speech","At the Steps of Lincoln Memorial"], q:"Which historic speech was delivered on the steps of the monument pictured on the back of the $5 bill in August 1963, exactly 100 years after Lincoln's Emancipation Proclamation?", o:["JFK's Moon Shot Speech","Martin Luther King Jr.'s 'I Have a Dream' Speech","FDR's Four Freedoms Speech","Reagan's 'Tear Down This Wall' Speech"], a:1, exp:"5ドル札裏面のリンカーン記念堂の階段は、リンカーンの奴隷解放宣言（1863年）から100年後の1963年8月、キング牧師が「I Have a Dream」演説を行った場所です。"},
+  {id:20, cat:"2. 紙幣の建築・歴史画（裏面）", img:IMG.b10_r, cap:"U.S. $10 Bill (Reverse)", svg:["bill","$10 BACK","Building on $10 Reverse","Matches 1st Treasury Secretary"], q:"Which federal building in Washington, D.C. is depicted on the reverse of the U.S. $10 bill to honor Alexander Hamilton's role in the nation's founding?", o:["The Federal Reserve Building","The U.S. Treasury Building (財務省本庁舎)","The Supreme Court Building","The New York Stock Exchange"], a:1, exp:"表面が初代財務長官アレクサンダー・ハミルトンであることにちなみ、10ドル札の裏面にはホワイトハウスのすぐ東隣にある「アメリカ合衆国財務省本庁舎（U.S. Treasury Building）」が描かれています。"},
+  {id:21, cat:"2. 紙幣の建築・歴史画（裏面）", img:IMG.b20_r, cap:"U.S. $20 Bill (Reverse)", svg:["bill","$20 BACK","Building on $20 Reverse","1600 Pennsylvania Avenue"], q:"Which iconic building in Washington, D.C. is depicted on the reverse of the U.S. $20 bill?", o:["The White House (ホワイトハウス)","The U.S. Capitol","The Pentagon","Mount Vernon"], a:0, exp:"20ドル紙幣の裏面には、アメリカ合衆国大統領官邸である「ホワイトハウス（The White House）」が描かれています。"},
+  {id:22, cat:"2. 紙幣の建築・歴史画（裏面）", img:IMG.b50_r, cap:"U.S. $50 Bill (Reverse)", svg:["bill","$50 BACK","Building on $50 Reverse","Seat of the U.S. Congress"], q:"Which landmark building on Capitol Hill in Washington, D.C., where the Senate and House of Representatives meet, is depicted on the reverse of the U.S. $50 bill?", o:["The White House","The Library of Congress","The United States Capitol (合衆国議会議事堂)","The National Archives"], a:2, exp:"50ドル紙幣の裏面には、連邦議会（上院・下院）の議場である「アメリカ合衆国議会議事堂（United States Capitol）」が描かれています。"},
+  {id:23, cat:"2. 紙幣の建築・歴史画（裏面）", img:IMG.b100_r, cap:"U.S. $100 Bill (Reverse)", svg:["bill","$100 BACK","UNESCO World Heritage Building","Philadelphia, Pennsylvania"], q:"Which UNESCO World Heritage building in Philadelphia, where both the Declaration of Independence and the U.S. Constitution were adopted, is featured on the reverse of the $100 bill?", o:["Federal Hall","Independence Hall (独立記念館)","Faneuil Hall","Carpenters' Hall"], a:1, exp:"100ドル紙幣の裏面には、ベンジャミン・フランクリンが独立宣言と合衆国憲法の両方に署名したペンシルベニア州フィラデルフィアの「独立記念館（Independence Hall）」が描かれています。"},
+  {id:24, cat:"2. 紙幣の建築・歴史画（裏面）", img:IMG.b100_f, cap:"Color-Shifting Ink Motif on the $100 Bill", svg:["bill","$100 FRONT","Security Motif in the Inkwell","Symbol of American Freedom in Philadelphia"], q:"On the front of the current $100 bill (redesigned in 2013), what famous symbol of American independence is printed in color-shifting ink inside the copper inkwell next to Benjamin Franklin?", o:["The Statue of Liberty","The Liberty Bell (自由の鐘)","The Bald Eagle","The Mayflower"], a:1, exp:"現行100ドル紙幣の表面右側には、傾けると銅色から緑色に変化するインク壺の中に、フィラデルフィアの象徴である「自由の鐘（Liberty Bell）」と羽根ペンが描かれています。"},
+  {id:25, cat:"2. 紙幣の建築・歴史画（裏面）", img:IMG.b100_r, cap:"Clock Hands on Independence Hall ($100 Back)", svg:["bill","$100 CLOCK","Time Shown on Clock Tower","Independence Hall Clock"], q:"According to the U.S. Bureau of Engraving and Printing, what time is shown on the clock tower of Independence Hall on the back of the current $100 bill?", o:["12:00 (Noon)","2:22","4:10","7:04"], a:1, exp:"現行100ドル紙幣の裏面にある独立記念館の時計台の針は「4時10分（旧紙幣では2時22分と読まれることもあった）」を指しています。"},
+  {id:26, cat:"2. 紙幣の建築・歴史画（裏面）", img:IMG.b2_r, cap:"City Where the $2 and $100 Reverse Buildings Stand", svg:["bill","$2 & $100","Historic City in Pennsylvania","First Capital Era of the U.S."], q:"While the buildings on the back of the $5, $10, $20, and $50 bills are all in Washington, D.C., in which city did the scenes/buildings on the back of the $2 and $100 bills take place?", o:["Boston, Massachusetts","New York City, New York","Philadelphia, Pennsylvania","Richmond, Virginia"], a:2, exp:"$5（リンカーン記念堂）・$10（財務省）・$20（ホワイトハウス）・$50（連邦議会議事堂）の裏面はすべてワシントンD.C.の建築ですが、$2と$100の裏面はペンシルベニア州フィラデルフィアの独立記念館です。"},
+  {id:27, cat:"2. 紙幣の建築・歴史画（裏面）", img:IMG.b5_r, cap:"State Names Engraved on the Lincoln Memorial ($5 Back)", svg:["bill","$5 BACK","36 Columns of Lincoln Memorial","Number of U.S. States in 1865"], q:"Why does the colonnade of the Lincoln Memorial (shown on the back of the $5 bill) have 36 outer Doric columns?", o:["Lincoln was 36 years old when elected","There were 36 states in the Union at the time of Lincoln's death in 1865","The Civil War lasted 36 months","Lincoln was the 36th President"], a:1, exp:"リンカーン記念堂を取り囲む36本の円柱は、1865年にリンカーンが亡くなった時点で連邦（Union）を構成していた36の州を象徴しています。"},
+  {id:28, cat:"2. 紙幣の建築・歴史画（裏面）", img:IMG.b100_f, cap:"Handwritten Text on the $100 Bill Obverse", svg:["bill","$100 FRONT","July 4, 1776 Document","Background Script Next to Franklin"], q:"Which founding document's opening lines ('When in the Course of human events...') are printed in script in the background to the right of Benjamin Franklin on the $100 bill?", o:["The Mayflower Compact","The Declaration of Independence (アメリカ独立宣言)","The Gettysburg Address","The Monroe Doctrine"], a:1, exp:"100ドル紙幣の表面右側には、フランクリンが5人委員会の一員として起草に関わった1776年の『アメリカ独立宣言』の冒頭文と羽根ペンが背景に刻まれています。"},
+  {id:29, cat:"2. 紙幣の建築・歴史画（裏面）", img:IMG.b50_f, cap:"Background Symbols on the $50 Bill Obverse", svg:["bill","$50 FRONT","Red, White & Blue Symbols","Behind Ulysses S. Grant"], q:"What patriotic symbols are printed in red and blue in the background behind Ulysses S. Grant on the current $50 bill?", o:["Stars and Stripes of the American Flag","Crossing swords and cannons","Railroad tracks and telegraphs","Olive branches and arrows"], a:0, exp:"2004年シリーズ以降の50ドル紙幣の表面背景には、連邦を守り抜いたグラントにちなみ、星条旗の赤いストライプと青い星々が描かれています。"},
+  {id:30, cat:"2. 紙幣の建築・歴史画（裏面）", img:IMG.b20_f, cap:"Background Bird on the $20 Bill Obverse", svg:["bill","$20 FRONT","National Bird in Background","Left of Andrew Jackson"], q:"Which bird is printed in the background to the left of Andrew Jackson's portrait on the front of the current $20 bill?", o:["Wild Turkey","Bald Eagle (ハクトウワシ)","Peregrine Falcon","Mockingbird"], a:1, exp:"20ドル紙幣の表面左側（ジャクソンの肖像の背景）には、アメリカの国鳥であるハクトウワシ（Bald Eagle）が大きく透かし模様のように描かれています。"},
+
+  // 3. 硬貨（コイン）の人物・サイズ・由来（15問）
+  {id:31, cat:"3. 硬貨の人物とデザイン", img:IMG.penny, cap:"U.S. 1-Cent Coin (Penny)", svg:["coin","1¢ PENNY","Copper-Plated Zinc Coin","Introduced in 1909"], q:"Whose profile appears on the obverse of the U.S. 1-cent coin (Penny), and why was it introduced in 1909?", o:["George Washington / 100th anniversary of his death","Abraham Lincoln / 100th anniversary of his birth (1809–1909)","Thomas Jefferson / 100th anniversary of his presidency","Benjamin Franklin / 200th anniversary of his birth"], a:1, exp:"1セント硬貨（ペニー）には第16代エイブラハム・リンカーン大統領が描かれています。1809年生まれのリンカーンの生誕100周年を記念して1909年に発行され、アメリカの流通硬貨に実在の人物が描かれた最初の例となりました。"},
+  {id:32, cat:"3. 硬貨の人物とデザイン", img:IMG.penny, cap:"Facing Direction of the Penny", svg:["coin","1¢ PENNY","Visual Trivia of U.S. Coins","Which Way Does Lincoln Face?"], q:"In which direction does Abraham Lincoln face on the 1-cent Penny, unlike the profiles on the traditional Nickel, Dime, Quarter, and Half Dollar?", o:["Lincoln faces to the right, while the others traditionally face to the left","Lincoln faces straight ahead","Lincoln faces downward","Lincoln is shown from the back"], a:0, exp:"ニッケル（旧来）・ダイム・クォーター（伝統版）・ハーフダラーの人物がすべて「左向き」なのに対し、1セント硬貨のリンカーンだけは彫刻家ヴィクター・ブレナーの原画に基づき「右向き」を向いています。"},
+  {id:33, cat:"3. 硬貨の人物とデザイン", img:IMG.penny, cap:"Current Reverse of the 1-Cent Penny (Since 2010)", svg:["coin","1¢ REVERSE","1909 Wheat -> 1959 Memorial -> 2010","Preservation of the United States"], q:"After featuring the 'Wheat Ears' (1909–1958) and the 'Lincoln Memorial' (1959–2008), what motif has appeared on the reverse of the 1-cent Penny since 2010?", o:["The White House","The Union Shield (連邦の盾、13本の縦縞)","The Liberty Bell","A Bald Eagle"], a:1, exp:"1セント硬貨の裏面は、小麦の穂（1909〜58）、リンカーン記念堂（1959〜2008、2009年は生誕200年記念4種）を経て、2010年からはリンカーンが合衆国の統一を守ったことを象徴する「ユニオン・シールド（連邦の盾）」が描かれています。"},
+  {id:34, cat:"3. 硬貨の人物とデザイン", img:IMG.nickel_r, cap:"U.S. 5-Cent Coin (Nickel) Reverse", svg:["coin","5¢ NICKEL","Obverse & Reverse of 5¢","UNESCO World Heritage in Virginia"], q:"Whose portrait appears on the obverse of the U.S. 5-cent coin (Nickel), and what building is depicted on its reverse?", o:["George Washington / Mount Vernon","Thomas Jefferson / Monticello (モンティチェロ)","Andrew Jackson / The Hermitage","James Madison / Montpelier"], a:1, exp:"5セント硬貨（ニッケル）は1938年から表面が第3代大統領トーマス・ジェファソン、裏面がバージニア州にあるジェファソン自設計の邸宅「モンティチェロ（世界遺産）」です。"},
+  {id:35, cat:"3. 硬貨の人物とデザイン", img:IMG.nickel_r, cap:"U.S. 10-Cent Coin (Dime)", svg:["coin","10¢ DIME","Smallest & Thinnest U.S. Coin","32nd President (Since 1946)"], q:"Which U.S. President appears on the 10-cent coin (Dime), and why was he chosen for this specific coin after his death in 1945?", o:["Theodore Roosevelt / He loved silver coins","Franklin D. Roosevelt / He suffered from polio and founded the 'March of Dimes' charity","Woodrow Wilson / He signed the Federal Reserve Act","Harry S. Truman / He ended World War II"], a:1, exp:"10セント硬貨（ダイム）には第32代フランクリン・D・ルーズベルト大統領が描かれています。ポリオ（小児麻痺）を患った彼が、人々から10セント（ダイム）を募る基金「マーチ・オブ・ダイムズ（March of Dimes）」を設立した功績を称え、死去の翌1946年から採用されました。"},
+  {id:36, cat:"3. 硬貨の人物とデザイン", img:IMG.penny, cap:"Why Is the 10¢ Dime Smaller Than the 1¢ Penny and 5¢ Nickel?", svg:["coin","10¢ SIZE","Diameter: 17.91 mm (Smallest)","Historical Silver Weight Origin"], q:"Why is the 10-cent Dime physically smaller and thinner than both the 1-cent Penny and the 5-cent Nickel, even though it is worth more?", o:["To fit into telephone slots","Because the Dime was originally made of pure silver, so its size corresponded to 1/10th of a silver dollar's weight","Because the U.S. Mint ran out of metal in 1946","To make it lighter for airmail"], a:1, exp:"ダイム（10セント）がペニー（1セント）やニッケル（5セント）より小さい理由は、1792年の貨幣法当時、ダイムは高価な「銀（Silver）」で作られており、1ドル銀貨のちょうど10分の1の重さ・サイズにする必要があったためです（ペニーは銅、ニッケルは白銅）。"},
+  {id:37, cat:"3. 硬貨の人物とデザイン", img:IMG.nickel_r, cap:"Three Plant/Object Motifs on the Reverse of the Dime", svg:["coin","10¢ REVERSE","Torch • Olive Branch • Oak Branch","Liberty, Peace, and Strength"], q:"What three symbols appear on the reverse of the 10-cent Dime, representing Liberty, Peace, and Strength/Independence?", o:["A Torch, an Olive Branch, and an Oak Branch","An Eagle, a Shield, and a Star","A Bell, a Quill, and a Scroll","Wheat, Corn, and Cotton"], a:0, exp:"10セント硬貨（ダイム）の裏面には、中央に自由を表す「松明（Torch）」、左に平和を表す「オリーブの枝（Olive branch）」、右に強さと独立を表す「オーク（樫）の枝（Oak branch）」が刻まれています。"},
+  {id:38, cat:"3. 硬貨の人物とデザイン", img:IMG.quarter, cap:"U.S. 25-Cent Coin (Quarter)", svg:["coin","25¢ QUARTER","Introduced in 1932","200th Anniversary of Birth"], q:"Whose profile appears on the obverse of the U.S. 25-cent coin (Quarter), first minted in 1932 to mark the 200th anniversary of his birth?", o:["George Washington","Abraham Lincoln","Thomas Jefferson","alexander Hamilton"], a:0, exp:"25セント硬貨（クォーター）の表面には、1732年生まれの初代大統領ジョージ・ワシントンの生誕200周年を記念して1932年からワシントンの横顔が刻まれています。"},
+  {id:39, cat:"3. 硬貨の人物とデザイン", img:IMG.quarter, cap:"Commemorative Quarter Series (1999–Present)", svg:["coin","25¢ SERIES","50 States / National Parks / Women","Reverse of the Quarter"], q:"Starting in 1999, the U.S. Mint began issuing special commemorative designs on the reverse of the 25-cent Quarter. Which of the following was the first major series (1999–2008)?", o:["50 State Quarters Program (50州記念クォーター硬貨)","50 Presidents Quarters","Civil War Battles Quarters","Olympic Athletes Quarters"], a:0, exp:"1999年から2008年にかけて、合衆国憲法を批准した順番（1番目はデラウェア州、50番目はハワイ州）に毎年5州ずつ各州の象徴を裏面に描く「50州記念クォータープログラム」が実施され大ブームとなりました。"},
+  {id:40, cat:"3. 硬貨の人物とデザイン", img:IMG.quarter, cap:"American Women Quarters Program (2022–2025)", svg:["coin","25¢ WOMEN","Maya Angelou & Sally Ride","First Black Woman on a Quarter"], q:"In the 'American Women Quarters Program' launched in 2022, which poet and author of 'I Know Why the Caged Bird Sings' became the first Black woman featured on a U.S. Quarter?", o:["Toni Morrison","Maya Angelou (マヤ・アンジェロウ)","Alice Walker","Phillis Wheatley"], a:1, exp:"2022年から始まった「アメリカの女性記念クォーター硬貨プログラム」の第1弾として、詩人・公民権運動家のマヤ・アンジェロウや宇宙飛行士サリー・ライドなどが25セント硬貨の裏面に描かれました。"},
+  {id:41, cat:"3. 硬貨の人物とデザイン", img:IMG.half, cap:"U.S. 50-Cent Coin (Half Dollar)", svg:["coin","50¢ HALF DOLLAR","Minted Since 1964","35th U.S. President"], q:"Which U.S. President is depicted on the 50-cent Half Dollar coin (introduced in 1964 just months after his assassination in November 1963), and what is on its reverse?", o:["Abraham Lincoln / Gettysburg","John F. Kennedy / Seal of the President of the United States (大統領紋章)","Franklin D. Roosevelt / White House","Dwight D. Eisenhower / Apollo 11"], a:1, exp:"50セント硬貨（ハーフダラー）には、1963年11月に暗殺された第35代ジョン・F・ケネディ大統領を追悼して翌1964年からケネディの横顔が採用され、裏面には合衆国大統領紋章が刻印されています。"},
+  {id:42, cat:"3. 硬貨の人物とデザイン", img:IMG.half, cap:"First Real Historical Woman on a Circulating U.S. Coin (1979)", svg:["coin","$1 COIN (1979)","Women's Suffrage Leader","19th Amendment Pioneer"], q:"Who became the very first real-life (non-allegorical) woman depicted on a circulating U.S. coin when her $1 coin was minted in 1979?", o:["Pocahontas","Susan B. Anthony (スーザン・B・アンソニー)","Eleanor Roosevelt","Amelia Earhart"], a:1, exp:"それまでアメリカの硬貨には架空の「自由の女神（Lady Liberty）」しか描かれていませんでしたが、1979年発行の1ドル硬貨で女性参政権運動の指導者スーザン・B・アンソニーが実在の女性として初めて硬貨の肖像となりました。"},
+  {id:43, cat:"3. 硬貨の人物とデザイン", img:IMG.quarter, cap:"Golden $1 Coin Introduced in the Year 2000", svg:["coin","$1 GOLDEN COIN","Shoshone Guide (1804–1806)","Carrying Her Infant Son Jean Baptiste"], q:"Which Native American woman of the Shoshone tribe, who guided the Lewis and Clark Expedition (1804–1806), is depicted carrying her infant son on the golden $1 coin introduced in 2000?", o:["Pocahontas","Sacagawea (サカガウィア)","Minnehaha","Wilma Mankiller"], a:1, exp:"2000年に発行された金色の1ドル硬貨（サカガウィア・ダラー）には、ルイス・クラーク探検隊を太平洋まで案内したショショーニ族の女性サカガウィアが、幼い息子ジャン・バティストを背負う姿で描かれています。"},
+  {id:44, cat:"3. 硬貨の人物とデザイン", img:IMG.penny, cap:"Mint Marks on U.S. Coins (P, D, S, W)", svg:["coin","MINT MARKS","P • D • S • W","Where U.S. Coins Are Struck"], q:"Small letters stamped on U.S. coins ('P', 'D', 'S', and 'W') indicate which U.S. Mint facility produced the coin. Which four cities do P, D, S, and W stand for?", o:["Philadelphia, Denver, San Francisco, and West Point","Pittsburgh, Dallas, Seattle, and Washington, D.C.","Phoenix, Detroit, St. Louis, and Wilmington","Portland, Des Moines, Sacramento, and Wichita"], a:0, exp:"アメリカの硬貨を製造する合衆国造幣局（U.S. Mint）のミントマークは、P＝フィラデルフィア（1792年設立の最古の造幣局）、D＝デンバー、S＝サンフランシスコ、W＝ウエストポイント（ニューヨーク州）を表します。"},
+  {id:45, cat:"3. 硬貨の人物とデザイン", img:IMG.quarter, cap:"Why Do the Dime, Quarter, and Half Dollar Have Ridges ('Reeded Edges')?", svg:["coin","COIN EDGES","119 Ridges on Quarter / 118 on Dime","Smooth Edge on Penny & Nickel"], q:"Why do the 10¢ Dime, 25¢ Quarter, and 50¢ Half Dollar have grooved/ridged edges ('reeded edges'), while the 1¢ Penny and 5¢ Nickel have smooth edges?", o:["Simply for decoration","Historically, those coins were made of precious silver, and the ridges prevented criminals from shaving off ('clipping') silver from the edges","To make them roll faster in vending machines","To help stack them higher"], a:1, exp:"ダイム・クォーター・ハーフダラーの側面にギザギザ（Reeded edge）があるのは、かつてこれらが銀貨だった時代に、悪人が側面を少しずつ削り取って銀を盗む行為（Coin clipping）を防ぐために導入された名残です（今日では視覚障害者が手触りで判別する役割も果たしています）。"},
+
+  // 4. 国章モチーフ・ラテン語標語・通貨制度（15問）
+  {id:46, cat:"4. 国章・標語・通貨の雑学", img:IMG.seal_obv, cap:"Great Seal of the United States (Obverse)", svg:["seal","GREAT SEAL (OBV)","Bald Eagle's Talons","Right Talon vs. Left Talon"], q:"On the obverse of the Great Seal of the United States (shown on the back of the $1 bill), what does the Bald Eagle hold in its right talon and left talon, and which way does its head face?", o:["An olive branch (peace) in its right talon and 13 arrows (war/defense) in its left talon, with its head facing the olive branch","A sword in its right talon and a shield in its left talon","Two olive branches, facing left","13 stars in its right talon and a scroll in its left talon"], a:0, exp:"合衆国国章のハクトウワシは、右足に平和を象徴する「オリーブの枝（13枚の葉と13個の実）」、左足に防衛を象徴する「13本の矢」を掴んでおり、常に平和を優先する意思を示すため「オリーブの枝（向かって左側）」の方を向いています。"},
+  {id:47, cat:"4. 国章・標語・通貨の雑学", img:IMG.seal_obv, cap:"The Number 13 Repeated on the $1 Bill", svg:["seal","NUMBER 13","13 Stars • 13 Stripes • 13 Steps • 13 Arrows","Symbolism on the $1 Bill"], q:"On the $1 bill, there are 13 stars above the eagle, 13 stripes on the shield, 13 olive leaves, 13 arrows, and 13 steps on the pyramid. What does the number 13 represent?", o:["The 13 articles of the Constitution","The original 13 colonies (states) that declared independence in 1776","The 13 Founding Fathers","The 13 months of the lunar calendar"], a:1, exp:"1ドル紙幣の国章に繰り返し現れる「13」という数字はすべて、1776年にイギリスから独立を宣言した「最初の13植民地（Original Thirteen Colonies）」を表しています。"},
+  {id:48, cat:"4. 国章・標語・通貨の雑学", img:IMG.seal_obv, cap:"Latin Motto Held in the Eagle's Beak", svg:["seal","E PLURIBUS UNUM","13-Letter Traditional Motto","Meaning in English"], q:"What does the 13-letter Latin motto 'E Pluribus Unum' (written on the scroll held in the eagle's beak on the Great Seal and on all U.S. coins) mean in English?", o:["In God We Trust","Out of many, one (多数から一つへ)","Liberty and Justice for All","New Order of the Ages"], a:1, exp:"ラテン語の「E Pluribus Unum（エ・プルリブス・ウヌム）」は、アルファベット13文字で「Out of many, one（多数から一つへ）」を意味し、13の植民地および多様な移民が統合して一つの合衆国を作る理念を表しています。"},
+  {id:49, cat:"4. 国章・標語・通貨の雑学", img:IMG.seal_rev, cap:"Great Seal of the United States (Reverse)", svg:["seal","GREAT SEAL (REV)","Unfinished Pyramid & Eye","Left Circle on $1 Bill Reverse"], q:"On the reverse of the Great Seal (left circle on the back of the $1 bill), what floats in a radiating triangle above the unfinished 13-step pyramid, and why is the pyramid unfinished?", o:["The Eye of Providence (プロビデンスの目) / To symbolize that the United States is still growing and building","The North Star / Because the artist died before finishing it","The Sun of Liberty / To represent ancient Egypt","A magnifying glass / To detect counterfeit bills"], a:0, exp:"13段のピラミッドの上には神の摂理（見守り）を象徴する「プロビデンスの目（Eye of Providence）」が輝き、ピラミッドが未完成なのは「アメリカという国が今後も成長・発展し続けること」を意味しています。"},
+  {id:50, cat:"4. 国章・標語・通貨の雑学", img:IMG.seal_rev, cap:"Roman Numerals at the Base of the Pyramid", svg:["seal","MDCCLXXVI","Roman Numerals on $1 Pyramid","M(1000)+DCC(700)+LXX(70)+VI(6)"], q:"What year is represented by the Roman numerals 'MDCCLXXVI' inscribed at the bottom step of the pyramid on the back of the $1 bill?", o:["1492","1620","1776 (Year of the Declaration of Independence)","1789"], a:2, exp:"ピラミッドの最下段に刻まれたローマ数字「MDCCLXXVI」は、M(1000)＋D(500)＋CC(200)＋L(50)＋XX(20)＋VI(6) ＝「1776（独立宣言の年）」を表しています。"},
+  {id:51, cat:"4. 国章・標語・通貨の雑学", img:IMG.seal_rev, cap:"Two Latin Mottoes Around the Pyramid", svg:["seal","LATIN MOTTOES","ANNUIT COEPTIS","NOVUS ORDO SECLORUM"], q:"What do the two Latin phrases around the pyramid on the $1 bill—'Annuit Coeptis' (top) and 'Novus Ordo Seclorum' (bottom), adapted from the Roman poet Virgil—mean?", o:["'Providence has favored our undertakings' and 'A new order of the ages'","'War and Peace' and 'Forever Free'","'By the people' and 'For the people'","'Gold and Silver' and 'Legal Tender'"], a:0, exp:"上部の「Annuit Coeptis（13文字）」は「神（摂理）は我らの企てを嘉（よみ）し給うた」、下部の「Novus Ordo Seclorum」は1776年から始まる「時代の新秩序（新時代の幕開け）」を意味します。"},
+  {id:52, cat:"4. 国章・標語・通貨の雑学", img:IMG.b1_r, cap:"Official National Motto on All U.S. Currency", svg:["bill","IN GOD WE TRUST","1864 Coins -> 1956 National Motto","Printed on All Bills and Coins"], q:"When did 'In God We Trust' first appear on U.S. coins, and under which President in 1956 did it become the official national motto required on all U.S. paper bills?", o:["First on coins in 1776 / Official motto in 1865 under Lincoln","First on coins in 1864 (during the Civil War) / Official motto in 1956 under Dwight D. Eisenhower","First on coins in 1913 / Official motto in 1933 under FDR","First on coins in 1945 / Official motto in 1961 under JFK"], a:1, exp:"「In God We Trust（我ら神を信ず）」は南北戦争中の1864年にリンカーン政権の財務長官サーモン・チェイスのもとで2セント硬貨に初めて刻まれ、冷戦期の1956年にアイゼンハワー大統領が署名した法律で国の公式標語および全紙幣への印刷が義務化されました。"},
+  {id:53, cat:"4. 国章・標語・通貨の雑学", img:IMG.b1_f, cap:"Why U.S. Paper Bills Are Nicknamed 'Greenbacks'", svg:["bill","GREENBACKS","Civil War Origin (1860s)","Why Green Ink Was Chosen"], q:"Why are U.S. dollar bills traditionally nicknamed 'Greenbacks'?", o:["Because they are made from green bamboo leaves","Because during the Civil War in the 1860s, the federal government printed paper notes with anti-counterfeiting green ink on the back","Because George Washington's favorite color was green","Because the Treasury roof is green"], a:1, exp:"南北戦争中の1861〜62年、リンカーン政権が戦費調達のために発行した政府紙幣の裏面に、当時カメラによる写真偽造が困難で退色しにくかった「緑色のインク」を使用したことから、米ドル紙幣は「グリーンバック（Greenbacks）」と呼ばれるようになりました。"},
+  {id:54, cat:"4. 国章・標語・通貨の雑学", img:IMG.b1_f, cap:"What Material Is U.S. Paper Currency Made Of?", svg:["bill","75% COTTON / 25% LINEN","Not Wood Pulp Paper!","Red & Blue Security Fibers"], q:"If you accidentally wash a U.S. dollar bill in a laundry machine, it does not dissolve like ordinary paper. What material is U.S. currency paper actually made of?", o:["100% wood pulp","75% cotton and 25% linen (textile fibers)","100% plastic polymer","50% silk and 50% hemp"], a:1, exp:"アメリカの紙幣は木材パルプの紙ではなく、「綿（コットン）75%・麻（リネン）25%」の繊維（布に近い素材）に赤と青の微細な繊維を織り込んで作られているため、耐久性が高く約4,000回の折り曲げにも耐えられます。"},
+  {id:55, cat:"4. 国章・標語・通貨の雑学", img:IMG.b1_f, cap:"Physical Size of U.S. Paper Bills ($1 to $100)", svg:["bill","6.14 × 2.61 INCHES","156 × 66.3 mm","Same Size for All Denominations"], q:"How do the physical dimensions (length and width) of a $1 bill compare to a $100 bill in the United States?", o:["The $100 bill is twice as large as the $1 bill","All U.S. bills ($1, $2, $5, $10, $20, $50, and $100) are the exact same size (6.14 × 2.61 inches / 156 × 66.3 mm) and weight (1 gram)","Each denomination is 5 mm longer than the previous one","The $1 bill is square-shaped"], a:1, exp:"日本やユーロの紙幣は額面によって横幅が異なりますが、アメリカの紙幣は$1から$100まですべて1929年以来まったく同じサイズ（縦66.3mm×横156mm、重さ約1グラム）に統一されています。"},
+  {id:56, cat:"4. 国章・標語・通貨の雑学", img:IMG.b1_f, cap:"Origin of the Word 'Dollar' and Slang 'Buck'", svg:["bill","DOLLAR & BUCK","Spanish Dollar (Thaler) & Buckskin","Etymology of U.S. Money"], q:"Where did the word 'Dollar' and the American slang word 'Buck' (meaning a dollar) originate?", o:["'Dollar' comes from the German/Spanish silver 'Thaler/Peso' coin, and 'Buck' comes from frontier trading with 'buckskins' (deerskins)","Both words were invented by George Washington","'Dollar' is an acronym for Department of Loans, and 'Buck' comes from President James Buchanan","They come from French and Italian words for gold"], a:0, exp:"「ドル（Dollar）」はボヘミアのヨアヒムスタール銀貨（Thaler）に由来するスペイン銀貨（Spanish Dollar）が語源であり、1ドルを指すスラング「バック（Buck）」は開拓時代に鹿革（Buckskin）が貨幣代わりに取引単位として使われたことに由来します。"},
+  {id:57, cat:"4. 国章・標語・通貨の雑学", img:IMG.b1_f, cap:"Origin of the Dollar Sign ($)", svg:["bill","$ SYMBOL","Spanish Peso Abbreviation 'Ps'","Or Pillars of Hercules"], q:"What is the most widely accepted historical explanation for the origin of the dollar sign ('$')?", o:["It evolved from the handwritten abbreviation 'Ps' for the Spanish-American 'Peso' (or the Pillars of Hercules on Spanish silver coins)","It is a combination of the letters 'U' and 'S'","It represents a snake wrapped around a staff","It was designed by Thomas Edison"], a:0, exp:"ドル記号「$」の由来として最も有力な説は、独立前後の北米で広く流通していたスペイン・ペソ銀貨（Peso）の略記「Ps」のPとSが重ね書きされて生まれたとする説（またスペイン銀貨裏面の「ヘラクレスの柱」に巻き付くリボン説）です。"},
+  {id:58, cat:"4. 国章・標語・通貨の雑学", img:IMG.b10_r, cap:"U.S. Mint vs. Bureau of Engraving and Printing (BEP)", svg:["bill","MINT vs. BEP","Two Bureaus in U.S. Treasury","Coins vs. Paper Bills"], q:"Within the U.S. Department of the Treasury, which agency manufactures metal coins, and which agency prints paper currency notes (in Washington, D.C. and Fort Worth, Texas)?", o:["Coins: United States Mint / Paper bills: Bureau of Engraving and Printing (BEP)","Coins: Federal Reserve / Paper bills: IRS","Coins: SEC / Paper bills: U.S. Mint","Both are made by the Library of Congress"], a:0, exp:"アメリカ財務省の下で、硬貨（コイン）を製造するのが「合衆国造幣局（United States Mint）」、紙幣を印刷するのがワシントンD.C.とテキサス州フォートワースに工場を持つ「製版印刷局（BEP: Bureau of Engraving and Printing）」です。"},
+  {id:59, cat:"4. 国章・標語・通貨の雑学", img:IMG.b1_f, cap:"Federal Reserve Bank Letters (A to L) on the $1 Bill", svg:["bill","FED SEAL (A–L)","12 Regional Federal Reserve Banks","A1=Boston, B2=NY, L12=SF"], q:"On the left side of the $1 bill, a black seal contains a letter from 'A' to 'L' (and a number from 1 to 12). What do the 12 letters (A through L) represent?", o:["The 12 months of the year","The 12 regional Federal Reserve Banks (e.g., A=Boston, B=New York, C=Philadelphia, L=San Francisco) that issued the note","The first 12 U.S. Presidents","The 12 Apostles"], a:1, exp:"1ドル札の表面左側にある黒い円形スタンプのアルファベット「A〜L（および数字1〜12）」は、その紙幣を発行した全米12地区の連邦準備銀行（A=ボストン、B=ニューヨーク、C=フィラデルフィア…L=サンフランシスコ）を表しています。"},
+  {id:60, cat:"4. 国章・標語・通貨の雑学", img:IMG.b1_f, cap:"Two Signatures Printed on Every U.S. Paper Bill", svg:["bill","TWO SIGNATURES","Treasurer of the United States","Secretary of the Treasury"], q:"Whose two official signatures are printed at the bottom of every U.S. Federal Reserve Note?", o:["The President and the Vice President","The Treasurer of the United States (財務官) and the Secretary of the Treasury (財務長官)","The Speaker of the House and the Chief Justice","The Chairman of the Fed and the Director of the FBI"], a:1, exp:"すべてのアメリカ紙幣の表面下部には、左側に「合衆国財務官（Treasurer of the United States）」、右側に「合衆国財務長官（Secretary of the Treasury）」の2名の署名が印刷されています。"}
+];
+
+let activePool = [];
+let currentIndex = 0;
+let userAnswers = {};
+let wrongIds = new Set();
+let isMockMode = false;
+let autoSpeak = false;
+let blindMode = false;
+let galleryOpen = false;
+
+function renderGallery() {
+  const grid = document.getElementById('galleryGrid');
+  grid.innerHTML = '';
+  GALLERY_ITEMS.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'gallery-item';
+    card.innerHTML = `
+      <img src="${item.img}" alt="${item.title}">
+      <h4>${item.title}</h4>
+      <p>${item.desc}</p>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function toggleGallery() {
+  galleryOpen = !galleryOpen;
+  document.getElementById('galleryArea').style.display = galleryOpen ? 'block' : 'none';
+  document.getElementById('quizArea').style.display = galleryOpen ? 'none' : 'block';
+  if (galleryOpen) {
+    stopSpeech();
+    renderGallery();
+  }
+}
+
+function getEnglishVoice() {
+  if (!('speechSynthesis' in window)) return null;
+  const voices = window.speechSynthesis.getVoices();
+  return voices.find(v => v.lang === 'en-US' && v.name.includes('Natural'))
+      || voices.find(v => v.lang === 'en-US')
+      || voices.find(v => v.lang.startsWith('en'))
+      || null;
+}
+
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => getEnglishVoice();
+}
+
+function stopSpeech() {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+  }
+}
+
+function speakCurrentQuestion(includeOptions = false) {
+  if (!('speechSynthesis' in window) || !activePool[currentIndex]) return;
+  stopSpeech();
+  const q = activePool[currentIndex];
+  let text = `Question ${currentIndex + 1}. ${q.q}`;
+  if (includeOptions) {
+    const labels = ['A', 'B', 'C', 'D'];
+    const optsText = q.o.map((opt, i) => `Option ${labels[i]}: ${opt}.`).join(' ');
+    text += ` ... ${optsText}`;
+  }
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'en-US';
+  const voice = getEnglishVoice();
+  if (voice) utter.voice = voice;
+  utter.rate = parseFloat(document.getElementById('rateSelect').value) || 1.0;
+  window.speechSynthesis.speak(utter);
+}
+
+function toggleAutoSpeak() {
+  autoSpeak = !autoSpeak;
+  const btn = document.getElementById('autoSpeakBtn');
+  btn.textContent = `自動読み上げ: ${autoSpeak ? 'ON' : 'OFF'}`;
+  btn.classList.toggle('active-toggle', autoSpeak);
+  if (autoSpeak) speakCurrentQuestion(false);
+}
+
+function toggleBlindMode() {
+  blindMode = !blindMode;
+  const btn = document.getElementById('blindModeBtn');
+  btn.textContent = `🙈 リスニング専念: ${blindMode ? 'ON' : 'OFF'}`;
+  btn.classList.toggle('active-toggle', blindMode);
+  renderQuestion(false);
+}
+
+function initPool(list, mock = false) {
+  stopSpeech();
+  galleryOpen = false;
+  document.getElementById('galleryArea').style.display = 'none';
+  activePool = list.map((item, idx) => ({
+    ...item,
+    isBonus: mock && idx >= 25
+  }));
+  currentIndex = 0;
+  userAnswers = {};
+  isMockMode = mock;
+  document.getElementById('quizArea').style.display = 'block';
+  document.getElementById('resultArea').style.display = 'none';
+  renderQuestion(true);
+}
+
+function startCategoryMode() {
+  const cat = document.getElementById('catSelect').value;
+  const filtered = cat === 'ALL' ? [...QUIZ_DATA] : QUIZ_DATA.filter(q => q.cat === cat);
+  initPool(filtered, false);
+}
+
+function startShuffleAll() {
+  const shuffled = [...QUIZ_DATA].sort(() => Math.random() - 0.5);
+  initPool(shuffled, false);
+}
+
+function startMockExam() {
+  const shuffled = [...QUIZ_DATA].sort(() => Math.random() - 0.5).slice(0, 30);
+  initPool(shuffled, true);
+}
+
+function startRetryWrong() {
+  if (wrongIds.size === 0) return;
+  const retryList = QUIZ_DATA.filter(q => wrongIds.has(q.id));
+  initPool(retryList, false);
+}
+
+function calcScore() {
+  let pts = 0, maxPts = 0;
+  activePool.forEach((q, idx) => {
+    const w = q.isBonus ? 3 : 1;
+    maxPts += w;
+    if (userAnswers[idx] === q.a) pts += w;
+  });
+  return { pts, maxPts };
+}
+
+function renderQuestion(triggerAudio = false) {
+  const q = activePool[currentIndex];
+  document.getElementById('qProgress').textContent = `Q ${currentIndex + 1} / ${activePool.length} (#${q.id})`;
+  document.getElementById('qCat').textContent = q.cat;
+  document.getElementById('qBonus').style.display = q.isBonus ? 'inline-block' : 'none';
+  const sc = calcScore();
+  document.getElementById('scoreDisplay').textContent = `Score: ${sc.pts} / ${sc.maxPts}`;
+
+  // Set image & SVG diagram
+  const imgEl = document.getElementById('qImage');
+  document.getElementById('imgFallbackNote').style.display = 'none';
+  imgEl.style.display = 'block';
+  imgEl.src = q.img;
+  document.getElementById('qCaption').textContent = q.cap;
+
+  const [svgType, lblTop, mainTxt, subTxt] = q.svg;
+  const col = q.id === 31 || q.id === 32 || q.id === 33 ? "#b45309" : (q.id === 43 ? "#ca8a04" : "#2e5a36");
+  document.getElementById('svgContainer').innerHTML = buildSvgCard(svgType, lblTop, mainTxt, subTxt, col);
+
+  const answered = userAnswers[currentIndex] !== undefined;
+  const qBox = document.getElementById('questionText');
+  if (blindMode && !answered) {
+    qBox.className = 'question-box blind';
+    qBox.textContent = '🎧 リスニング専念モード中（上の画像ヒントを見ながら音声を聞き、回答すると英文が表示されます）';
+  } else {
+    qBox.className = 'question-box';
+    qBox.textContent = q.q;
+  }
+
+  const container = document.getElementById('optionsContainer');
+  container.innerHTML = '';
+
+  ['A', 'B', 'C', 'D'].forEach((label, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.textContent = `(${label}) ${q.o[idx]}`;
+    if (answered) {
+      btn.disabled = true;
+      if (idx === q.a) btn.classList.add('correct');
+      else if (idx === userAnswers[currentIndex]) btn.classList.add('wrong');
+    } else {
+      btn.onclick = () => selectAnswer(idx);
+    }
+    container.appendChild(btn);
+  });
+
+  const fb = document.getElementById('feedbackBox');
+  if (answered) {
+    const isOk = userAnswers[currentIndex] === q.a;
+    fb.style.display = 'block';
+    fb.innerHTML = `<strong>${isOk ? '✅ Correct!' : '❌ Incorrect'}</strong> — 正解: (${['A','B','C','D'][q.a]}) ${q.o[q.a]}<br>${q.exp}`;
+  } else {
+    fb.style.display = 'none';
+  }
+
+  document.getElementById('prevBtn').disabled = currentIndex === 0;
+  document.getElementById('nextBtn').textContent = currentIndex === activePool.length - 1 ? '結果を見る →' : '次の問題 →';
+  document.getElementById('retryBtn').style.display = wrongIds.size > 0 ? 'inline-block' : 'none';
+
+  if (triggerAudio && autoSpeak) {
+    speakCurrentQuestion(false);
+  }
+}
+
+function selectAnswer(choiceIdx) {
+  const q = activePool[currentIndex];
+  userAnswers[currentIndex] = choiceIdx;
+  if (choiceIdx === q.a) wrongIds.delete(q.id);
+  else wrongIds.add(q.id);
+  renderQuestion(false);
+}
+
+function prevQuestion() {
+  if (currentIndex > 0) {
+    currentIndex--;
+    renderQuestion(true);
+  }
+}
+
+function nextQuestion() {
+  if (currentIndex < activePool.length - 1) {
+    currentIndex++;
+    renderQuestion(true);
+  } else {
+    stopSpeech();
+    showResult();
+  }
+}
+
+function showResult() {
+  document.getElementById('quizArea').style.display = 'none';
+  document.getElementById('resultArea').style.display = 'block';
+  const sc = calcScore();
+  const pct = Math.round((sc.pts / sc.maxPts) * 100);
+  document.getElementById('finalScore').textContent = `${sc.pts} / ${sc.maxPts} pts (${pct}%)`;
+  document.getElementById('finalComment').textContent = wrongIds.size > 0
+    ? `現在、復習リストに ${wrongIds.size} 問の要注意問題があります。`
+    : `素晴らしい成績です！すべての問題をクリアしました！`;
+  document.getElementById('retryBtnEnd').style.display = wrongIds.size > 0 ? 'inline-block' : 'none';
+}
+
+startCategoryMode();
+</script>
+</body>
+</html>
