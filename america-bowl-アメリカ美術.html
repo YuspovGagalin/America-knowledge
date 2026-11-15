@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>American Art &amp; Artists Visual Quiz Trainer</title>
+<style>
+  :root {
+    --navy: #0a2540; --red: #d9381e; --blue: #1d4ed8; --green: #14532d;
+    --dollar-green: #2e5a36; --dollar-bg: #eef5ec; --gold: #b45309;
+    --bg: #f4f6f9; --correct: #16a34a; --wrong: #dc2626;
+  }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: #1e293b; margin: 0; padding: 16px; }
+  .container { max-width: 920px; margin: 0 auto; background: #fff; border-radius: 14px; box-shadow: 0 6px 20px rgba(0,0,0,0.08); padding: 24px; }
+  h1 { margin: 0 0 6px; color: var(--navy); font-size: 1.55rem; text-align: center; }
+  .subtitle { text-align: center; color: #64748b; font-size: 0.92rem; margin-bottom: 16px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0; }
+  .audio-bar { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; background: #eff6ff; padding: 10px 12px; border-radius: 8px; margin-bottom: 16px; border: 1px solid #bfdbfe; }
+  select, .btn-ctrl { padding: 8px 14px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.9rem; cursor: pointer; background: #fff; font-weight: 600; transition: 0.15s; max-width: 100%; }
+  .btn-ctrl.primary { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .btn-ctrl.accent { background: var(--red); color: #fff; border-color: var(--red); }
+  .btn-ctrl.audio { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .btn-ctrl.gallery-btn { background: var(--dollar-green); color: #fff; border-color: var(--dollar-green); }
+  .btn-ctrl.active-toggle { background: #0f766e; color: #fff; border-color: #0f766e; }
+
+  .status-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; background: #f8fafc; padding: 10px 16px; border-radius: 8px; margin-bottom: 16px; font-weight: 600; font-size: 0.95rem; }
+  .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; background: #dbeafe; color: var(--blue); }
+  .badge.bonus { background: #fef3c7; color: var(--gold); margin-left: 6px; }
+
+  /* Visual Showcase Card */
+  .visual-stage { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; align-items: center; background: var(--dollar-bg); border: 2px solid #b7d4bc; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  .photo-frame { position: relative; max-width: 440px; min-height: 170px; background: #fff; border-radius: 10px; padding: 8px; box-shadow: 0 3px 10px rgba(0,0,0,0.08); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .photo-frame img { max-width: 100%; max-height: 300px; object-fit: contain; border-radius: 6px; display: block; }
+  .photo-caption { font-size: 0.78rem; color: #475569; margin-top: 6px; text-align: center; font-weight: 600; }
+  .svg-card { width: 290px; height: 165px; border-radius: 10px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.08); background: #fff; display: flex; align-items: center; justify-content: center; }
+
+  .question-box { font-size: 1.15rem; font-weight: 600; line-height: 1.5; margin: 14px 0; color: #0f172a; }
+  .question-box.blind { background: #f1f5f9; color: #475569; border: 2px dashed #94a3b8; border-radius: 8px; padding: 16px; text-align: center; font-weight: 500; }
+  .options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  @media (max-width: 640px) { .options { grid-template-columns: 1fr; } }
+  .opt-btn { text-align: left; padding: 14px 16px; border-radius: 10px; border: 2px solid #e2e8f0; background: #fff; font-size: 1rem; cursor: pointer; transition: 0.15s; font-weight: 500; color: #1e293b; }
+  .opt-btn:hover:not(:disabled) { border-color: var(--blue); background: #eff6ff; }
+  .opt-btn.correct { border-color: var(--correct); background: #dcfce7; color: #14532d; font-weight: 700; }
+  .opt-btn.wrong { border-color: var(--wrong); background: #fee2e2; color: #7f1d1d; }
+  .feedback { display: none; padding: 14px 16px; border-radius: 10px; background: #f1f5f9; margin-bottom: 16px; line-height: 1.6; font-size: 0.95rem; border-left: 5px solid var(--dollar-green); }
+  .nav-bar { display: flex; justify-content: space-between; gap: 10px; }
+  .nav-btn { flex: 1; padding: 12px; border-radius: 8px; border: none; font-size: 1rem; font-weight: 700; cursor: pointer; background: var(--blue); color: #fff; }
+  .nav-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+
+  /* Visual Encyclopedia Gallery */
+  #galleryArea { display: none; margin-top: 16px; }
+  .gallery-tools { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; margin-bottom: 4px; }
+  .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 12px; }
+  .gallery-item { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; align-items: center; }
+  .gallery-item img { max-width: 100%; height: 180px; object-fit: contain; border-radius: 6px; background: #fff; padding: 4px; border: 1px solid #e2e8f0; }
+  .gallery-item .noimg { width: 100%; height: 180px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 0.8rem; color: #64748b; background: #fff; border: 1px dashed #cbd5e1; border-radius: 6px; }
+  .gallery-item h4 { margin: 8px 0 2px; color: var(--navy); font-size: 1rem; text-align: center; }
+  .gallery-item .en { font-size: 0.8rem; color: #64748b; text-align: center; font-style: italic; margin-bottom: 6px; }
+  .gallery-item .meta { font-size: 0.82rem; color: #0f172a; width: 100%; margin: 0 0 6px; padding: 6px 8px; background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; line-height: 1.5; box-sizing: border-box; }
+  .gallery-item .meta b { color: var(--dollar-green); }
+  .gallery-item p { margin: 0; font-size: 0.85rem; color: #334155; line-height: 1.5; text-align: left; width: 100%; }
+  .gallery-item .src { font-size: 0.75rem; margin-top: 6px; width: 100%; text-align: right; }
+  .artist-list { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.86rem; }
+  .artist-list th, .artist-list td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left; vertical-align: top; line-height: 1.5; }
+  .artist-list th { background: var(--dollar-bg); color: var(--navy); white-space: nowrap; }
+  .artist-list td .en { color: #64748b; font-size: 0.78rem; display: block; }
+  .table-wrap { overflow-x: auto; }
+  .work-chip { display: inline-block; margin: 2px 4px 2px 0; padding: 2px 8px; border-radius: 999px; background: #dbeafe; color: var(--blue); font-size: 0.76rem; font-weight: 600; cursor: pointer; border: none; }
+
+  .result-screen { display: none; text-align: center; padding: 20px 0; }
+  .score-big { font-size: 2.4rem; font-weight: 800; color: var(--navy); margin: 12px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🎨 アメリカの芸術家と名画 画像クイズ50問</h1>
+  <div class="subtitle">メトロポリタン美術館など有名美術館に収蔵されているアメリカ人芸術家の作品のビジュアル問題＆英語リスニング演習システム（図鑑モード付き）</div>
+
+  <div class="controls">
+    <select id="catSelect" onchange="startCategoryMode()">
+      <option value="ALL">全4分野 (全50問)</option>
+      <option value="1. メトロポリタン美術館の名作">1. メトロポリタン美術館（The Met）の名作（14問）</option>
+      <option value="2. 建国期の絵画と大風景画">2. 建国期の絵画とハドソンリバー派・西部の大風景画（12問）</option>
+      <option value="3. 肖像・人物画と海を渡った画家">3. 肖像・人物画と海を渡った画家たち（13問）</option>
+      <option value="4. 写実・都市・モダニズム">4. 写実主義・都市の情景・モダニズム（11問）</option>
+    </select>
+    <button class="btn-ctrl primary" onclick="startShuffleAll()">シャッフル全50問</button>
+    <button class="btn-ctrl accent" onclick="startMockExam()">決勝模擬モード (25問+ボーナス5問)</button>
+    <button class="btn-ctrl gallery-btn" onclick="toggleGallery()">🖼️ 作品・作家ビジュアル図鑑を開く</button>
+    <button class="btn-ctrl" id="retryBtn" onclick="startRetryWrong()" style="display:none;">間違えた問題だけ復習</button>
+  </div>
+
+  <div class="audio-bar">
+    <button class="btn-ctrl audio" onclick="speakCurrentQuestion(false)">🔊 問題文を読み上げ</button>
+    <button class="btn-ctrl audio" onclick="speakCurrentQuestion(true)">🔊 問題＋選択肢を読み上げ</button>
+    <button class="btn-ctrl" onclick="stopSpeech()">⏹ 停止</button>
+    <button class="btn-ctrl" id="autoSpeakBtn" onclick="toggleAutoSpeak()">自動読み上げ: OFF</button>
+    <button class="btn-ctrl" id="blindModeBtn" onclick="toggleBlindMode()">🙈 リスニング専念: OFF</button>
+    <select id="rateSelect" title="読み上げ速度">
+      <option value="0.85">速度 0.85x (ゆっくり)</option>
+      <option value="1.0" selected>速度 1.0x (標準)</option>
+      <option value="1.15">速度 1.15x (速め)</option>
+    </select>
+  </div>
+
+  <!-- ビジュアル図鑑エリア -->
+  <div id="galleryArea">
+    <h2 style="text-align:center; color:var(--navy); margin:8px 0;">🖼️ アメリカ美術ビジュアル図鑑（作品50点）</h2>
+    <p style="text-align:center; font-size:0.9rem; color:#475569; margin-bottom:12px;">クイズに登場する全50作品の「画像・作家・所蔵先・何をモチーフにしているか」の一覧です。</p>
+    <div class="gallery-tools">
+      <select id="artistFilter" onchange="renderGallery()" title="作家で絞り込み"></select>
+      <select id="catFilter" onchange="renderGallery()" title="分野で絞り込み">
+        <option value="ALL">すべての分野</option>
+        <option value="1. メトロポリタン美術館の名作">1. メトロポリタン美術館の名作</option>
+        <option value="2. 建国期の絵画と大風景画">2. 建国期の絵画と大風景画</option>
+        <option value="3. 肖像・人物画と海を渡った画家">3. 肖像・人物画と海を渡った画家</option>
+        <option value="4. 写実・都市・モダニズム">4. 写実・都市・モダニズム</option>
+      </select>
+      <button class="btn-ctrl" onclick="reloadImages()">画像を再取得</button>
+    </div>
+    <p id="imgStatus" style="text-align:center; font-size:0.8rem; color:#64748b; margin:6px 0 0; min-height:1.2em;"></p>
+    <div id="galleryGrid" class="gallery-grid"></div>
+
+    <h2 id="artistHeading" style="text-align:center; color:var(--navy); margin:28px 0 4px;">👤 作家一覧（28人）</h2>
+    <p style="text-align:center; font-size:0.9rem; color:#475569; margin:0;">作品名を押すと、その作家の作品だけを上の図鑑に表示します。</p>
+    <div class="table-wrap">
+      <table class="artist-list">
+        <thead><tr><th>作家</th><th>生没年</th><th>どんな人か</th><th>収録作品</th></tr></thead>
+        <tbody id="artistRows"></tbody>
+      </table>
+    </div>
+
+    <div style="text-align:center; margin-top:16px;">
+      <button class="btn-ctrl primary" onclick="toggleGallery()">クイズ画面に戻る</button>
+    </div>
+  </div>
+
+  <!-- クイズ本編エリア -->
+  <div id="quizArea">
+    <div class="status-bar">
+      <div>
+        <span id="qProgress">Q 1 / 50</span>
+        <span id="qCat" class="badge">1. メトロポリタン美術館の名作</span>
+        <span id="qBonus" class="badge bonus" style="display:none;">★BONUS 3pts</span>
+      </div>
+      <div id="scoreDisplay">Score: 0</div>
+    </div>
+
+    <div class="visual-stage">
+      <div class="photo-frame" id="photoFrame">
+        <img id="qImage" src="" alt="Artwork Visual" style="display:none;">
+        <div id="imgFallbackNote" style="display:none; font-size:0.82rem; color:#64748b; padding:12px; text-align:center;"></div>
+        <div class="photo-caption" id="qCaption"></div>
+      </div>
+      <div class="svg-card" id="svgContainer"></div>
+    </div>
+
+    <div id="questionText" class="question-box"></div>
+    <div id="optionsContainer" class="options"></div>
+    <div id="feedbackBox" class="feedback"></div>
+    <div class="nav-bar">
+      <button class="nav-btn" id="prevBtn" onclick="prevQuestion()">← 前の問題</button>
+      <button class="nav-btn" id="nextBtn" onclick="nextQuestion()">次の問題 →</button>
+    </div>
+  </div>
+
+  <div id="resultArea" class="result-screen">
+    <h2>演習結果</h2>
+    <div id="finalScore" class="score-big"></div>
+    <p id="finalComment"></p>
+    <button class="btn-ctrl primary" onclick="startCategoryMode()">最初からやり直す</button>
+    <button class="btn-ctrl accent" id="retryBtnEnd" onclick="startRetryWrong()">間違えた問題を復習する</button>
+  </div>
+</div>
+
+<script>
+const C1 = "1. メトロポリタン美術館の名作";
+const C2 = "2. 建国期の絵画と大風景画";
+const C3 = "3. 肖像・人物画と海を渡った画家";
+const C4 = "4. 写実・都市・モダニズム";
+
+// 作家データ（図鑑の「作家一覧」に表示）
+const ARTISTS = {
+  leutze:  { en:"Emanuel Leutze", ja:"エマヌエル・ロイツェ", life:"1816–1868", bio:"ドイツ生まれ。幼いころ家族と渡米してフィラデルフィアで育ち、デュッセルドルフで歴史画を学んだ。連邦議会議事堂の壁画『帝国の進路は西へ』も手がけた。" },
+  homer:   { en:"Winslow Homer", ja:"ウィンスロー・ホーマー", life:"1836–1910", bio:"ボストン生まれ。雑誌『ハーパーズ・ウィークリー』の挿絵画家として南北戦争を取材。後半生はメイン州プラウツネックに住み、荒々しい海と人間を描いた。" },
+  sargent: { en:"John Singer Sargent", ja:"ジョン・シンガー・サージェント", life:"1856–1925", bio:"アメリカ人の両親のもとフィレンツェで生まれ、パリとロンドンで活躍した肖像画の名手。上流社会の人々を華やかな筆づかいで描いた。" },
+  cole:    { en:"Thomas Cole", ja:"トマス・コール", life:"1801–1848", bio:"イングランド生まれで1818年に渡米。アメリカの雄大な自然を描く「ハドソンリバー派」の創始者とされる。" },
+  church:  { en:"Frederic Edwin Church", ja:"フレデリック・エドウィン・チャーチ", life:"1826–1900", bio:"コネチカット州ハートフォード生まれ。トマス・コールの弟子。南米や北極海まで旅して巨大な風景画を描いた。ハドソン川沿いの邸宅「オラナ」でも知られる。" },
+  eakins:  { en:"Thomas Eakins", ja:"トマス・エイキンズ", life:"1844–1916", bio:"フィラデルフィアの写実主義の画家。解剖学や写真を研究し、ペンシルベニア美術アカデミーで教えた。" },
+  bingham: { en:"George Caleb Bingham", ja:"ジョージ・ケイレブ・ビンガム", life:"1811–1879", bio:"バージニア州生まれ、ミズーリ州育ち。川で働く人々や選挙の風景など、開拓時代の西部の暮らしを描き「ミズーリの画家」と呼ばれる。" },
+  bierstadt:{ en:"Albert Bierstadt", ja:"アルバート・ビアスタット", life:"1830–1902", bio:"ドイツ生まれ、幼少期にマサチューセッツ州へ移住。西部探検隊に同行し、ロッキー山脈やヨセミテを劇的な光で描いた。" },
+  demuth:  { en:"Charles Demuth", ja:"チャールズ・デムス", life:"1883–1935", bio:"ペンシルベニア州ランカスター生まれ。工場や都市をくっきりした幾何学的な形で描く「プレシジョニズム（精密派）」の代表的な画家。" },
+  hartley: { en:"Marsden Hartley", ja:"マースデン・ハートリー", life:"1877–1943", bio:"メイン州生まれのモダニズムの画家。写真家スティーグリッツの画廊で作品を発表し、第一次世界大戦前後のベルリンで抽象的な作品を描いた。" },
+  cassatt: { en:"Mary Cassatt", ja:"メアリー・カサット", life:"1844–1926", bio:"ペンシルベニア州生まれ。パリに住み、ドガと親しく、フランス印象派の展覧会に参加した唯一のアメリカ人。母と子の情景を多く描いた。" },
+  remington:{ en:"Frederic Remington", ja:"フレデリック・レミントン", life:"1861–1909", bio:"ニューヨーク州生まれの画家・彫刻家・挿絵画家。カウボーイや騎兵隊など「オールド・ウェスト」のイメージを広めた。" },
+  trumbull:{ en:"John Trumbull", ja:"ジョン・トランブル", life:"1756–1843", bio:"コネチカット州生まれ。独立戦争でワシントンの副官を務め、「独立革命の画家」と呼ばれる。連邦議会議事堂ロタンダの歴史画4点を描いた。" },
+  stuart:  { en:"Gilbert Stuart", ja:"ギルバート・スチュアート", life:"1755–1828", bio:"ロードアイランド生まれの肖像画家。初代から第6代までの大統領を描いた。1ドル紙幣のワシントン像の原画も彼の作品。" },
+  copley:  { en:"John Singleton Copley", ja:"ジョン・シングルトン・コプリー", life:"1738–1815", bio:"ボストン生まれ。植民地時代のアメリカを代表する肖像画家。独立戦争直前の1774年にイギリスへ渡り、その後はロンドンで活動した。" },
+  peale:   { en:"Charles Willson Peale", ja:"チャールズ・ウィルソン・ピール", life:"1741–1827", bio:"メリーランド生まれの画家・博物学者。フィラデルフィアにアメリカ初期の博物館を開いた。息子たちにラファエル、レンブラント、ルーベンス、ティツィアーノと画家の名前を付けた。" },
+  hicks:   { en:"Edward Hicks", ja:"エドワード・ヒックス", life:"1780–1849", bio:"ペンシルベニアのクエーカー教徒の牧師で、看板や馬車の塗装職人。正式な美術教育を受けていないフォークアート（素朴派）の画家。" },
+  durand:  { en:"Asher B. Durand", ja:"アッシャー・B・デュランド", life:"1796–1886", bio:"ニュージャージー州生まれ。版画家から風景画家に転じ、コールの死後、ハドソンリバー派を率いた。" },
+  inness:  { en:"George Inness", ja:"ジョージ・イネス", life:"1825–1894", bio:"ニューヨーク州生まれ。フランスのバルビゾン派の影響を受け、やわらかな光と空気を描く「トーナリズム」の風景画で知られる。" },
+  moran:   { en:"Thomas Moran", ja:"トマス・モラン", life:"1837–1926", bio:"イングランド生まれ、幼少期に渡米。1871年にイエローストーンの調査隊に同行し、その絵が国立公園の誕生を後押しした。" },
+  whistler:{ en:"James McNeill Whistler", ja:"ジェームズ・マクニール・ホイッスラー", life:"1834–1903", bio:"マサチューセッツ州ローウェル生まれ。ロンドンとパリで活動し、絵に「交響曲」「夜想曲」など音楽の題名を付けた。日本美術の影響を受け、蝶の形のサインを使った。" },
+  tanner:  { en:"Henry Ossawa Tanner", ja:"ヘンリー・オサワ・タナー", life:"1859–1937", bio:"ピッツバーグ生まれ。エイキンズに学び、パリへ渡った。国際的な評価を得た最初のアフリカ系アメリカ人画家とされる。" },
+  bellows: { en:"George Bellows", ja:"ジョージ・ベローズ", life:"1882–1925", bio:"オハイオ州コロンバス生まれ。ニューヨークの庶民の暮らしを描いた「アシュカン派」の画家で、ボクシングの絵で有名。" },
+  sloan:   { en:"John Sloan", ja:"ジョン・スローン", life:"1871–1951", bio:"ペンシルベニア州生まれ。新聞の挿絵画家からニューヨークの街角を描く画家に。「アシュカン派」の中心人物の一人。" },
+  wood:    { en:"Grant Wood", ja:"グラント・ウッド", life:"1891–1942", bio:"アイオワ州生まれ。中西部の農村を描く「リージョナリズム（地方主義）」を代表する画家。" },
+  hopper:  { en:"Edward Hopper", ja:"エドワード・ホッパー", life:"1882–1967", bio:"ニューヨーク州ナイアック生まれ。ダイナー、ホテル、ガソリンスタンドなどを舞台に、都会の静けさと孤独を描いた。" },
+  stgaudens:{ en:"Augustus Saint-Gaudens", ja:"オーガスタス・セント＝ゴーデンス", life:"1848–1907", bio:"ダブリン生まれ、赤ん坊のときにニューヨークへ移住。19世紀後半のアメリカを代表する彫刻家で、20ドル金貨（ダブルイーグル）のデザインも手がけた。" },
+  hassam:  { en:"Childe Hassam", ja:"チャイルド・ハッサム", life:"1859–1935", bio:"ボストン生まれ。アメリカ印象派の代表的な画家。星条旗がはためくニューヨーク五番街の連作で知られる。" }
+};
+
+// 作品データ（図鑑に表示。wiki は英語版Wikipediaの記事名で、画像の取得に使う）
+const WORKS = [
+  // --- 1. メトロポリタン美術館 ---
+  { k:"crossing", cat:C1, artist:"leutze", wiki:"Washington Crossing the Delaware (1851 painting)", en:"Washington Crossing the Delaware", ja:"デラウェア川を渡るワシントン", year:"1851年", museum:"メトロポリタン美術館（ニューヨーク）", motif:"1776年のクリスマスの夜、ワシントン率いる大陸軍が凍ったデラウェア川を渡り、トレントンのドイツ人傭兵部隊を奇襲した場面。実はドイツのデュッセルドルフで描かれ、川はライン川がモデル。描かれた星条旗は1777年制定なので時代が合わない。最初の版は第二次世界大戦の空襲でブレーメンで焼失した。" },
+  { k:"gulf", cat:C1, artist:"homer", wiki:"The Gulf Stream (painting)", en:"The Gulf Stream", ja:"メキシコ湾流", year:"1899年", museum:"メトロポリタン美術館（ニューヨーク）", motif:"マストの折れた小舟に黒人の男性が1人、周りにはサメ、遠くに竜巻（水上竜巻）。ホーマーがバハマやキューバへ旅した経験がもと。観客が男の運命を心配したため、画家は「彼は助かります」と冗談まじりに答えたという。" },
+  { k:"madamex", cat:C1, artist:"sargent", wiki:"Portrait of Madame X", en:"Madame X (Madame Pierre Gautreau)", ja:"マダムX（ゴートロー夫人）", year:"1883–84年", museum:"メトロポリタン美術館（ニューヨーク）", motif:"モデルはルイジアナ州生まれでパリ社交界の花形だったヴィルジニー・ゴートロー。1884年のパリのサロンで、片方の肩ひもが肩から落ちた姿が「はしたない」と大スキャンダルに。サージェントは肩ひもを描き直し、ロンドンへ拠点を移した。1916年に本人がメトロポリタン美術館へ売却。" },
+  { k:"oxbow", cat:C1, artist:"cole", wiki:"The Oxbow", en:"The Oxbow (View from Mount Holyoke)", ja:"オックスボウ（ホリヨーク山からの眺め）", year:"1836年", museum:"メトロポリタン美術館（ニューヨーク）", motif:"マサチューセッツ州を流れるコネチカット川がU字に大きく曲がる場所（oxbow＝牛のくびき）。左は嵐が去ったばかりの手つかずの自然、右は日が差す開拓された農地という対比。画面下の岩の間に、絵を描くコール自身が小さく描かれている。" },
+  { k:"andes", cat:C1, artist:"church", wiki:"The Heart of the Andes", en:"The Heart of the Andes", ja:"アンデスの心臓", year:"1859年", museum:"メトロポリタン美術館（ニューヨーク）", motif:"博物学者フンボルトの著作に刺激されて旅したエクアドルの風景を一枚にまとめた、幅約3メートルの大作。ニューヨークでは「この1点だけの展覧会」が開かれ、入場料25セントで大行列ができた。1万ドルで売れ、当時の存命アメリカ人画家の最高額となった。" },
+  { k:"schmitt", cat:C1, artist:"eakins", wiki:"Max Schmitt in a Single Scull", en:"The Champion Single Sculls (Max Schmitt in a Single Scull)", ja:"シングル・スカルに乗るマックス・シュミット", year:"1871年", museum:"メトロポリタン美術館（ニューヨーク）", motif:"フィラデルフィアのスクールキル川で、レースに勝った友人のボート選手マックス・シュミットを描いた。奥でボートを漕いでいるのはエイキンズ本人で、舟に自分の名前と制作年を書き込んでサイン代わりにしている。" },
+  { k:"furtraders", cat:C1, artist:"bingham", wiki:"Fur Traders Descending the Missouri", en:"Fur Traders Descending the Missouri", ja:"ミズーリ川を下る毛皮商人", year:"1845年", museum:"メトロポリタン美術館（ニューヨーク）", motif:"朝もやのミズーリ川を丸木舟で下るフランス系の毛皮商人とその息子。舟のへさきにつながれた黒い動物は、子グマとする説が有力（ネコやキツネという説もある）。もとの題名は『フランス人商人と混血の息子』だった。" },
+  { k:"rocky", cat:C1, artist:"bierstadt", wiki:"The Rocky Mountains, Lander's Peak", en:"The Rocky Mountains, Lander's Peak", ja:"ロッキー山脈、ランダーズ・ピーク", year:"1863年", museum:"メトロポリタン美術館（ニューヨーク）", motif:"1859年のランダー探検隊に同行して見た、現在のワイオミング州ウインドリバー山脈がもと。手前は先住民ショショーニ族の野営地。山の名前は、南北戦争で亡くなった探検隊長フレデリック・ランダーにちなんで画家が付けた。1865年に2万5千ドルという破格の値段で売れた。" },
+  { k:"wyndham", cat:C1, artist:"sargent", wiki:"The Wyndham Sisters: Lady Elcho, Mrs. Adeane, and Mrs. Tennant", en:"The Wyndham Sisters", ja:"ウィンダム姉妹", year:"1899年", museum:"メトロポリタン美術館（ニューヨーク）", motif:"イギリスの名門ウィンダム家の三姉妹を、ロンドンの邸宅の客間で描いた大作。発表されると、のちの国王エドワード7世（当時は皇太子）が「三美神（The Three Graces）」と呼んで評判になった。" },
+  { k:"figure5", cat:C1, artist:"demuth", wiki:"I Saw the Figure 5 in Gold", en:"I Saw the Figure 5 in Gold", ja:"私は黄金の数字の5を見た", year:"1928年", museum:"メトロポリタン美術館（ニューヨーク）", motif:"友人の詩人ウィリアム・カーロス・ウィリアムズの詩『偉大な数字』がもと。雨の夜のニューヨークを、金色の「5」を付けた赤い消防車が走り抜けていく様子を表す。画面には「BILL」「CARLOS」「W.C.W.」と友人の名前が隠されている、文字による肖像画。" },
+  { k:"german", cat:C1, artist:"hartley", wiki:"Portrait of a German Officer", en:"Portrait of a German Officer", ja:"ドイツ人将校の肖像", year:"1914年", museum:"メトロポリタン美術館（ニューヨーク）", motif:"顔を描かない抽象的な「肖像画」。第一次世界大戦の開戦直後に戦死した親しい友人、プロイセンの将校カール・フォン・フライブルクを追悼している。鉄十字勲章、旗、イニシャル「KvF」、亡くなった年齢の「24」などが組み合わされている。" },
+  { k:"teatable", cat:C1, artist:"cassatt", wiki:"Lady at the Tea Table", en:"Lady at the Tea Table", ja:"ティーテーブルの婦人", year:"1883–85年", museum:"メトロポリタン美術館（ニューヨーク）", motif:"モデルは母のいとこのメアリー・ディキンソン・リドル。手前の青と白のティーセットは、モデル本人から贈られた中国（広東）製の磁器。家族が出来ばえを気に入らなかったため、カサットは長年手元に置き、1923年に美術館へ寄贈した。" },
+  { k:"veteran", cat:C1, artist:"homer", wiki:"The Veteran in a New Field", en:"The Veteran in a New Field", ja:"新しい畑の退役兵", year:"1865年", museum:"メトロポリタン美術館（ニューヨーク）", motif:"南北戦争が終わった1865年の作品。右下に脱ぎ捨てた北軍の上着と水筒があり、兵士が農民に戻ったことがわかる。「剣を鋤（すき）に打ち直す」平和の象徴であると同時に、大鎌は死神も連想させ、戦死者やリンカーン暗殺への追悼とも読める。" },
+  { k:"bronco", cat:C1, artist:"remington", wiki:"The Bronco Buster", en:"The Broncho Buster", ja:"ブロンコ・バスター（荒馬ならし）", year:"1895年", museum:"メトロポリタン美術館（ニューヨーク）ほか", motif:"後ろ脚で立ち上がる荒馬にしがみつくカウボーイを表したブロンズ像で、レミントンの最初の彫刻。数多く鋳造され、義勇騎兵隊ラフ・ライダーズが隊長セオドア・ルーズベルトに贈ったことでも有名。ホワイトハウスの大統領執務室にも飾られてきた。" },
+
+  // --- 2. 建国期の絵画と大風景画 ---
+  { k:"declaration", cat:C2, artist:"trumbull", wiki:"Declaration of Independence (painting)", en:"Declaration of Independence", ja:"独立宣言", year:"1786–1820年（議事堂版は1818年）", museum:"イェール大学美術館（原画）／連邦議会議事堂ロタンダ（大型版）", motif:"よく「署名の場面」と誤解されるが、実際は1776年6月28日、ジェファソンら5人の起草委員会が草案を大陸会議に提出する場面。2ドル紙幣の裏面の図柄になっている。トランブルは何年もかけて、実際の人物に会ってスケッチを重ねた。" },
+  { k:"lansdowne", cat:C2, artist:"stuart", wiki:"Lansdowne portrait", en:"George Washington (Lansdowne Portrait)", ja:"ジョージ・ワシントン（ランズダウン・ポートレート）", year:"1796年", museum:"ナショナル・ポートレート・ギャラリー（ワシントンD.C.）", motif:"大統領任期の終わりごろの64歳のワシントンの全身像。アメリカに好意的だったイギリスの元首相ランズダウン侯爵への贈り物として描かれた。ホワイトハウスにある複製は、1814年の米英戦争でイギリス軍が首都を焼いた際、ドリー・マディソン大統領夫人の指示で救い出された。" },
+  { k:"watson", cat:C2, artist:"copley", wiki:"Watson and the Shark", en:"Watson and the Shark", ja:"ワトソンと鮫", year:"1778年", museum:"ナショナル・ギャラリー（ワシントンD.C.）", motif:"1749年、キューバのハバナ港で泳いでいた14歳の孤児ブルック・ワトソンがサメに襲われ、右足のひざから下を失った実話。ワトソンは助かり、のちにロンドン市長になった。本人が自分の体験を絵にするよう依頼したと考えられている。" },
+  { k:"staircase", cat:C2, artist:"peale", wiki:"Staircase Group", en:"Staircase Group (Portrait of Raphaelle Peale and Titian Ramsay Peale I)", ja:"階段の群像", year:"1795年", museum:"フィラデルフィア美術館", motif:"息子のラファエルとティツィアーノが階段を上っていく姿を等身大で描いた「だまし絵（トロンプ・ルイユ）」。本物のドア枠にはめ込み、絵の下に本物の木の段を1段置いて展示した。ワシントン大統領が本物の少年だと思って帽子を取ってあいさつした、という逸話が残る。" },
+  { k:"peaceable", cat:C2, artist:"hicks", wiki:"The Peaceable Kingdom", en:"The Peaceable Kingdom", ja:"平和な王国", year:"1820〜40年代（60点以上の連作）", museum:"ナショナル・ギャラリー（ワシントンD.C.）、メトロポリタン美術館ほか", motif:"旧約聖書イザヤ書11章「オオカミは小羊と共に宿り、…小さな子供がそれらを導く」がもと。猛獣と家畜と子どもが仲良く並ぶ。背景にはペンシルベニア植民地の創設者ウィリアム・ペンが先住民レナペ族と条約を結ぶ場面が描かれることが多い。ヒックスは同じ主題を60回以上描いた。" },
+  { k:"empire", cat:C2, artist:"cole", wiki:"The Course of Empire (paintings)", en:"The Course of Empire", ja:"帝国の推移", year:"1833–36年", museum:"ニューヨーク歴史協会", motif:"同じ岩山のある土地を舞台に、文明の一生を5枚で描いた連作：『未開の状態』『牧歌的な状態』『帝国の完成』『破壊』『荒廃』。朝から夕暮れへと時刻も進む。繁栄はやがて滅びるという、急成長するアメリカへの警告とも読める。" },
+  { k:"kindred", cat:C2, artist:"durand", wiki:"Kindred Spirits (painting)", en:"Kindred Spirits", ja:"同志（キンドレッド・スピリッツ）", year:"1849年", museum:"クリスタル・ブリッジズ・アメリカ美術館（アーカンソー州）", motif:"前年に亡くなった画家トマス・コールと、その友人で詩人のウィリアム・カレン・ブライアントが、キャッツキル山地の岩棚に立って語り合う姿。コールへの追悼の絵。2005年にニューヨーク公共図書館からウォルマート創業家のアリス・ウォルトンが購入し、話題になった。" },
+  { k:"niagara", cat:C2, artist:"church", wiki:"Niagara (Frederic Edwin Church)", en:"Niagara", ja:"ナイアガラ", year:"1857年", museum:"ナショナル・ギャラリー（ワシントンD.C.）", motif:"カナダ側から見たナイアガラの滝（ホースシュー滝）。手前の地面を描かず、見る人が滝のふちの水の上に立っているような構図が画期的だった。英米で巡回展示され、チャーチを一躍有名にした。長くコーコラン美術館にあり、2014年に現在の所蔵先へ移った。" },
+  { k:"icebergs", cat:C2, artist:"church", wiki:"The Icebergs", en:"The Icebergs", ja:"氷山", year:"1861年", museum:"ダラス美術館（テキサス州）", motif:"1859年にニューファンドランド・ラブラドール沖へ船で出かけて描いたスケッチがもと。手前の折れたマストは、北極探検の犠牲者をしのばせる。イギリスの邸宅で長く行方不明になっていたが1979年に再発見され、250万ドルで落札（当時のアメリカ絵画の最高額）。" },
+  { k:"sierra", cat:C2, artist:"bierstadt", wiki:"Among the Sierra Nevada, California", en:"Among the Sierra Nevada, California", ja:"カリフォルニア、シエラネバダ山脈にて", year:"1868年", museum:"スミソニアン・アメリカ美術館（ワシントンD.C.）", motif:"カリフォルニアの山と湖とシカの群れ。ただし実在の一か所を写したものではなく、理想化した合成風景で、描かれた場所はなんとローマのアトリエ。ヨーロッパ各地で展示され、アメリカ西部へのあこがれと移民熱をかき立てた。" },
+  { k:"lackawanna", cat:C2, artist:"inness", wiki:"The Lackawanna Valley", en:"The Lackawanna Valley", ja:"ラッカワナ渓谷", year:"1855年ごろ", museum:"ナショナル・ギャラリー（ワシントンD.C.）", motif:"ペンシルベニア州スクラントンの機関車庫（ラウンドハウス）と走る蒸気機関車。デラウェア・ラッカワナ・アンド・ウェスタン鉄道が宣伝用に注文した絵。手前に並ぶたくさんの切り株が、開発と自然の関係を静かに問いかける。" },
+  { k:"yellowstone", cat:C2, artist:"moran", wiki:"The Grand Canyon of the Yellowstone (1872)", en:"The Grand Canyon of the Yellowstone", ja:"イエローストーンのグランドキャニオン", year:"1872年", museum:"スミソニアン・アメリカ美術館（内務省から貸与）", motif:"1871年のヘイデン地質調査隊に同行して見た、イエローストーン川の峡谷と滝。モランの水彩画と写真家ジャクソンの写真は連邦議会に示され、1872年に世界初の国立公園が誕生する後押しになった。この大作は議会が1万ドルで買い上げた。" },
+
+  // --- 3. 肖像・人物画と海を渡った画家 ---
+  { k:"mother", cat:C3, artist:"whistler", wiki:"Whistler's Mother", en:"Arrangement in Grey and Black No. 1 (Whistler's Mother)", ja:"灰色と黒のアレンジメント第1番（ホイッスラーの母）", year:"1871年", museum:"オルセー美術館（パリ）", motif:"横向きに座る母アンナ・マクニール・ホイッスラー。画家にとっては「母の肖像」というより色と形の配置（アレンジメント）の実験だった。1891年にフランス政府が購入。アメリカでは母性の象徴となり、1934年には母の日の記念切手になった。" },
+  { k:"rocket", cat:C3, artist:"whistler", wiki:"Nocturne in Black and Gold – The Falling Rocket", en:"Nocturne in Black and Gold – The Falling Rocket", ja:"黒と金色のノクターン―落下する花火", year:"1875年ごろ", museum:"デトロイト美術館", motif:"ロンドンの遊園地クレモーン・ガーデンズの夜空に散る花火。批評家ジョン・ラスキンが「公衆の顔に絵の具の壺を投げつけた」と酷評し、ホイッスラーは名誉毀損で訴えた。裁判には勝ったが、賠償金はわずか1ファージング（4分の1ペニー）で、裁判費用で破産した。" },
+  { k:"whitegirl", cat:C3, artist:"whistler", wiki:"Symphony in White, No. 1: The White Girl", en:"Symphony in White, No. 1: The White Girl", ja:"白のシンフォニー第1番―白の少女", year:"1862年", museum:"ナショナル・ギャラリー（ワシントンD.C.）", motif:"白い背景の前に白いドレスで立つのは、恋人でモデルのジョアンナ・ヒファーナン。ロンドンでもパリのサロンでも落選し、1863年の「落選展」でマネの『草上の昼食』と並んで注目を集めた。足もとはオオカミ（またはクマ）の毛皮の敷物。" },
+  { k:"peacock", cat:C3, artist:"whistler", wiki:"The Peacock Room", en:"Harmony in Blue and Gold: The Peacock Room", ja:"青と金のハーモニー―孔雀の間", year:"1876–77年", museum:"フリーア美術館（ワシントンD.C.・スミソニアン）", motif:"ロンドンの船主レイランドの食堂として作られた部屋まるごとの作品。中国の染付磁器を飾る部屋を、ホイッスラーが持ち主の留守中に勝手に青緑と金のクジャクで塗りつくして大げんかに。2羽が争うクジャクの壁画は、画家とパトロンの対立を表す。のちに実業家フリーアが買い取りアメリカへ運んだ。" },
+  { k:"gross", cat:C3, artist:"eakins", wiki:"The Gross Clinic", en:"The Gross Clinic (Portrait of Dr. Samuel D. Gross)", ja:"グロス・クリニック", year:"1875年", museum:"フィラデルフィア美術館／ペンシルベニア美術アカデミー（共同所蔵）", motif:"フィラデルフィアのジェファソン医科大学で、外科医サミュエル・グロス博士が学生の前で太ももの骨の手術を行う場面。血のついた手があまりに生々しいとして、1876年の建国100周年博覧会では美術館に展示されず、陸軍病院の展示室に回された。2006〜07年、市民の募金などで6800万ドルを集めて市内に残された。" },
+  { k:"boating", cat:C3, artist:"cassatt", wiki:"The Boating Party", en:"The Boating Party", ja:"舟遊び", year:"1893–94年", museum:"ナショナル・ギャラリー（ワシントンD.C.）", motif:"南フランスのアンティーブで描いた、舟をこぐ男性と母子。高い水平線、平たい色面、大胆に切り取った構図は、カサットが1890年にパリで見て夢中になった日本の浮世絵版画の影響。" },
+  { k:"bath", cat:C3, artist:"cassatt", wiki:"The Child's Bath", en:"The Child's Bath", ja:"子どもの入浴（湯あみ）", year:"1893年", museum:"シカゴ美術館", motif:"たらいで幼い娘の足を洗う母親を、上から見下ろす視点で描く。模様の重なりや斜めの構図は浮世絵に学んだもの。カサットは生涯結婚せず子どももいなかったが、母と子の日常を繰り返し描いた。" },
+  { k:"armchair", cat:C3, artist:"cassatt", wiki:"Little Girl in a Blue Armchair", en:"Little Girl in a Blue Armchair", ja:"青いひじ掛け椅子の少女", year:"1878年", museum:"ナショナル・ギャラリー（ワシントンD.C.）", motif:"退屈そうに椅子にだらりと座る女の子と、隣の椅子で眠る小犬（ブリュッセル・グリフォン）。友人ドガが背景の描き方を助言し、実際に筆も入れた。1878年のパリ万博のアメリカ部門に落選し、カサットは腹を立てた。" },
+  { k:"jaleo", cat:C3, artist:"sargent", wiki:"El Jaleo", en:"El Jaleo", ja:"エル・ハレオ", year:"1882年", museum:"イザベラ・スチュワート・ガードナー美術館（ボストン）", motif:"スペイン南部を旅した記憶をもとに、ギターの伴奏で踊るロマ（ジプシー）の踊り子を描いた幅約3.5メートルの大作。題名は踊りの名前で、手拍子やかけ声の「にぎわい」も意味する。美術館にはこの絵のために「スペイン回廊」が作られた。" },
+  { k:"boit", cat:C3, artist:"sargent", wiki:"The Daughters of Edward Darley Boit", en:"The Daughters of Edward Darley Boit", ja:"エドワード・ダーリー・ボイトの娘たち", year:"1882年", museum:"ボストン美術館", motif:"パリのアパートにいるアメリカ人画家ボイトの4人の娘。ばらばらに立つ不思議な構図は、スペインの巨匠ベラスケスの『ラス・メニーナス』に学んだもの。絵の中の背の高い2つの日本製（有田焼）の花瓶は実物が残っており、絵の両脇に展示されている。" },
+  { k:"carnation", cat:C3, artist:"sargent", wiki:"Carnation, Lily, Lily, Rose", en:"Carnation, Lily, Lily, Rose", ja:"カーネーション、リリー、リリー、ローズ", year:"1885–86年", museum:"テート・ブリテン（ロンドン）", motif:"イギリスのコッツウォルズ地方の庭で、夕暮れにちょうちんへ火をともす2人の少女（友人の娘ドリーとポリー）。日没直後の光を写すため、毎夕わずか数分ずつ、2年がかりで描いた。題名は当時の流行歌の歌詞から。ちょうちんは日本や中国風のもの。" },
+  { k:"banjo", cat:C3, artist:"tanner", wiki:"The Banjo Lesson", en:"The Banjo Lesson", ja:"バンジョー・レッスン", year:"1893年", museum:"ハンプトン大学美術館（バージニア州）", motif:"老人がひざの上の少年にバンジョーを教える、つつましい室内。当時、黒人のバンジョー弾きは見世物の笑いの種として描かれがちだったが、タナーは世代から世代へ知恵を伝える尊厳ある姿として描いた。" },
+  { k:"squirrel", cat:C3, artist:"copley", wiki:"A Boy with a Flying Squirrel", en:"A Boy with a Flying Squirrel (Henry Pelham)", ja:"ムササビ（モモンガ）と少年", year:"1765年", museum:"ボストン美術館", motif:"モデルは異父弟ヘンリー・ペラム。金の鎖でつないだペットのアメリカモモンガ、水の入ったグラス、磨いたテーブルへの映り込みで腕前を見せつける。コプリーはこの絵をボストンからロンドンの展覧会へ送り、巨匠レノルズに絶賛されて渡英のきっかけになった。" },
+
+  // --- 4. 写実・都市・モダニズム ---
+  { k:"breezing", cat:C4, artist:"homer", wiki:"Breezing Up (A Fair Wind)", en:"Breezing Up (A Fair Wind)", ja:"追い風（ブリージング・アップ）", year:"1873–76年", museum:"ナショナル・ギャラリー（ワシントンD.C.）", motif:"マサチューセッツ州グロスターの港で、男性と3人の少年が小さな帆船（キャットボート）で風を受けて進む。船尾に「Gloucester」の文字。南北戦争後の明るい希望を感じさせる絵として、1876年の建国100周年のころ人気を集めた。" },
+  { k:"snap", cat:C4, artist:"homer", wiki:"Snap the Whip", en:"Snap the Whip", ja:"スナップ・ザ・ウィップ（むち鳴らし遊び）", year:"1872年", museum:"バトラー・アメリカ美術館（オハイオ州）／メトロポリタン美術館（別版）", motif:"赤い小さな校舎（教室が1つだけの学校）の前で、はだしの少年たちが手をつないで走り、端の子を振り飛ばす遊びをしている。都市化が進む時代に、田舎の素朴な子ども時代をなつかしむ絵として愛された。" },
+  { k:"fog", cat:C4, artist:"homer", wiki:"The Fog Warning", en:"The Fog Warning", ja:"霧の警報", year:"1885年", museum:"ボストン美術館", motif:"小舟（ドーリー）にオヒョウ（大型のカレイの仲間）を積んだ漁師が、水平線に迫る霧の壁を振り返る。霧に包まれれば母船を見失い命にかかわる。北大西洋の漁師の厳しい仕事を描いたシリーズの1点。" },
+  { k:"stag", cat:C4, artist:"bellows", wiki:"Stag at Sharkey's", en:"Stag at Sharkey's", ja:"シャーキーの店の試合", year:"1909年", museum:"クリーブランド美術館", motif:"当時のニューヨークでは公開の賞金ボクシングが違法だったため、会員制クラブの形で試合が行われた。舞台は元ボクサーのトム・シャーキーが経営するクラブ。「stag」は一時的に会員扱いされた飛び入りの選手のこと。荒々しい筆づかいで殴り合いの勢いを表す。" },
+  { k:"dempsey", cat:C4, artist:"bellows", wiki:"Dempsey and Firpo", en:"Dempsey and Firpo", ja:"デンプシーとフィルポ", year:"1924年", museum:"ホイットニー美術館（ニューヨーク）", motif:"1923年9月14日、ニューヨークのポロ・グラウンズで行われたヘビー級タイトルマッチ。アルゼンチンのフィルポが王者デンプシーをリングの外へたたき出した瞬間を描くが、試合に勝ったのはデンプシー（2回KO）。左端のはげ頭の男は画家本人。" },
+  { k:"mcsorley", cat:C4, artist:"sloan", wiki:"McSorley's Bar", en:"McSorley's Bar", ja:"マクソーリーズ・バー", year:"1912年", museum:"デトロイト美術館", motif:"ニューヨークのイーストビレッジに今もある老舗酒場「マクソーリーズ・オールド・エール・ハウス」。労働者たちがエールを飲む日常の一コマ。この店は1970年まで女性客を入れなかった。" },
+  { k:"gothic", cat:C4, artist:"wood", wiki:"American Gothic", en:"American Gothic", ja:"アメリカン・ゴシック", year:"1930年", museum:"シカゴ美術館", motif:"アイオワ州エルドンに実在する小さな白い家の、教会のような尖った窓（カーペンター・ゴシック様式）が題名の由来。モデルは画家の妹ナンと、かかりつけの歯医者。夫婦に見えるが、画家の意図は「農夫とその娘」。三つ又のフォーク（ピッチフォーク）の形が服や窓にも繰り返されている。" },
+  { k:"nighthawks", cat:C4, artist:"hopper", wiki:"Nighthawks (Hopper)", en:"Nighthawks", ja:"ナイトホークス（夜更かしの人々）", year:"1942年", museum:"シカゴ美術館", motif:"深夜の街角、明るいガラス張りのダイナー（食堂）にいる3人の客と店員。よく見ると店に出入り口のドアが描かれていない。ニューヨークのグリニッチ・アベニューの店がヒントという。完成の数か月後にシカゴ美術館が3000ドルで購入した。" },
+  { k:"railroad", cat:C4, artist:"hopper", wiki:"House by the Railroad", en:"House by the Railroad", ja:"線路わきの家", year:"1925年", museum:"ニューヨーク近代美術館（MoMA）", motif:"線路の向こうにぽつんと立つビクトリア朝風の古い屋敷。近代化に取り残された孤独を感じさせる。MoMAのコレクションに最初に加わった絵画の一つ（1930年）。ヒッチコック監督の映画『サイコ』のベイツ家の屋敷のモデルになった。" },
+  { k:"diana", cat:C4, artist:"stgaudens", wiki:"Diana (Saint-Gaudens)", en:"Diana", ja:"ディアナ（ダイアナ）", year:"1892–93年", museum:"フィラデルフィア美術館（縮小版はメトロポリタン美術館ほか）", motif:"弓を引くローマ神話の狩りの女神。建築家スタンフォード・ホワイトが設計した2代目マディソン・スクエア・ガーデンの塔のてっぺんで、風向計（風見）として回っていた金色の像。建物が1925年に取り壊された後、フィラデルフィア美術館の大階段ホールに置かれた。" },
+  { k:"allies", cat:C4, artist:"hassam", wiki:"Allies Day, May 1917", en:"Allies Day, May 1917", ja:"連合国の日、1917年5月", year:"1917年", museum:"ナショナル・ギャラリー（ワシントンD.C.）", motif:"アメリカが第一次世界大戦に参戦した直後、イギリスとフランスの使節団を歓迎して、ニューヨーク五番街に米・英・仏の旗が飾られた様子。ハッサムは1916〜19年に約30点の「旗の連作」を描いた。" }
+];
+const WORK_BY_KEY = Object.fromEntries(WORKS.map(w => [w.k, w]));
+
+// クイズ50問（w は WORKS のキー。cap は解答前の画像キャプション、svg は右側のヒントカード）
+const QUIZ_DATA = [
+  // 1. メトロポリタン美術館の名作（14問）
+  {id:1, cat:C1, w:"crossing", cap:"The Metropolitan Museum of Art, New York (1851)", svg:["THE MET","Which Event Is Shown?","Christmas Night, 1776"], q:"This huge 1851 painting by Emanuel Leutze hangs in the Metropolitan Museum of Art. Which event of the American Revolution does it show?", o:["George Washington crossing the Delaware River to attack Trenton","Paul Revere's midnight ride to Lexington","The British surrender at Yorktown","The winter camp at Valley Forge"], a:0, exp:"エマヌエル・ロイツェ『デラウェア川を渡るワシントン』。1776年12月25日の夜、ワシントン軍がデラウェア川を渡ってトレントンを奇襲した場面です。絵はドイツのデュッセルドルフで描かれました。"},
+  {id:2, cat:C1, w:"gulf", cap:"The Metropolitan Museum of Art, New York (1899)", svg:["THE MET","Who Painted This?","A Lone Sailor and Sharks"], q:"Which American artist, famous for his sea paintings made in Maine and the Caribbean, painted 'The Gulf Stream' (1899)?", o:["Thomas Eakins","Edward Hopper","Winslow Homer","Albert Bierstadt"], a:2, exp:"『メキシコ湾流』はウィンスロー・ホーマーの代表作。マストの折れた小舟、サメ、遠くの竜巻が描かれています。ホーマーは晩年メイン州プラウツネックに住み、冬はバハマなどへ旅しました。"},
+  {id:3, cat:C1, w:"madamex", cap:"The Metropolitan Museum of Art, New York (1883–84)", svg:["THE MET","Scandal in Paris","The Salon of 1884"], q:"John Singer Sargent's portrait 'Madame X' caused a scandal at the 1884 Paris Salon. What detail in the original version shocked viewers the most?", o:["She was shown smoking a cigarette","One jeweled strap of her dress had slipped off her shoulder","She was painted without shoes","She was wearing men's clothing"], a:1, exp:"サージェント『マダムX』。最初は右肩の肩ひもが落ちた姿で描かれ、パリで大スキャンダルになりました。サージェントは肩ひもを描き直し、のちにロンドンへ移ります。モデルはルイジアナ生まれのゴートロー夫人。"},
+  {id:4, cat:C1, w:"oxbow", cap:"The Metropolitan Museum of Art, New York (1836)", svg:["THE MET","Which River?","View from Mount Holyoke"], q:"Thomas Cole's 'The Oxbow' (1836) shows a great bend in which river in Massachusetts?", o:["The Hudson River","The Mississippi River","The Potomac River","The Connecticut River"], a:3, exp:"トマス・コール『オックスボウ』はマサチューセッツ州ノーサンプトン近くのコネチカット川の湾曲部を描いています。コールはハドソンリバー派の創始者ですが、この絵の川はハドソン川ではありません。"},
+  {id:5, cat:C1, w:"andes", cap:"The Metropolitan Museum of Art, New York (1859)", svg:["THE MET","Where Is This Landscape?","A One-Painting Exhibition"], q:"Frederic Edwin Church's 'The Heart of the Andes' (1859) was shown alone in New York, and thousands paid 25 cents to see it. Which present-day country's scenery inspired it?", o:["Ecuador","Mexico","Canada","Switzerland"], a:0, exp:"チャーチ『アンデスの心臓』は、エクアドルへの2度の旅をもとにした大作です。1点だけの展覧会に行列ができ、1万ドルで売れました。"},
+  {id:6, cat:C1, w:"schmitt", cap:"The Metropolitan Museum of Art, New York (1871)", svg:["THE MET","Which Sport?","Schuylkill River, Philadelphia"], q:"Thomas Eakins painted his friend Max Schmitt on the Schuylkill River in Philadelphia in 1871. Which sport is Schmitt famous for?", o:["Swimming","Fishing","Rowing","Ice skating"], a:2, exp:"エイキンズ『シングル・スカルに乗るマックス・シュミット』。シュミットはボート（ローイング）の選手です。奥のボートを漕いでいるのは画家エイキンズ自身です。"},
+  {id:7, cat:C1, w:"furtraders", cap:"The Metropolitan Museum of Art, New York (1845)", svg:["THE MET","Who Painted This?","'The Missouri Artist'"], q:"Which artist, known as 'the Missouri Artist,' painted 'Fur Traders Descending the Missouri' in 1845?", o:["Frederic Remington","George Caleb Bingham","John Trumbull","Thomas Moran"], a:1, exp:"ジョージ・ケイレブ・ビンガムはミズーリ州で育ち、川で働く人々を描きました。舟のへさきの黒い動物は子グマとする説が有力です。"},
+  {id:8, cat:C1, w:"rocky", cap:"The Metropolitan Museum of Art, New York (1863)", svg:["THE MET","Who Painted This?","Sold for $25,000 in 1865"], q:"Which German-born American painter joined a government expedition to the West in 1859 and later painted 'The Rocky Mountains, Lander's Peak'?", o:["Emanuel Leutze","Thomas Cole","George Inness","Albert Bierstadt"], a:3, exp:"アルバート・ビアスタットは1859年のランダー探検隊に同行しました。手前には先住民ショショーニ族の野営地が描かれています。"},
+  {id:9, cat:C1, w:"wyndham", cap:"The Metropolitan Museum of Art, New York (1899)", svg:["THE MET","A Royal Nickname","Three Sisters in London"], q:"When John Singer Sargent showed this 1899 portrait of three sisters in London, the Prince of Wales gave it a nickname. What was it?", o:["The Three Graces","The Three Musketeers","The Three Queens","The Three Sisters of Fate"], a:0, exp:"サージェント『ウィンダム姉妹』は、当時の皇太子（のちのエドワード7世）に「三美神（The Three Graces）」と呼ばれました。"},
+  {id:10, cat:C1, w:"figure5", cap:"The Metropolitan Museum of Art, New York (1928)", svg:["THE MET","Inspired by a Poem","A Red Fire Engine at Night"], q:"Charles Demuth's 'I Saw the Figure 5 in Gold' (1928) was inspired by a poem about a fire engine. Which American poet, a friend of the artist, wrote it?", o:["Robert Frost","Walt Whitman","William Carlos Williams","Emily Dickinson"], a:2, exp:"デムスの友人ウィリアム・カーロス・ウィリアムズの詩『偉大な数字（The Great Figure）』がもとです。画面には「BILL」「CARLOS」「W.C.W.」の文字が入っています。"},
+  {id:11, cat:C1, w:"german", cap:"The Metropolitan Museum of Art, New York (1914)", svg:["THE MET","A Portrait Without a Face","Flags, Medals and Numbers"], q:"Marsden Hartley's abstract 'Portrait of a German Officer' (1914) is a memorial to a close friend. In which war was this friend killed?", o:["The American Civil War","World War I","The Spanish-American War","World War II"], a:1, exp:"ハートリーはベルリン滞在中、第一次世界大戦の開戦直後に戦死した友人カール・フォン・フライブルクを、勲章や旗、数字で表しました。"},
+  {id:12, cat:C1, w:"teatable", cap:"The Metropolitan Museum of Art, New York (1883–85)", svg:["THE MET","Which Art Movement?","An American in Paris"], q:"Mary Cassatt, who painted 'Lady at the Tea Table,' was the only American invited to exhibit with which group of artists in Paris?", o:["The Cubists","The Hudson River School","The Ashcan School","The Impressionists"], a:3, exp:"メアリー・カサットはドガに誘われ、フランス印象派の展覧会に参加した唯一のアメリカ人です。"},
+  {id:13, cat:C1, w:"veteran", cap:"The Metropolitan Museum of Art, New York (1865)", svg:["THE MET","Back from Which War?","Painted in 1865"], q:"Winslow Homer painted 'The Veteran in a New Field' in 1865. The man cutting wheat has just come home from which war?", o:["The American Civil War","The War of 1812","The Mexican-American War","The American Revolution"], a:0, exp:"1865年は南北戦争が終わった年。右下に北軍の上着と水筒が置かれ、兵士が農民に戻ったことを示しています。"},
+  {id:14, cat:C1, w:"bronco", cap:"Bronze sculpture (1895) — casts in the Met and other museums", svg:["THE MET","Who Made This Bronze?","Artist of the Old West"], q:"Which artist of the American West made the bronze sculpture 'The Broncho Buster' (1895)? Casts are in the Metropolitan Museum of Art, and one has stood in the Oval Office.", o:["Augustus Saint-Gaudens","Daniel Chester French","Frederic Remington","Gutzon Borglum"], a:2, exp:"『ブロンコ・バスター』はフレデリック・レミントンの最初の彫刻。荒馬を乗りこなすカウボーイの像で、ホワイトハウスの大統領執務室にも飾られてきました。"},
+
+  // 2. 建国期の絵画と大風景画（12問）
+  {id:15, cat:C2, w:"declaration", cap:"Yale University Art Gallery / U.S. Capitol Rotunda", svg:["FOUNDING ERA","What Moment Is This?","Seen on the $2 Bill"], q:"John Trumbull's 'Declaration of Independence' appears on the back of the $2 bill. What moment does the painting actually show?", o:["All 56 delegates signing the document on July 4","The five-man drafting committee presenting the draft to Congress","George Washington reading the Declaration to his army","The ringing of the Liberty Bell"], a:1, exp:"トランブル『独立宣言』は署名の場面ではなく、1776年6月28日に5人の起草委員会（ジェファソン、アダムズ、フランクリンら）が草案を提出する場面です。"},
+  {id:16, cat:C2, w:"lansdowne", cap:"National Portrait Gallery, Washington, D.C. (1796)", svg:["FOUNDING ERA","Saved in 1814","Full-Length Portrait of Washington"], q:"Gilbert Stuart painted this full-length portrait of George Washington in 1796. A copy in the White House was famously saved by First Lady Dolley Madison during which event?", o:["The Civil War","The Great Fire of New York","The American Revolution","The burning of Washington by British troops in the War of 1812"], a:3, exp:"ギルバート・スチュアートの「ランズダウン・ポートレート」。原画はナショナル・ポートレート・ギャラリー所蔵。ホワイトハウスの複製は1814年、イギリス軍の焼き討ちの直前に運び出されました。"},
+  {id:17, cat:C2, w:"watson", cap:"National Gallery of Art, Washington, D.C. (1778)", svg:["FOUNDING ERA","Where Did It Happen?","A True Story from 1749"], q:"John Singleton Copley's 'Watson and the Shark' (1778) shows a real shark attack on a 14-year-old boy. In which harbor did it happen?", o:["Havana, Cuba","Boston, Massachusetts","Sydney, Australia","Charleston, South Carolina"], a:0, exp:"コプリー『ワトソンと鮫』。1749年にハバナ港でサメに襲われたブルック・ワトソンは右足を失いましたが助かり、のちにロンドン市長になりました。"},
+  {id:18, cat:C2, w:"staircase", cap:"Philadelphia Museum of Art (1795)", svg:["FOUNDING ERA","What Kind of Painting?","It Fooled George Washington"], q:"Charles Willson Peale showed 'Staircase Group' (1795) inside a real door frame with a real wooden step. What is the name for this kind of painting that tricks the eye?", o:["Fresco","Pointillism","Trompe-l'oeil","Collage"], a:2, exp:"本物そっくりに見せる「だまし絵」をフランス語でトロンプ・ルイユ（trompe-l'œil）といいます。ワシントンが絵の少年にあいさつしたという逸話があります。"},
+  {id:19, cat:C2, w:"peaceable", cap:"National Gallery of Art, the Met and others (1820s–1840s)", svg:["FOLK ART","Which Book of the Bible?","Painted More Than 60 Times"], q:"The Quaker minister Edward Hicks painted 'The Peaceable Kingdom' more than 60 times. Its animals living in peace come from which book of the Bible?", o:["Genesis","Isaiah","Psalms","Revelation"], a:1, exp:"旧約聖書イザヤ書11章の「オオカミは小羊と共に宿り…」がもとです。背景にはウィリアム・ペンと先住民の条約の場面がよく描かれます。"},
+  {id:20, cat:C2, w:"empire", cap:"New-York Historical Society (1833–36)", svg:["HUDSON RIVER SCHOOL","How Many Paintings?","From Wilderness to Ruins"], q:"Thomas Cole's series 'The Course of Empire' follows a civilization from wilderness to ruin. How many paintings are in the series?", o:["Three","Four","Seven","Five"], a:3, exp:"『帝国の推移』は『未開の状態』『牧歌的な状態』『帝国の完成』『破壊』『荒廃』の5点の連作です。"},
+  {id:21, cat:C2, w:"kindred", cap:"Crystal Bridges Museum of American Art, Arkansas (1849)", svg:["HUDSON RIVER SCHOOL","Who Are the Two Men?","In the Catskill Mountains"], q:"Asher B. Durand's 'Kindred Spirits' (1849) shows two friends standing on a rock ledge in the Catskills. Who are they?", o:["Painter Thomas Cole and poet William Cullen Bryant","Explorers Meriwether Lewis and William Clark","Writers Henry David Thoreau and Ralph Waldo Emerson","Presidents Thomas Jefferson and John Adams"], a:0, exp:"前年に亡くなった画家トマス・コールと、友人の詩人ウィリアム・カレン・ブライアントです。コールへの追悼として描かれました。"},
+  {id:22, cat:C2, w:"niagara", cap:"National Gallery of Art, Washington, D.C. (1857)", svg:["HUDSON RIVER SCHOOL","Which Natural Wonder?","On the U.S.–Canada Border"], q:"Frederic Edwin Church became famous in 1857 with this painting of a natural wonder on the border between the United States and Canada. What is it?", o:["Yosemite Falls","Lake Superior","Niagara Falls","The Grand Canyon"], a:2, exp:"チャーチ『ナイアガラ』。カナダ側から見たホースシュー滝を、手前の地面を描かない大胆な構図で表しました。"},
+  {id:23, cat:C2, w:"icebergs", cap:"Oil on canvas (1861)", svg:["HUDSON RIVER SCHOOL","Lost and Found","Rediscovered in 1979"], q:"Frederic Edwin Church's 'The Icebergs' (1861) was lost for decades and found again in England in 1979. Which museum owns it today?", o:["The Louvre in Paris","The Dallas Museum of Art","The British Museum in London","The Museum of Fine Arts, Boston"], a:1, exp:"『氷山』は1979年に再発見されて250万ドルで落札され、テキサス州のダラス美術館に寄贈されました。"},
+  {id:24, cat:C2, w:"sierra", cap:"Smithsonian American Art Museum, Washington, D.C. (1868)", svg:["THE WEST","Painted Far from California","A Studio in Europe"], q:"Albert Bierstadt's 'Among the Sierra Nevada, California' (1868) shows the American West, but it was painted in a studio in which European city?", o:["Paris","London","Vienna","Rome"], a:3, exp:"この絵はローマのアトリエで描かれ、ヨーロッパ各地で展示されました。実在の場所ではなく理想化した風景です。"},
+  {id:25, cat:C2, w:"lackawanna", cap:"National Gallery of Art, Washington, D.C. (c. 1855)", svg:["LANDSCAPE","Who Ordered This Painting?","Scranton, Pennsylvania"], q:"George Inness painted 'The Lackawanna Valley' around 1855, with a steam train, a roundhouse and many tree stumps. What kind of company ordered the painting?", o:["A railroad company","A coal mining company","A steel company","A shipbuilding company"], a:0, exp:"デラウェア・ラッカワナ・アンド・ウェスタン鉄道が注文した絵です。ペンシルベニア州スクラントンの機関車庫が描かれています。"},
+  {id:26, cat:C2, w:"yellowstone", cap:"Smithsonian American Art Museum (1872)", svg:["THE WEST","The First National Park","Created in 1872"], q:"Thomas Moran's paintings helped persuade Congress in 1872 to create the world's first national park. Which park does this painting show?", o:["Yosemite","Grand Canyon","Yellowstone","Glacier"], a:2, exp:"モランは1871年のヘイデン調査隊に同行。1872年にイエローストーンが世界初の国立公園となり、この絵は議会が1万ドルで買い上げました。"},
+
+  // 3. 肖像・人物画と海を渡った画家（13問）
+  {id:27, cat:C3, w:"mother", cap:"Arrangement in Grey and Black No. 1 (1871)", svg:["AMERICANS ABROAD","Where Is It Now?","Bought by France in 1891"], q:"The painting known as 'Whistler's Mother' is one of the most famous works by an American artist. In which museum is it kept?", o:["The Metropolitan Museum of Art, New York","The Musée d'Orsay, Paris","The National Gallery, London","The Art Institute of Chicago"], a:1, exp:"『ホイッスラーの母』は1891年にフランス政府が購入し、現在はパリのオルセー美術館にあります。正式な題名は『灰色と黒のアレンジメント第1番』。"},
+  {id:28, cat:C3, w:"rocket", cap:"Detroit Institute of Arts (c. 1875)", svg:["AMERICANS ABROAD","A Famous Lawsuit","'A Pot of Paint'"], q:"A critic wrote that James McNeill Whistler was 'flinging a pot of paint in the public's face' with this painting of fireworks, and Whistler sued him. Who was the critic?", o:["Oscar Wilde","Charles Dickens","Mark Twain","John Ruskin"], a:3, exp:"批評家ジョン・ラスキンです。ホイッスラーは裁判に勝ちましたが、賠償金はわずか1ファージングで、費用がかさんで破産しました。"},
+  {id:29, cat:C3, w:"whitegirl", cap:"National Gallery of Art, Washington, D.C. (1862)", svg:["AMERICANS ABROAD","Rejected, Then Famous","Paris, 1863"], q:"Whistler's 'Symphony in White, No. 1: The White Girl' was rejected by the official Salon. At which famous 1863 Paris exhibition of rejected works was it shown?", o:["The Salon des Refusés","The Armory Show","The first Impressionist Exhibition","The Great Exhibition"], a:0, exp:"1863年の「落選展（サロン・デ・ルフュゼ）」で、マネの『草上の昼食』とともに話題になりました。"},
+  {id:30, cat:C3, w:"peacock", cap:"Harmony in Blue and Gold (1876–77)", svg:["AMERICANS ABROAD","A Whole Room as Art","Moved from London to the U.S."], q:"Whistler decorated an entire London dining room with golden peacocks. In which museum in Washington, D.C. can you walk into 'The Peacock Room' today?", o:["The National Air and Space Museum","The Hirshhorn Museum","The Freer Gallery of Art","The National Portrait Gallery"], a:2, exp:"実業家チャールズ・ラング・フリーアが買い取り、現在はスミソニアンのフリーア美術館（国立アジア美術館）に移築されています。"},
+  {id:31, cat:C3, w:"gross", cap:"Portrait of Dr. Samuel D. Gross (1875)", svg:["REALISM","Which City?","A Surgery Lesson at a Medical College"], q:"Thomas Eakins's 'The Gross Clinic' (1875) shows a famous surgeon teaching at Jefferson Medical College. In 2006–07, people in which city raised $68 million to keep the painting there?", o:["Boston","Philadelphia","New York","Baltimore"], a:1, exp:"フィラデルフィアです。市外へ売却されそうになりましたが、募金などで6800万ドルを集め、フィラデルフィア美術館とペンシルベニア美術アカデミーの共同所蔵になりました。"},
+  {id:32, cat:C3, w:"boating", cap:"National Gallery of Art, Washington, D.C. (1893–94)", svg:["IMPRESSIONISM","What Influenced This Style?","Flat Colors, High Horizon"], q:"The flat areas of color and the high horizon in Mary Cassatt's 'The Boating Party' show the influence of which kind of art she admired in Paris?", o:["Egyptian wall painting","Greek sculpture","Russian icons","Japanese woodblock prints (ukiyo-e)"], a:3, exp:"カサットは1890年にパリで開かれた浮世絵展に感動し、その構図や色面を自分の絵や版画に取り入れました。"},
+  {id:33, cat:C3, w:"bath", cap:"Art Institute of Chicago (1893)", svg:["IMPRESSIONISM","Her Favorite Subject","Seen from Above"], q:"'The Child's Bath' (1893) in the Art Institute of Chicago shows the subject Mary Cassatt is best known for. What is it?", o:["Mothers and children in everyday life","Dancers at the ballet","Horse races","Farm workers in the fields"], a:0, exp:"カサットは母と子の日常の情景を繰り返し描きました。バレエの踊り子や競馬は友人ドガの得意な主題です。"},
+  {id:34, cat:C3, w:"armchair", cap:"National Gallery of Art, Washington, D.C. (1878)", svg:["IMPRESSIONISM","A Friend Helped","A Bored Girl and a Sleeping Dog"], q:"Which French artist, a close friend of Mary Cassatt, helped her by working on the background of 'Little Girl in a Blue Armchair' (1878)?", o:["Claude Monet","Pierre-Auguste Renoir","Edgar Degas","Paul Cézanne"], a:2, exp:"エドガー・ドガです。カサット自身が手紙で、ドガが背景に手を入れてくれたと書いています。"},
+  {id:35, cat:C3, w:"jaleo", cap:"Isabella Stewart Gardner Museum, Boston (1882)", svg:["AMERICANS ABROAD","Which Country's Dance?","Guitars and Clapping"], q:"John Singer Sargent's huge painting 'El Jaleo' (1882), in the Isabella Stewart Gardner Museum in Boston, shows a dancer and guitar players from which country?", o:["Italy","Spain","Mexico","Morocco"], a:1, exp:"スペインです。サージェントが1879年にスペイン南部を旅した体験がもとで、ロマ（ジプシー）の踊りを描いています。"},
+  {id:36, cat:C3, w:"boit", cap:"Museum of Fine Arts, Boston (1882)", svg:["AMERICANS ABROAD","Inspired by an Old Master","Four Sisters and Two Tall Vases"], q:"The unusual composition of Sargent's 'The Daughters of Edward Darley Boit' (1882) was inspired by which famous Spanish painting?", o:["Guernica by Picasso","The Third of May 1808 by Goya","The Persistence of Memory by Dalí","Las Meninas by Velázquez"], a:3, exp:"ベラスケスの『ラス・メニーナス』です。サージェントはマドリードのプラド美術館でこの絵を模写しています。絵の中の大きな花瓶は日本製で、実物が絵の横に展示されています。"},
+  {id:37, cat:C3, w:"carnation", cap:"Tate Britain, London (1885–86)", svg:["AMERICANS ABROAD","What Are the Girls Doing?","Painted Only at Dusk"], q:"In Sargent's 'Carnation, Lily, Lily, Rose' (Tate Britain), what are the two girls doing in the garden at dusk?", o:["Lighting paper lanterns","Catching fireflies","Picking flowers for their mother","Reading a book together"], a:0, exp:"2人の少女はちょうちんに火をともしています。夕暮れの光を写すため、サージェントは毎夕数分ずつ、2年がかりで描きました。"},
+  {id:38, cat:C3, w:"banjo", cap:"Hampton University Museum, Virginia (1893)", svg:["REALISM","Who Painted This?","A Student of Thomas Eakins"], q:"Which artist, often called the first African American painter to win international fame, painted 'The Banjo Lesson' in 1893?", o:["Jacob Lawrence","Jean-Michel Basquiat","Henry Ossawa Tanner","Romare Bearden"], a:2, exp:"ヘンリー・オサワ・タナーです。エイキンズに学んだあとパリへ渡り、フランスで高く評価されました。"},
+  {id:39, cat:C3, w:"squirrel", cap:"Museum of Fine Arts, Boston (1765)", svg:["COLONIAL AMERICA","Who Painted This?","Sent from Boston to London"], q:"Which Boston-born painter sent 'A Boy with a Flying Squirrel' to a London exhibition in 1765 and later moved to England for good?", o:["Gilbert Stuart","John Singleton Copley","Charles Willson Peale","John Trumbull"], a:1, exp:"ジョン・シングルトン・コプリーです。モデルは異父弟ヘンリー・ペラム。ロンドンで絶賛され、コプリーは1774年にイギリスへ渡りました。"},
+
+  // 4. 写実・都市・モダニズム（11問）
+  {id:40, cat:C4, w:"breezing", cap:"National Gallery of Art, Washington, D.C. (1873–76)", svg:["REALISM","Which Fishing Port?","The Name Is on the Boat"], q:"Winslow Homer's 'Breezing Up (A Fair Wind)' shows a man and three boys sailing off which famous fishing port in Massachusetts?", o:["Gloucester","Salem","Plymouth","Nantucket"], a:0, exp:"マサチューセッツ州グロスターです。船尾に「Gloucester」と書かれています。ホーマーは1873年の夏をここで過ごしました。"},
+  {id:41, cat:C4, w:"snap", cap:"Butler Institute of American Art, Ohio (1872)", svg:["REALISM","What Is the Red Building?","Country Life after the Civil War"], q:"In Winslow Homer's 'Snap the Whip' (1872), barefoot boys play a game in a field. What is the small red building behind them?", o:["A church","A barn","A railroad station","A one-room schoolhouse"], a:3, exp:"教室が1つだけの小さな学校（ワンルーム・スクールハウス）です。少年たちは休み時間に「むち鳴らし遊び」をしています。"},
+  {id:42, cat:C4, w:"fog", cap:"Museum of Fine Arts, Boston (1885)", svg:["REALISM","What Is the Danger?","A Fisherman Alone in a Dory"], q:"In Winslow Homer's 'The Fog Warning' (1885), a fisherman rows his small boat full of fish. What danger is he looking at on the horizon?", o:["A pirate ship","A giant whale","A fog bank that could hide his home ship","An iceberg"], a:2, exp:"水平線に霧の壁が迫っています。霧に包まれると母船（スクーナー）を見失い、遭難する危険がありました。舟の魚はオヒョウです。"},
+  {id:43, cat:C4, w:"stag", cap:"Cleveland Museum of Art (1909)", svg:["CITY LIFE","Which Group of Artists?","Gritty Scenes of New York"], q:"George Bellows, who painted 'Stag at Sharkey's' (1909), belonged to a group of artists who painted rough, everyday life in New York City. What is the group called?", o:["The Hudson River School","The Ashcan School","The Impressionists","The Regionalists"], a:1, exp:"「アシュカン派（ごみ箱派）」です。ロバート・ヘンライ、ジョン・スローン、ジョージ・ベローズらが、都会の庶民の暮らしをありのままに描きました。"},
+  {id:44, cat:C4, w:"dempsey", cap:"Whitney Museum of American Art, New York (1924)", svg:["CITY LIFE","Who Won the Fight?","Polo Grounds, 1923"], q:"George Bellows's 'Dempsey and Firpo' (1924) shows Luis Firpo knocking champion Jack Dempsey out of the ring. Who finally won the fight?", o:["Jack Dempsey","Luis Firpo","It ended in a draw","The fight was stopped by the police"], a:0, exp:"リングの外へ落とされたデンプシーは戻って反撃し、2回KOで勝ちました。絵の左端のはげ頭の男性はベローズ本人です。"},
+  {id:45, cat:C4, w:"mcsorley", cap:"Detroit Institute of Arts (1912)", svg:["CITY LIFE","Which City?","An Old Ale House Still Open Today"], q:"John Sloan's 'McSorley's Bar' (1912) shows a famous old ale house that did not admit women until 1970. In which city is it?", o:["Chicago","Boston","Philadelphia","New York City"], a:3, exp:"ニューヨーク市イーストビレッジにある「マクソーリーズ・オールド・エール・ハウス」で、今も営業しています。"},
+  {id:46, cat:C4, w:"gothic", cap:"Art Institute of Chicago (1930)", svg:["REGIONALISM","Who Were the Models?","A Farmhouse in Iowa"], q:"Who posed as the two models for Grant Wood's 'American Gothic' (1930)?", o:["His parents","A real farmer and his wife","His sister and his dentist","Two famous actors"], a:2, exp:"モデルは画家の妹ナン・ウッド・グラハムと、歯医者のバイロン・マッキービー。画家は「農夫とその娘」のつもりで描きました。家はアイオワ州エルドンに実在します。"},
+  {id:47, cat:C4, w:"nighthawks", cap:"Art Institute of Chicago (1942)", svg:["CITY LIFE","What Kind of Place?","Late at Night on a City Corner"], q:"Edward Hopper's 'Nighthawks' (1942) is a famous image of loneliness in the city. What kind of place does it show late at night?", o:["A movie theater","A diner","A gas station","A hotel lobby"], a:1, exp:"深夜のダイナー（軽食堂）です。『ナイトホークス』は完成した1942年にシカゴ美術館が3000ドルで購入しました。店に出入り口が描かれていないことでも有名です。"},
+  {id:48, cat:C4, w:"railroad", cap:"The Museum of Modern Art (MoMA), New York (1925)", svg:["CITY LIFE","A House in the Movies","Alfred Hitchcock, 1960"], q:"Edward Hopper's 'House by the Railroad' (1925), in the Museum of Modern Art, inspired the spooky house in which Alfred Hitchcock film?", o:["Psycho","The Birds","Vertigo","Rear Window"], a:0, exp:"ヒッチコックの『サイコ』（1960年）に登場するベイツ家の屋敷のモデルになりました。MoMAのコレクションに最初に加わった絵画の一つです。"},
+  {id:49, cat:C4, w:"diana", cap:"Philadelphia Museum of Art (1892–93)", svg:["SCULPTURE","Where Did She Stand?","A Golden Weathervane"], q:"Augustus Saint-Gaudens's golden statue 'Diana' is now in the Philadelphia Museum of Art. On top of which New York building did it once turn as a weathervane?", o:["The Empire State Building","Grand Central Terminal","The Flatiron Building","Madison Square Garden"], a:3, exp:"スタンフォード・ホワイト設計の2代目マディソン・スクエア・ガーデンの塔の上にありました。建物は1925年に取り壊されました。"},
+  {id:50, cat:C4, w:"allies", cap:"National Gallery of Art, Washington, D.C. (1917)", svg:["IMPRESSIONISM","Which Street?","Flags of the U.S., Britain and France"], q:"Childe Hassam's 'Allies Day, May 1917' shows flags flying after the United States entered World War I. Which famous New York street is it?", o:["Wall Street","Broadway","Fifth Avenue","Park Avenue"], a:2, exp:"ニューヨークの五番街（フィフス・アベニュー）です。ハッサムは第一次世界大戦のころ、旗で飾られた五番街を約30点描きました。"}
+];
+
+/* ---------- 画像の取得（英語版Wikipediaの記事の代表画像を記事名から自動取得） ---------- */
+const WIKI_API = "https://en.wikipedia.org/w/api.php";
+const IMG_STORE_KEY = "ab-art-images-v1";
+let IMG_URL = {};
+try { IMG_URL = JSON.parse(localStorage.getItem(IMG_STORE_KEY) || "{}") || {}; } catch (e) { IMG_URL = {}; }
+let imgState = "idle"; // idle | loading | done
+function saveImgCache() { try { localStorage.setItem(IMG_STORE_KEY, JSON.stringify(IMG_URL)); } catch (e) {} }
+function wikiLink(w) { return "https://en.wikipedia.org/wiki/" + encodeURIComponent(w.wiki.replace(/ /g, "_")); }
+
+async function fetchByTitles(list) {
+  const titles = list.map(w => w.wiki).join("|");
+  const url = `${WIKI_API}?action=query&redirects=1&prop=pageimages&piprop=thumbnail&pithumbsize=640&pilimit=50&format=json&origin=*&titles=${encodeURIComponent(titles)}`;
+  const res = await fetch(url);
+  if (!res.ok) return;
+  const data = await res.json();
+  const q = data.query || {};
+  const norm = new Map((q.normalized || []).map(x => [x.from, x.to]));
+  const redir = new Map((q.redirects || []).map(x => [x.from, x.to]));
+  const byTitle = new Map(Object.values(q.pages || {}).map(p => [p.title, p]));
+  list.forEach(w => {
+    let t = w.wiki;
+    t = norm.get(t) || t;
+    t = redir.get(t) || t;
+    const pg = byTitle.get(t);
+    if (pg && pg.thumbnail && pg.thumbnail.source) IMG_URL[w.k] = pg.thumbnail.source;
+  });
+}
+
+async function fetchBySearch(w) {
+  const term = `${w.en} ${ARTISTS[w.artist].en}`;
+  const url = `${WIKI_API}?action=query&generator=search&gsrsearch=${encodeURIComponent(term)}&gsrlimit=1&prop=pageimages&piprop=thumbnail&pithumbsize=640&format=json&origin=*`;
+  const res = await fetch(url);
+  if (!res.ok) return;
+  const data = await res.json();
+  const pg = Object.values((data.query || {}).pages || {})[0];
+  if (pg && pg.thumbnail && pg.thumbnail.source) IMG_URL[w.k] = pg.thumbnail.source;
+}
+
+async function resolveImages() {
+  if (imgState === "loading") return;
+  let missing = WORKS.filter(w => !IMG_URL[w.k]);
+  if (!missing.length) { imgState = "done"; refreshImages(); return; }
+  imgState = "loading"; refreshImages();
+  for (let i = 0; i < missing.length; i += 20) {
+    try { await fetchByTitles(missing.slice(i, i + 20)); } catch (e) {}
+    refreshImages();
+  }
+  missing = WORKS.filter(w => !IMG_URL[w.k]);
+  for (const w of missing) {
+    try { await fetchBySearch(w); } catch (e) {}
+  }
+  imgState = "done";
+  saveImgCache();
+  refreshImages();
+}
+
+function reloadImages() {
+  IMG_URL = {};
+  saveImgCache();
+  imgState = "idle";
+  resolveImages();
+}
+
+function onImgError(key) {
+  if (IMG_URL[key]) { delete IMG_URL[key]; saveImgCache(); }
+  refreshImages();
+}
+
+function imgStatusText() {
+  const n = WORKS.filter(w => IMG_URL[w.k]).length;
+  if (imgState === "loading") return `Wikipediaから作品画像を取得しています…（${n} / ${WORKS.length}）`;
+  if (n === WORKS.length) return "";
+  return `画像を取得できた作品: ${n} / ${WORKS.length}（インターネットに接続して「画像を再取得」を押してください）`;
+}
+
+/* ENGINE */
+
+// ギャラリーの展示ラベル風SVGカード（画像が出ないときもヒントになる図解）
+function buildSvgCard(labelTop, mainText, subText, accentColor = "#2e5a36") {
+  return `<svg viewBox="0 0 290 165" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+    <rect x="6" y="6" width="278" height="153" rx="8" fill="#f7f3e8" stroke="#b08d3c" stroke-width="5"/>
+    <rect x="15" y="15" width="260" height="135" rx="3" fill="#fffdf7" stroke="#b08d3c" stroke-width="1.2"/>
+    <rect x="15" y="15" width="260" height="26" rx="3" fill="${accentColor}"/>
+    <text x="145" y="33" font-size="11" font-weight="800" fill="#ffffff" text-anchor="middle" letter-spacing="1.6">${labelTop}</text>
+    <text x="145" y="84" font-size="15" font-weight="800" fill="#0f172a" text-anchor="middle">${mainText}</text>
+    <line x1="95" y1="96" x2="195" y2="96" stroke="#b08d3c" stroke-width="1.2"/>
+    <text x="145" y="116" font-size="10.5" font-weight="600" fill="#334155" text-anchor="middle">${subText}</text>
+    <text x="145" y="140" font-size="9" font-weight="700" fill="#b08d3c" text-anchor="middle" letter-spacing="1.2">AMERICAN ART • VISUAL QUIZ</text>
+  </svg>`;
+}
+
+let activePool = [];
+let currentIndex = 0;
+let userAnswers = {};
+let wrongIds = new Set();
+let isMockMode = false;
+let autoSpeak = false;
+let blindMode = false;
+let galleryOpen = false;
+
+function artistLabel(a) { return `${a.ja}（${a.en}）`; }
+
+function setupGalleryFilters() {
+  const sel = document.getElementById('artistFilter');
+  sel.innerHTML = '<option value="ALL">すべての作家（50作品）</option>';
+  Object.entries(ARTISTS).forEach(([key, a]) => {
+    const n = WORKS.filter(w => w.artist === key).length;
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = `${a.ja}（${n}作品）`;
+    sel.appendChild(opt);
+  });
+  document.getElementById('artistHeading').textContent = `👤 作家一覧（${Object.keys(ARTISTS).length}人）`;
+}
+
+function renderGallery() {
+  const artistKey = document.getElementById('artistFilter').value;
+  const cat = document.getElementById('catFilter').value;
+  const grid = document.getElementById('galleryGrid');
+  grid.innerHTML = '';
+  WORKS.filter(w => (artistKey === 'ALL' || w.artist === artistKey) && (cat === 'ALL' || w.cat === cat)).forEach(w => {
+    const a = ARTISTS[w.artist];
+    const card = document.createElement('div');
+    card.className = 'gallery-item';
+    card.innerHTML = `
+      <img data-k="${w.k}" alt="${w.ja}" loading="lazy" style="display:none;">
+      <div class="noimg" data-noimg="${w.k}"></div>
+      <h4>『${w.ja}』</h4>
+      <div class="en">${w.en}</div>
+      <div class="meta"><b>作家</b>：${artistLabel(a)}<br><b>制作</b>：${w.year}<br><b>所蔵</b>：${w.museum}</div>
+      <p><strong>何を描いている？</strong> ${w.motif}</p>
+      <div class="src"><a href="${wikiLink(w)}" target="_blank" rel="noopener">Wikipedia（英語）で見る</a></div>
+    `;
+    grid.appendChild(card);
+  });
+  if (!grid.children.length) grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:#64748b;">この条件に合う作品はありません。</p>';
+  refreshImages();
+}
+
+function renderArtists() {
+  const tbody = document.getElementById('artistRows');
+  tbody.innerHTML = '';
+  Object.entries(ARTISTS).forEach(([key, a]) => {
+    const tr = document.createElement('tr');
+    const works = WORKS.filter(w => w.artist === key);
+    tr.innerHTML = `<td><strong>${a.ja}</strong><span class="en">${a.en}</span></td><td style="white-space:nowrap;">${a.life}</td><td>${a.bio}</td><td></td>`;
+    works.forEach(w => {
+      const chip = document.createElement('button');
+      chip.className = 'work-chip';
+      chip.textContent = w.ja;
+      chip.onclick = () => showArtistWorks(key);
+      tr.lastElementChild.appendChild(chip);
+    });
+    tbody.appendChild(tr);
+  });
+}
+
+function showArtistWorks(key) {
+  document.getElementById('artistFilter').value = key;
+  document.getElementById('catFilter').value = 'ALL';
+  renderGallery();
+  document.getElementById('galleryArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// 画像の表示を最新の取得状況に合わせて更新（クイズ画面と図鑑の両方）
+function refreshImages() {
+  if (typeof document === 'undefined') return;
+  document.querySelectorAll('img[data-k]').forEach(img => {
+    const key = img.getAttribute('data-k');
+    const url = IMG_URL[key];
+    const note = document.querySelector(`[data-noimg="${key}"]`);
+    if (url) {
+      if (img.getAttribute('src') !== url) { img.onerror = () => onImgError(key); img.src = url; }
+      img.style.display = 'block';
+      if (note) note.style.display = 'none';
+    } else {
+      img.style.display = 'none';
+      if (note) { note.style.display = 'flex'; note.textContent = imgState === 'loading' ? '画像を読み込み中…' : '画像を取得できませんでした'; }
+    }
+  });
+  const q = activePool[currentIndex];
+  if (q) {
+    const imgEl = document.getElementById('qImage');
+    const note = document.getElementById('imgFallbackNote');
+    const url = IMG_URL[q.w];
+    if (url) {
+      if (imgEl.getAttribute('src') !== url) { imgEl.onerror = () => onImgError(q.w); imgEl.src = url; }
+      imgEl.style.display = 'block';
+      note.style.display = 'none';
+    } else {
+      imgEl.style.display = 'none';
+      imgEl.removeAttribute('src');
+      note.style.display = 'block';
+      note.textContent = imgState === 'loading' ? '（作品画像を読み込み中…）' : '（オフライン環境のため右側のビジュアル図解を表示中）';
+    }
+  }
+  const st = document.getElementById('imgStatus');
+  if (st) st.textContent = imgStatusText();
+}
+
+function toggleGallery() {
+  galleryOpen = !galleryOpen;
+  document.getElementById('galleryArea').style.display = galleryOpen ? 'block' : 'none';
+  document.getElementById('quizArea').style.display = galleryOpen ? 'none' : 'block';
+  document.getElementById('resultArea').style.display = 'none';
+  if (galleryOpen) {
+    stopSpeech();
+    renderGallery();
+    renderArtists();
+  }
+}
+
+function getEnglishVoice() {
+  if (!('speechSynthesis' in window)) return null;
+  const voices = window.speechSynthesis.getVoices();
+  return voices.find(v => v.lang === 'en-US' && v.name.includes('Natural'))
+      || voices.find(v => v.lang === 'en-US')
+      || voices.find(v => v.lang.startsWith('en'))
+      || null;
+}
+
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => getEnglishVoice();
+}
+
+function stopSpeech() {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+  }
+}
+
+function speakCurrentQuestion(includeOptions = false) {
+  if (!('speechSynthesis' in window) || !activePool[currentIndex]) return;
+  stopSpeech();
+  const q = activePool[currentIndex];
+  let text = `Question ${currentIndex + 1}. ${q.q}`;
+  if (includeOptions) {
+    const labels = ['A', 'B', 'C', 'D'];
+    const optsText = q.o.map((opt, i) => `Option ${labels[i]}: ${opt}.`).join(' ');
+    text += ` ... ${optsText}`;
+  }
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'en-US';
+  const voice = getEnglishVoice();
+  if (voice) utter.voice = voice;
+  utter.rate = parseFloat(document.getElementById('rateSelect').value) || 1.0;
+  window.speechSynthesis.speak(utter);
+}
+
+function toggleAutoSpeak() {
+  autoSpeak = !autoSpeak;
+  const btn = document.getElementById('autoSpeakBtn');
+  btn.textContent = `自動読み上げ: ${autoSpeak ? 'ON' : 'OFF'}`;
+  btn.classList.toggle('active-toggle', autoSpeak);
+  if (autoSpeak) speakCurrentQuestion(false);
+}
+
+function toggleBlindMode() {
+  blindMode = !blindMode;
+  const btn = document.getElementById('blindModeBtn');
+  btn.textContent = `🙈 リスニング専念: ${blindMode ? 'ON' : 'OFF'}`;
+  btn.classList.toggle('active-toggle', blindMode);
+  renderQuestion(false);
+}
+
+function initPool(list, mock = false) {
+  stopSpeech();
+  galleryOpen = false;
+  document.getElementById('galleryArea').style.display = 'none';
+  activePool = list.map((item, idx) => ({
+    ...item,
+    isBonus: mock && idx >= 25
+  }));
+  currentIndex = 0;
+  userAnswers = {};
+  isMockMode = mock;
+  document.getElementById('quizArea').style.display = 'block';
+  document.getElementById('resultArea').style.display = 'none';
+  renderQuestion(true);
+}
+
+function startCategoryMode() {
+  const cat = document.getElementById('catSelect').value;
+  const filtered = cat === 'ALL' ? [...QUIZ_DATA] : QUIZ_DATA.filter(q => q.cat === cat);
+  initPool(filtered, false);
+}
+
+function startShuffleAll() {
+  const shuffled = [...QUIZ_DATA].sort(() => Math.random() - 0.5);
+  initPool(shuffled, false);
+}
+
+function startMockExam() {
+  const shuffled = [...QUIZ_DATA].sort(() => Math.random() - 0.5).slice(0, 30);
+  initPool(shuffled, true);
+}
+
+function startRetryWrong() {
+  if (wrongIds.size === 0) return;
+  const retryList = QUIZ_DATA.filter(q => wrongIds.has(q.id));
+  initPool(retryList, false);
+}
+
+function calcScore() {
+  let pts = 0, maxPts = 0;
+  activePool.forEach((q, idx) => {
+    const w = q.isBonus ? 3 : 1;
+    maxPts += w;
+    if (userAnswers[idx] === q.a) pts += w;
+  });
+  return { pts, maxPts };
+}
+
+function renderQuestion(triggerAudio = false) {
+  const q = activePool[currentIndex];
+  const work = WORK_BY_KEY[q.w];
+  const answered = userAnswers[currentIndex] !== undefined;
+  document.getElementById('qProgress').textContent = `Q ${currentIndex + 1} / ${activePool.length} (#${q.id})`;
+  document.getElementById('qCat').textContent = q.cat;
+  document.getElementById('qBonus').style.display = q.isBonus ? 'inline-block' : 'none';
+  const sc = calcScore();
+  document.getElementById('scoreDisplay').textContent = `Score: ${sc.pts} / ${sc.maxPts}`;
+
+  // Set image & SVG diagram（解答後は作品名・作家・所蔵先をキャプションに表示）
+  document.getElementById('qImage').alt = answered ? work.en : 'Artwork Visual';
+  document.getElementById('qCaption').textContent = answered
+    ? `『${work.ja}』 ${ARTISTS[work.artist].ja}（${work.year}）／${work.museum}`
+    : q.cap;
+  refreshImages();
+
+  const [lblTop, mainTxt, subTxt] = q.svg;
+  const col = q.cat === C1 ? "#7f1d1d" : (q.cat === C2 ? "#2e5a36" : (q.cat === C3 ? "#0a2540" : "#b45309"));
+  document.getElementById('svgContainer').innerHTML = buildSvgCard(lblTop, mainTxt, subTxt, col);
+
+  const qBox = document.getElementById('questionText');
+  if (blindMode && !answered) {
+    qBox.className = 'question-box blind';
+    qBox.textContent = '🎧 リスニング専念モード中（上の画像ヒントを見ながら音声を聞き、回答すると英文が表示されます）';
+  } else {
+    qBox.className = 'question-box';
+    qBox.textContent = q.q;
+  }
+
+  const container = document.getElementById('optionsContainer');
+  container.innerHTML = '';
+
+  ['A', 'B', 'C', 'D'].forEach((label, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.textContent = `(${label}) ${q.o[idx]}`;
+    if (answered) {
+      btn.disabled = true;
+      if (idx === q.a) btn.classList.add('correct');
+      else if (idx === userAnswers[currentIndex]) btn.classList.add('wrong');
+    } else {
+      btn.onclick = () => selectAnswer(idx);
+    }
+    container.appendChild(btn);
+  });
+
+  const fb = document.getElementById('feedbackBox');
+  if (answered) {
+    const isOk = userAnswers[currentIndex] === q.a;
+    fb.style.display = 'block';
+    fb.innerHTML = `<strong>${isOk ? '✅ Correct!' : '❌ Incorrect'}</strong> — 正解: (${['A','B','C','D'][q.a]}) ${q.o[q.a]}<br>${q.exp}`;
+  } else {
+    fb.style.display = 'none';
+  }
+
+  document.getElementById('prevBtn').disabled = currentIndex === 0;
+  document.getElementById('nextBtn').textContent = currentIndex === activePool.length - 1 ? '結果を見る →' : '次の問題 →';
+  document.getElementById('retryBtn').style.display = wrongIds.size > 0 ? 'inline-block' : 'none';
+
+  if (triggerAudio && autoSpeak) {
+    speakCurrentQuestion(false);
+  }
+}
+
+function selectAnswer(choiceIdx) {
+  const q = activePool[currentIndex];
+  userAnswers[currentIndex] = choiceIdx;
+  if (choiceIdx === q.a) wrongIds.delete(q.id);
+  else wrongIds.add(q.id);
+  renderQuestion(false);
+}
+
+function prevQuestion() {
+  if (currentIndex > 0) {
+    currentIndex--;
+    renderQuestion(true);
+  }
+}
+
+function nextQuestion() {
+  if (currentIndex < activePool.length - 1) {
+    currentIndex++;
+    renderQuestion(true);
+  } else {
+    stopSpeech();
+    showResult();
+  }
+}
+
+function showResult() {
+  document.getElementById('quizArea').style.display = 'none';
+  document.getElementById('resultArea').style.display = 'block';
+  const sc = calcScore();
+  const pct = Math.round((sc.pts / sc.maxPts) * 100);
+  document.getElementById('finalScore').textContent = `${sc.pts} / ${sc.maxPts} pts (${pct}%)`;
+  document.getElementById('finalComment').textContent = wrongIds.size > 0
+    ? `現在、復習リストに ${wrongIds.size} 問の要注意問題があります。`
+    : `素晴らしい成績です！すべての問題をクリアしました！`;
+  document.getElementById('retryBtnEnd').style.display = wrongIds.size > 0 ? 'inline-block' : 'none';
+}
+
+setupGalleryFilters();
+startCategoryMode();
+resolveImages();
+</script>
+</body>
+</html>
